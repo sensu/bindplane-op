@@ -61,6 +61,19 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: make install-ui
 
+  # Run shellcheck against scripts
+  shellcheck:
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          version: v0.8.0
+          scandir: './scripts'
+          severity: info
+          
   # Run go vet against Go code.
   vet:
     runs-on: "ubuntu-20.04"
