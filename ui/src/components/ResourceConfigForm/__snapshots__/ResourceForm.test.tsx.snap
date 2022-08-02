@@ -34,7 +34,24 @@ exports[`EnumParameter renders correctly 1`] = `
       onChange={[Function]}
       onFocus={[Function]}
       required={true}
-    />
+      value=""
+    >
+      <option
+        value="one"
+      >
+        one
+      </option>
+      <option
+        value="two"
+      >
+        two
+      </option>
+      <option
+        value="three"
+      >
+        three
+      </option>
+    </select>
     <svg
       aria-hidden={true}
       className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiNativeSelect-icon MuiNativeSelect-iconOutlined css-1g12qau-MuiSvgIcon-root-MuiNativeSelect-icon"
@@ -107,7 +124,24 @@ exports[`EnumParameter renders creatable enum correctly 1`] = `
       onChange={[Function]}
       onFocus={[Function]}
       required={true}
-    />
+      value=""
+    >
+      <option
+        value="one"
+      >
+        one
+      </option>
+      <option
+        value="two"
+      >
+        two
+      </option>
+      <option
+        value="three"
+      >
+        three
+      </option>
+    </select>
     <svg
       aria-hidden={true}
       className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiNativeSelect-icon MuiNativeSelect-iconOutlined css-1g12qau-MuiSvgIcon-root-MuiNativeSelect-icon"

@@ -1,20 +1,21 @@
-import { ApolloProvider } from "@apollo/client";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import nock from "nock";
 import { SnackbarProvider } from "notistack";
 import { MemoryRouter } from "react-router-dom";
 import { AssistedConfigWizard } from ".";
-import APOLLO_CLIENT from "../../../../apollo-client";
 import {
   SourceTypesQuery,
   ParameterType,
   DestinationsAndTypesQuery,
+  SourceTypesDocument,
+  DestinationsAndTypesDocument,
 } from "../../../../graphql/generated";
 import {
   APIVersion,
   Resource,
   UpdateStatus,
 } from "../../../../types/resources";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 
 const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
   __typename: "SourceType",
@@ -43,7 +44,9 @@ const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
         required: false,
         validValues: null,
         relevantIf: null,
-        options: {},
+        options: {
+          creatable: null,
+        },
       },
       {
         __typename: "ParameterDefinition",
@@ -55,7 +58,9 @@ const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
         required: false,
         validValues: null,
         relevantIf: null,
-        options: {},
+        options: {
+          creatable: null,
+        },
       },
     ],
     telemetryTypes: [],
@@ -89,7 +94,9 @@ const dummyDestinationType: DestinationsAndTypesQuery["destinationTypes"][0] = {
         required: false,
         validValues: null,
         relevantIf: null,
-        options: {},
+        options: {
+          creatable: null,
+        },
       },
       {
         __typename: "ParameterDefinition",
@@ -101,7 +108,9 @@ const dummyDestinationType: DestinationsAndTypesQuery["destinationTypes"][0] = {
         required: false,
         validValues: null,
         relevantIf: null,
-        options: {},
+        options: {
+          creatable: null,
+        },
       },
     ],
     telemetryTypes: [],
@@ -117,45 +126,33 @@ const destinationTypesQuery: DestinationsAndTypesQuery = {
   destinations: [],
 };
 
-beforeEach(() => {
-  nock("http://localhost:80")
-    .post("/v1/graphql", (body) => {
-      return body.operationName === "sourceTypes";
-    })
-    .once()
-    .reply(200, {
-      data: sourceTypesQuery,
-    });
-
-  const gqlscope = nock("http://localhost")
-    .post("/v1/graphql", (body) => {
-      return body.operationName === "DestinationsAndTypes";
-    })
-    .once()
-    .reply(200, {
-      data: destinationTypesQuery,
-    });
-
-  gqlscope
-    .post("/v1/graphql", (body) => {
-      return body.operationName === "getConfigNames";
-    })
-    .once()
-    .reply(200, {
-      data: {
-        configurations: [],
-      },
-    });
-});
+const mocks: MockedResponse<Record<string, any>>[] = [
+  {
+    request: {
+      query: SourceTypesDocument,
+    },
+    result: () => {
+      return { data: sourceTypesQuery };
+    },
+  },
+  {
+    request: {
+      query: DestinationsAndTypesDocument,
+    },
+    result: () => {
+      return { data: destinationTypesQuery };
+    },
+  },
+];
 
 describe("AssistedConfigWizard", () => {
   it("requires name and platform to go to step 2", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <AssistedConfigWizard />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     // Hit next with no form values
@@ -169,11 +166,11 @@ describe("AssistedConfigWizard", () => {
 
   it("can navigate to step two", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <AssistedConfigWizard />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepTwo("test");
@@ -182,11 +179,11 @@ describe("AssistedConfigWizard", () => {
 
   it("can add a source via the ResourceDialog", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <AssistedConfigWizard />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepTwo("test");
@@ -212,11 +209,11 @@ describe("AssistedConfigWizard", () => {
 
   it("can delete a source", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <AssistedConfigWizard />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepTwo("test");
@@ -252,11 +249,11 @@ describe("AssistedConfigWizard", () => {
 
   it("can add a destination via the ResourceDialog", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <AssistedConfigWizard />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepThree("test");
@@ -279,11 +276,11 @@ describe("AssistedConfigWizard", () => {
 
   it("can remove a destination", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <AssistedConfigWizard />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepThree("test");
@@ -320,18 +317,19 @@ describe("AssistedConfigWizard", () => {
 
   it("can edit a destination", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={mocks}>
         <MemoryRouter>
           <SnackbarProvider>
             <AssistedConfigWizard />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
     const configName = "this-is-the-config-name";
 
     let postData: any;
     let applyDone = false;
+
     // Track the save payload
     nock("http://localhost")
       .post("/v1/apply", (body) => {

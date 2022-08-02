@@ -442,6 +442,7 @@ describe("EnumParameter", () => {
       type: ParameterType.Enum,
       default: "",
       name: "yaml_type_param",
+      validValues: ["one", "two", "three"],
       options: {},
     };
 
@@ -456,6 +457,7 @@ describe("EnumParameter", () => {
       description: "description",
       type: ParameterType.Enum,
       name: "yaml_type_param",
+      validValues: ["one", "two", "three"],
       options: {},
     };
 
