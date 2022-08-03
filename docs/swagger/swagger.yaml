@@ -249,6 +249,8 @@ definitions:
         type: string
       name:
         type: string
+      options:
+        $ref: '#/definitions/model.ParameterOptions'
       relevantIf:
         items:
           $ref: '#/definitions/model.RelevantIfCondition'
@@ -263,6 +265,14 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  model.ParameterOptions:
+    properties:
+      creatable:
+        description: |-
+          Creatable will modify the "enum" parameter from a select to
+          a creatable select where a user can specify a custom value
+        type: boolean
     type: object
   model.ParameterizedSpec:
     properties:

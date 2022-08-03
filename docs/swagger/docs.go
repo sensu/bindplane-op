@@ -1628,6 +1628,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "options": {
+                    "$ref": "#/definitions/model.ParameterOptions"
+                },
                 "relevantIf": {
                     "type": "array",
                     "items": {
@@ -1647,6 +1650,15 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "model.ParameterOptions": {
+            "type": "object",
+            "properties": {
+                "creatable": {
+                    "description": "Creatable will modify the \"enum\" parameter from a select to\na creatable select where a user can specify a custom value",
+                    "type": "boolean"
                 }
             }
         },
