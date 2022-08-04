@@ -79,3 +79,4 @@ spec:
               - prefix: hbase
               - prefix: sqlserver
               - prefix: kafka
+              - prefix: couchbase
