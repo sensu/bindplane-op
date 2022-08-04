@@ -317,6 +317,50 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
       );
     }
 
+    // Special handling for enter key in Key fields
+    function handleKeyFieldEnter(
+      e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+      rowIndex: number
+    ) {
+      if (e.key !== "Enter") {
+        return;
+      }
+
+      e.preventDefault();
+
+      // go to the next input
+      const nextInput = document.querySelector(
+        `#${definition.name}-input-${rowIndex * 2 + 1}`
+      );
+
+      if (nextInput != null) {
+        (nextInput as HTMLElement).focus();
+      }
+    }
+
+    // Special handling for enter key on Value fields
+    function handleValueFieldEnter(
+      e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+      rowIndex: number
+    ) {
+      if (e.key !== "Enter") {
+        return;
+      }
+
+      e.preventDefault();
+
+      // try to find the next input
+      const nextInput = document.querySelector(
+        `#${definition.name}-input-${rowIndex * 2 + 2}`
+      );
+
+      if (nextInput != null) {
+        (nextInput as HTMLElement).focus();
+      } else {
+        setControlValue((prev) => addRow(prev));
+      }
+    }
+
     return (
       <>
         <label aria-required={definition.required} htmlFor={definition.name}>
@@ -356,6 +400,8 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
                 spacing={1}
               >
                 <OutlinedInput
+                  autoFocus={rowIndex === controlValue.length - 1}
+                  id={`${definition.name}-input-${rowIndex * 2}`}
                   key={`${definition.name}-${rowIndex}-0-input`}
                   data-testid={`${definition.name}-${rowIndex}-0-input`}
                   size="small"
@@ -363,9 +409,11 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
                   value={k}
                   onChange={(e) => onChangeInput(e, rowIndex, 0)}
                   onBlur={handleBlur}
+                  onKeyDown={(e) => handleKeyFieldEnter(e, rowIndex)}
                 />
 
                 <OutlinedInput
+                  id={`${definition.name}-input-${rowIndex * 2 + 1}`}
                   key={`${definition.name}-${rowIndex}-1-input`}
                   data-testid={`${definition.name}-${rowIndex}-1-input`}
                   size="small"
@@ -373,6 +421,7 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
                   value={v}
                   onChange={(e) => onChangeInput(e, rowIndex, 1)}
                   onBlur={handleBlur}
+                  onKeyDown={(e) => handleValueFieldEnter(e, rowIndex)}
                 />
 
                 <IconButton
@@ -386,7 +435,6 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
                     width={18}
                   />
                 </IconButton>
-                {/* </Grid> */}
               </Stack>
             );
           })}

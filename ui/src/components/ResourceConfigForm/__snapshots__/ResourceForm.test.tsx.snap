@@ -420,11 +420,14 @@ Array [
         onClick={[Function]}
       >
         <input
+          autoFocus={true}
           className="MuiOutlinedInput-input MuiInputBase-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+          id="map_type_param-input-0"
           onAnimationStart={[Function]}
           onBlur={[Function]}
           onChange={[Function]}
           onFocus={[Function]}
+          onKeyDown={[Function]}
           type="text"
           value=""
         />
@@ -450,10 +453,12 @@ Array [
       >
         <input
           className="MuiOutlinedInput-input MuiInputBase-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+          id="map_type_param-input-1"
           onAnimationStart={[Function]}
           onBlur={[Function]}
           onChange={[Function]}
           onFocus={[Function]}
+          onKeyDown={[Function]}
           type="text"
           value=""
         />
