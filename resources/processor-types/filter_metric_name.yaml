@@ -1,0 +1,44 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: ProcessorType
+metadata:
+  name: filter_metric_name
+  displayName: Metric Name Filter
+  description: Include or exclude metrics based on metric name matching.
+spec:
+  version: 0.0.1
+  parameters:
+    - name: action
+      label: Action
+      description: Whether to include or exclude matches. When set to include, anything that does not match is filtered.
+      type: enum
+      validValues:
+        - include
+        - exclude
+      default: exclude
+
+    - name: match_type
+      label: Match Type
+      description: Method for matching values. Strict matching requires that 'value' be an exact match. Regexp matching uses 're2' to match a value.
+      type: enum
+      validValues:
+        - strict
+        - regexp
+      default: strict
+
+    - name: metric_names
+      label: Metrics
+      description: List of metric names to match against. All matches are filtered.
+      type: strings
+      required: true
+
+  metrics:
+    processors: |
+      - filter:
+          metrics:
+            {{ .action }}:
+              match_type: {{ .match_type }}
+              metric_names:
+                {{ range $name := .metric_names }}
+                - {{ $name }}
+                {{ end }}
+
