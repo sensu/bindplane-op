@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/hashicorp/go-multierror"
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 
@@ -128,6 +129,7 @@ type BindPlane interface {
 	DeleteConfiguration(ctx context.Context, name string) error
 	// RawConfiguration TODO(doc)
 	RawConfiguration(ctx context.Context, name string) (string, error)
+	CopyConfig(ctx context.Context, name, copyName string) error
 
 	Sources(ctx context.Context) ([]*model.Source, error)
 	Source(ctx context.Context, name string) (*model.Source, error)
@@ -544,6 +546,49 @@ func (c *bindplaneClient) ApplyAgentLabels(ctx context.Context, id string, label
 	}
 
 	return response.Labels, err
+}
+
+// ----------------------------------------------------------------------
+
+func (c *bindplaneClient) CopyConfig(ctx context.Context, name, copyName string) error {
+	payload := model.PostCopyConfigRequest{
+		Name: copyName,
+	}
+
+	endpoint := fmt.Sprintf("/configurations/%s/copy", name)
+
+	resp, err := c.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(payload).
+		Post(endpoint)
+
+	if err != nil {
+		return err
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusCreated:
+		return nil
+	case http.StatusConflict:
+		return fmt.Errorf("a configuration with name '%s' already exists", copyName)
+	default:
+		err := &multierror.Error{}
+		multierror.Append(err, fmt.Errorf("failed to copy configuration, got status %v", resp.StatusCode()))
+
+		// check for errors field in response
+		errResponse := &model.ErrorResponse{}
+		if err := json.Unmarshal(resp.Body(), errResponse); err != nil {
+			c.Logger.Error("failed to unmarshal error response when copying config", zap.Error(err))
+		}
+
+		if len(errResponse.Errors) > 0 {
+			for _, e := range errResponse.Errors {
+				multierror.Append(err, errors.New(e))
+			}
+		}
+
+		return err.ErrorOrNil()
+	}
 }
 
 // ----------------------------------------------------------------------

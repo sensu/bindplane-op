@@ -21,6 +21,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hashicorp/go-multierror"
 	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 
@@ -522,15 +523,35 @@ func copyConfig(c *gin.Context, bindplane server.BindPlane) {
 
 	duplicateConfig = config.Duplicate(duplicateName)
 
-	_, err = bindplane.Store().ApplyResources([]model.Resource{duplicateConfig})
+	updates, err := bindplane.Store().ApplyResources([]model.Resource{duplicateConfig})
 	if err != nil {
 		handleErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, &model.PostCopyConfigResponse{
-		Name: duplicateName,
-	})
+	// Verify we got status created
+	update := &model.ResourceStatus{}
+	for _, u := range updates {
+		if u.Resource.Name() == duplicateName {
+			*update = u
+			break
+		}
+	}
+
+	if update.Status == model.StatusCreated {
+		c.JSON(http.StatusCreated, model.PostCopyConfigResponse{
+			Name: update.Resource.Name(),
+		})
+		return
+	}
+
+	errs := &multierror.Error{}
+	multierror.Append(errs, fmt.Errorf("failed to apply copied configuration, got status %s", update.Status))
+
+	if update.Reason != "" {
+		multierror.Append(errs, errors.New(update.Reason))
+	}
+	handleErrorResponse(c, http.StatusBadRequest, errs.ErrorOrNil())
 }
 
 // ----------------------------------------------------------------------

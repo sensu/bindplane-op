@@ -15,11 +15,16 @@
 package client
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/observiq/bindplane-op/common"
+	"github.com/observiq/bindplane-op/model"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
@@ -296,4 +301,78 @@ func TestNewBindPlane(t *testing.T) {
 			require.Equal(t, base, out.(*bindplaneClient).client.BaseURL)
 		})
 	}
+}
+
+func TestCopyConfig(t *testing.T) {
+	configName, copyName := "my-config", "my-config-copy"
+
+	testCases := []struct {
+		description    string
+		expectError    bool
+		errMsg         string
+		responseStatus int
+	}{
+		{
+			"201 Created, no error",
+			false,
+			"",
+			201,
+		},
+		{
+			"409 Conflict, error",
+			true,
+			"a configuration with name 'my-config-copy' already exists",
+			409,
+		},
+		{
+			"409 Conflict, error",
+			true,
+			"1 error occurred:\n\t* failed to copy configuration, got status 400\n\n",
+			400,
+		},
+	}
+
+	for _, test := range testCases {
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			// Verify the endpoint and method are expected
+			require.Equal(t, r.Method, "POST")
+			require.Equal(t, fmt.Sprintf("/configurations/%s/copy", configName), r.URL.Path)
+
+			payload := &model.PostCopyConfigRequest{}
+			err := json.NewDecoder(r.Body).Decode(payload)
+
+			// Verify the expected payload
+			require.NoError(t, err)
+			require.Equal(t, model.PostCopyConfigRequest{
+				Name: copyName,
+			}, *payload)
+
+			// Write the appropriate response status
+			w.WriteHeader(test.responseStatus)
+			return
+		}
+
+		url, closeFunc := newTestServer(
+			handler,
+		)
+		defer closeFunc()
+
+		bp, err := NewBindPlane(&common.Client{}, zap.NewNop())
+		require.NoError(t, err)
+
+		bp.(*bindplaneClient).client.SetBaseURL(url)
+
+		err = bp.CopyConfig(context.TODO(), "my-config", "my-config-copy")
+		if test.expectError {
+			require.Error(t, err)
+			require.Equal(t, test.errMsg, err.Error())
+		} else {
+			require.NoError(t, err)
+		}
+	}
+}
+
+func newTestServer(handler http.HandlerFunc) (url string, closeFunc func()) {
+	server := httptest.NewServer(handler)
+	return server.URL, func() { server.Close() }
 }

@@ -180,3 +180,8 @@ type PostCopyConfigRequest struct {
 
 // PostCopyConfigResponse is the REST API response to PUT /v1/configurations/{name}/copy
 type PostCopyConfigResponse = PostCopyConfigRequest
+
+// ErrorResponse is the expected response when receiving non 2xx status codes.
+type ErrorResponse struct {
+	Errors []string `json:"errors"`
+}
