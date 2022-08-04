@@ -4,7 +4,7 @@ metadata:
   name: windowsdhcp
   displayName: Windows DHCP Server
   icon: /icons/sources/windows.svg
-  description: Log collector for DHCP server
+  description: Collect logs from Windows DHCP Server.
 spec:
   version: 0.0.1
   supported_platforms:

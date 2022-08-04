@@ -4,7 +4,7 @@ metadata:
   name: elasticsearch
   displayName: Elasticsearch
   icon: /icons/sources/elasticsearch.svg
-  description: Elasticsearch metrics and logs
+  description: Collect metrics and logs from Elasticsearch.
 spec:
   version: 0.0.1
   supported_platforms:

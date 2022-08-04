@@ -4,7 +4,7 @@ metadata:
   name: udp
   displayName: UDP Logs
   icon: /icons/sources/network.svg
-  description: Receive logs over UDP
+  description: Receive logs from network devices via UDP.
 spec:
   version: 0.0.1
   supported_platforms:

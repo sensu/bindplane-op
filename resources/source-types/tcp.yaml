@@ -4,7 +4,7 @@ metadata:
   name: tcp
   displayName: TCP Logs
   icon: /icons/sources/network.svg
-  description: Receive logs over TCP
+  description: Receive logs from network devices via TCP.
 spec:
   version: 0.0.1
   supported_platforms:

@@ -4,7 +4,7 @@ metadata:
   name: couchbase
   displayName: Couchbase
   icon: /icons/sources/couchbase.svg
-  description: Collect metrics and logs from Couchbase
+  description: Collect metrics and logs from Couchbase.
 spec:
   version: 0.0.1
   supported_platforms:

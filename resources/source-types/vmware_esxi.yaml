@@ -4,7 +4,7 @@ metadata:
   name: vmware_esxi
   displayName: VMare ESXI
   icon: /icons/sources/vmware_esxi.svg
-  description: VMware ESXI syslog
+  description: Receive Syslog from ESXI.
 spec:
   version: 0.0.1
   supported_platforms:

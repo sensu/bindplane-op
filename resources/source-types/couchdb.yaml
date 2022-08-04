@@ -4,7 +4,7 @@ metadata:
   name: couchdb
   displayName: CouchDB
   icon: /icons/sources/couchdb.svg
-  description: CoudhDB metrics and logs
+  description: Collect metrics and logs from CouchDB.
 spec:
   version: 0.0.1
   supported_platforms:

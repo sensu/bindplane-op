@@ -4,7 +4,7 @@ metadata:
   name: postgresql
   displayName: PostgreSQL
   icon: /icons/sources/postgres.svg
-  description: Postgresql metrics and logs
+  description: Collect metrics and logs from Postgresql.
 spec:
   version: 0.0.1
   supported_platforms:

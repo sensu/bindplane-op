@@ -4,7 +4,7 @@ metadata:
   name: ciscocatalyst
   displayName: Cisco Catalyst
   icon: /icons/sources/cisco.svg
-  description: Cisco Catalyst syslog parser
+  description: Collect logs from Cisco Catalyst.
 spec:
   version: 0.0.1
   supported_platforms:

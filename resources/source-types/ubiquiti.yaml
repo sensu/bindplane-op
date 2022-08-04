@@ -4,7 +4,7 @@ metadata:
   name: ubiquiti
   displayName: Ubiquiti
   icon: /icons/sources/ubiquiti.svg
-  description: Ubiquiti syslog parser
+  description: Receive Syslog from Ubiquiti devices.
 spec:
   version: 0.0.1
   supported_platforms:

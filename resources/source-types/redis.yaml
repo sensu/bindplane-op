@@ -4,7 +4,7 @@ metadata:
   name: redis
   displayName: Redis
   icon: /icons/sources/redis.svg
-  description: Redis metrics and logs
+  description: Collect metrics and logs from Redis.
 spec:
   version: 0.0.1
   supported_platforms:

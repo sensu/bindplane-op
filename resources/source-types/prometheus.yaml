@@ -4,7 +4,7 @@ metadata:
   name: prometheus
   displayName: Prometheus
   icon: /icons/sources/prometheus.svg
-  description: Prometheus metrics scraper
+  description: Collect metrics from Prometheus exporters.
 spec:
   version: 0.0.1
   supported_platforms:

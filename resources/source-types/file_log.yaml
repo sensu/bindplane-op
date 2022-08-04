@@ -4,7 +4,7 @@ metadata:
   name: file
   displayName: File
   icon: /icons/sources/file.svg
-  description: Generic log file tailing
+  description: Collect logs from generic log files.
 spec:
   version: 0.0.1
   supported_platforms:

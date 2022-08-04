@@ -3,7 +3,7 @@ kind: SourceType
 metadata:
   name: kafka_cluster
   displayName: Kafka Cluster
-  description: Kafka cluster metrics scraper, collects metrics from Kafka brokers.
+  description: Collect cluster metrics from a Kafka cluster brokers.
   icon: /icons/sources/kafka.svg
 spec:
   version: 0.0.1

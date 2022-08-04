@@ -4,7 +4,7 @@ metadata:
   name: apache_combined
   displayName: Apache Combined
   icon: /icons/sources/apache_http.svg
-  description: Log parser for Apache combined format
+  description: Collect logs from Apache Combined formatted log files.
 spec:
   version: 0.0.1
   supported_platforms:

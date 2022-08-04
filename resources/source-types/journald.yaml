@@ -4,7 +4,7 @@ metadata:
   name: journald
   displayName: Journald
   icon: /icons/sources/journald.svg
-  description: Journald Logs
+  description: Collect logs from Journald.
 spec:
   version: 0.0.1
   supported_platforms:

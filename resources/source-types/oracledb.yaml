@@ -4,7 +4,7 @@ metadata:
   name: oracledb
   displayName: Oracle Database
   icon: /icons/sources/oracledb.svg
-  description: Log parsing for alert, audit, and listener logs.
+  description: Collect logs from Oracle Database.
 spec:
   version: 0.0.1
   supported_platforms:

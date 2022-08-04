@@ -4,7 +4,7 @@ metadata:
   name: hadoop
   displayName: Hadoop
   icon: /icons/sources/hadoop.svg
-  description: Apache Hadoop metrics and logs
+  description: Collect metrics and logs from Hadoop.
 spec:
   version: 0.0.1
   supported_platforms:

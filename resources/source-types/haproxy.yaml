@@ -4,7 +4,7 @@ metadata:
   name: haproxy
   displayName: HAProxy
   icon: /icons/sources/haproxy.svg
-  description: HAProxy log collector
+  description: Collect logs from Haproxy.
 spec:
   version: 0.0.1
   supported_platforms:

@@ -4,7 +4,7 @@ metadata:
   name: jboss
   displayName: Jboss
   icon: /icons/sources/jboss.svg
-  description: Apache Jboss logs
+  description: Collect logs from Jboss.
 spec:
   version: 0.0.1
   supported_platforms:

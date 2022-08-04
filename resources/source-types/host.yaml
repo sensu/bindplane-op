@@ -4,7 +4,7 @@ metadata:
   name: host
   displayName: Host
   icon: /icons/sources/host.svg
-  description: Host metrics
+  description: Collect metrics from the collector's host.
 spec:
   version: 0.0.1
   supported_platforms:

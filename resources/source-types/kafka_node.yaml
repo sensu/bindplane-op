@@ -4,7 +4,7 @@ metadata:
   name: kafka_node
   displayName: Kafka Node
   icon: /icons/sources/kafka.svg
-  description: Kafka node JMX metrics and logs
+  description: Collect metrics (JMX) and logs from Kafka nodes.
 spec:
   version: 0.0.1
   supported_platforms:

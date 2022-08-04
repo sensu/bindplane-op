@@ -4,7 +4,7 @@ metadata:
   name: apache_http
   displayName: Apache HTTP
   icon: /icons/sources/apache_http.svg
-  description: Apache HTTP metrics scraper and log collector
+  description: Collect metrics and logs from Apache HTTP server.
 spec:
   version: 0.0.1
   supported_platforms:

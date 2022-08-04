@@ -4,7 +4,7 @@ metadata:
   name: iis
   displayName: Microsoft IIS
   icon: /icons/sources/microsoft_iis.svg
-  description: Microsoft IIS metrics scraper and log collector
+  description: Collect metrics and logs from Microsoft IIS.
 spec:
   version: 0.0.1
   supported_platforms:

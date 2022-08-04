@@ -4,7 +4,7 @@ metadata:
   name: sqlserver
   displayName: Microsoft SQL Server
   icon: /icons/sources/sqlserver.svg
-  description: Microsoft SQL Server metrics and logs
+  description: Collect metrics and logs from Microsoft SQL Server.
 spec:
   version: 0.0.1
   supported_platforms:

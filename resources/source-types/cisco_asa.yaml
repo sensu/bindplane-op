@@ -4,7 +4,7 @@ metadata:
   name: ciscoasa
   displayName: Cisco ASA
   icon: /icons/sources/cisco.svg
-  description: Cisco ASA syslog parser
+  description: Collect logs from Cisco ASA.
 spec:
   version: 0.0.1
   supported_platforms:

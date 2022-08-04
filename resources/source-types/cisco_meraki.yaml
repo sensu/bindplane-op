@@ -4,7 +4,7 @@ metadata:
   name: ciscomeraki
   displayName: Cisco Meraki
   icon: /icons/sources/cisco_meraki.svg
-  description: Cisco Meraki syslog parser
+  description: Collect logs from Cisco Meraki.
 spec:
   version: 0.0.1
   supported_platforms:

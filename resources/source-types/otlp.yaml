@@ -4,7 +4,7 @@ metadata:
   name: otlp
   displayName: OpenTelemetry (OTLP)
   icon: /icons/destinations/otlp.svg
-  description: OpenTelemetry metrics, traces and logs
+  description: Receive metrics, logs, and traces from OTLP exporters.
 spec:
   version: 0.0.1
   supported_platforms:

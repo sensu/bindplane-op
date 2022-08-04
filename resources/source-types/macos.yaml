@@ -4,7 +4,7 @@ metadata:
   name: macOS
   displayName: macOS
   icon: /icons/sources/macos.svg
-  description: macOS metrics and logs
+  description: Collect metrics and logs from macOS.
 spec:
   version: 0.0.1
   supportedPlatforms:
