@@ -1,0 +1,50 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: ProcessorType
+metadata:
+  name: delete_attribute
+  displayName: Delete Attribute
+spec:
+  version: 0.0.1
+  parameters:
+    - name: attributes
+      label: Attribute Keys
+      type: strings
+      required: true
+
+    - name: telemetry_types
+      label: Enable Telemetry
+      type: enums
+      description: "Select which types of telemetry you'd like to enable this processor for."
+      validValues: ["Metrics", "Logs", "Traces"]
+      default: ["Metrics", "Logs", "Traces"]
+
+  metrics:
+    processors: |
+      {{ if has "Metrics" .telemetry_types }}
+      - attributes:
+          actions:
+            {{ range $k := .attributes }}
+            - key: '{{ $k }}'
+              action: delete
+            {{ end }}
+      {{ end }}
+  logs:
+    processors: |
+      {{ if has "Logs" .telemetry_types }}
+      - attributes:
+          actions:
+            {{ range $k := .attributes }}
+            - key: '{{ $k }}'
+              action: delete
+            {{ end }}
+      {{ end }}
+  traces:
+    processors: |
+      {{ if has "Traces" .telemetry_types }}
+      - attributes:
+          actions:
+            {{ range $k := .attributes }}
+            - key: '{{ $k }}'
+              action: delete
+            {{ end }}
+      {{ end }}

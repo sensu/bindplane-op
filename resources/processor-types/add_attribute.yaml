@@ -1,0 +1,63 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: ProcessorType
+metadata:
+  name: add_attribute
+  displayName: Add Attribute
+spec:
+  version: 0.0.1
+  parameters:
+    - name: action
+      label: Action
+      type: enum
+      description: "insert: Add attribute if it does not exist. update: Update existing value. upsert: Insert or update."
+      default: upsert
+      validValues:
+        - insert
+        - update
+        - upsert
+
+    - name: attributes
+      label: Attributes
+      type: map
+      required: true
+
+    - name: telemetry_types
+      label: Enable Telemetry
+      type: enums
+      description: "Select which types of telemetry you'd like to enable this processor for."
+      validValues: ["Metrics", "Logs", "Traces"]
+      default: ["Metrics", "Logs", "Traces"]
+
+  metrics:
+    processors: |
+      {{ if has "Metrics" .telemetry_types }}
+      - attributes:
+          actions:
+            {{ range $k, $v := .attributes }}
+            - key: '{{ $k }}'
+              value: {{ $v }}
+              action: upsert
+            {{ end }}
+      {{ end }}
+  logs:
+    processors: |
+      {{ if has "Logs" .telemetry_types }}
+      - attributes:
+          actions:
+            {{ range $k, $v := .attributes }}
+            - key: '{{ $k }}'
+              value: {{ $v }}
+              action: upsert
+            {{ end }}
+      {{ end }}
+  traces:
+    processors: |
+      {{ if has "Traces" .telemetry_types }}
+      - attributes:
+          actions:
+            {{ range $k, $v := .attributes }}
+            - key: '{{ $k }}'
+              value: {{ $v }}
+              action: upsert
+            {{ end }}
+      {{ end }}
