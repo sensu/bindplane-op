@@ -1,0 +1,40 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: apache_common
+  displayName: Apache Common
+  icon: /icons/sources/apache_common.svg
+  description: Log parser for Apache common format
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - linux
+    - windows
+    - macos
+  parameters:
+    - name: file_path
+      label: Access Log File Path(s)
+      description: Path to apache common formatted log file
+      type: strings
+      default: ["/var/log/apache2/access.log"]
+
+    - name: start_at
+      label: Start At
+      description: At startup, where to start reading logs from the file (`beginning` or `end`)
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      advancedConfig: true
+
+  logs:
+    receivers: |
+      - plugin:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/apache_common_logs.yaml
+          parameters:
+            start_at: {{ .start_at }}
+            file_path:
+              {{ range $fp := .file_path }}
+              - '{{ $fp }}'
+              {{ end }}
