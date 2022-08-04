@@ -440,6 +440,7 @@ export const StringsInput: React.FC<ParamInputProps<string[]>> = ({
   function handleValueChange(newValue: string[]) {
     onValueChange && onValueChange(newValue);
 
+    setInputValue("");
     setError(
       definition.name,
       validateStringsField(newValue, definition.required)
