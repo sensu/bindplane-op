@@ -1,0 +1,40 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: apache_combined
+  displayName: Apache Combined
+  icon: /icons/sources/apache_http.svg
+  description: Log parser for Apache combined format
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - linux
+    - windows
+    - macos
+  parameters:
+    - name: start_at
+      label: Start At
+      description: Start reading logs from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      advancedConfig: true
+
+    - name: file_path
+      label: Combined Log File Path(s)
+      description: Paths to Apache combined formatted log files
+      type: strings
+      default: ["/var/log/apache_combined.log"]
+
+  logs:
+    receivers: |
+      - plugin:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/apache_combined_logs.yaml
+          parameters:
+            start_at: {{ .start_at }}
+            file_path:
+              {{ range $fp := .file_path }}
+              - '{{ $fp }}'
+              {{ end }}
