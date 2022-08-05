@@ -1,0 +1,56 @@
+import { TextField } from "@mui/material";
+import { isFunction } from "lodash";
+import { ChangeEvent } from "react";
+import { validateNameField } from "../../../utils/forms/validate-name-field";
+import { useValidationContext } from "../ValidationContext";
+import { ParamInputProps } from "./ParameterInput";
+
+interface ResourceNameInputProps
+  extends Omit<ParamInputProps<string>, "definition"> {
+  existingNames?: string[];
+  kind: "source" | "destination" | "configuration" | "processor";
+}
+
+export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
+  classes,
+  value,
+  onValueChange,
+  existingNames,
+  kind,
+}) => {
+  const { errors, setError, touched, touch } = useValidationContext();
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (!isFunction(onValueChange)) {
+      return;
+    }
+
+    onValueChange(e.target.value);
+    const error = validateNameField(e.target.value, kind, existingNames);
+    setError("name", error);
+  }
+
+  return (
+    <TextField
+      classes={classes}
+      onBlur={() => touch("name")}
+      value={value}
+      onChange={handleChange}
+      inputProps={{
+        "data-testid": "name-field",
+      }}
+      error={errors.name != null && touched.name}
+      helperText={errors.name}
+      color={errors.name != null ? "error" : "primary"}
+      name={"name"}
+      fullWidth
+      size="small"
+      label={"Name"}
+      required
+      autoComplete="off"
+      autoCorrect="off"
+      autoCapitalize="off"
+      spellCheck="false"
+    />
+  );
+};

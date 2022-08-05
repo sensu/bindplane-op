@@ -177,6 +177,7 @@ export enum ParameterType {
   Map = 'map',
   String = 'string',
   Strings = 'strings',
+  Timezone = 'timezone',
   Yaml = 'yaml'
 }
 

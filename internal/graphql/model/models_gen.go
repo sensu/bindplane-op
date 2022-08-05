@@ -138,14 +138,15 @@ func (e EventType) MarshalGQL(w io.Writer) {
 type ParameterType string
 
 const (
-	ParameterTypeString  ParameterType = "string"
-	ParameterTypeStrings ParameterType = "strings"
-	ParameterTypeInt     ParameterType = "int"
-	ParameterTypeBool    ParameterType = "bool"
-	ParameterTypeEnum    ParameterType = "enum"
-	ParameterTypeEnums   ParameterType = "enums"
-	ParameterTypeMap     ParameterType = "map"
-	ParameterTypeYaml    ParameterType = "yaml"
+	ParameterTypeString   ParameterType = "string"
+	ParameterTypeStrings  ParameterType = "strings"
+	ParameterTypeInt      ParameterType = "int"
+	ParameterTypeBool     ParameterType = "bool"
+	ParameterTypeEnum     ParameterType = "enum"
+	ParameterTypeEnums    ParameterType = "enums"
+	ParameterTypeMap      ParameterType = "map"
+	ParameterTypeYaml     ParameterType = "yaml"
+	ParameterTypeTimezone ParameterType = "timezone"
 )
 
 var AllParameterType = []ParameterType{
@@ -157,11 +158,12 @@ var AllParameterType = []ParameterType{
 	ParameterTypeEnums,
 	ParameterTypeMap,
 	ParameterTypeYaml,
+	ParameterTypeTimezone,
 }
 
 func (e ParameterType) IsValid() bool {
 	switch e {
-	case ParameterTypeString, ParameterTypeStrings, ParameterTypeInt, ParameterTypeBool, ParameterTypeEnum, ParameterTypeEnums, ParameterTypeMap, ParameterTypeYaml:
+	case ParameterTypeString, ParameterTypeStrings, ParameterTypeInt, ParameterTypeBool, ParameterTypeEnum, ParameterTypeEnums, ParameterTypeMap, ParameterTypeYaml, ParameterTypeTimezone:
 		return true
 	}
 	return false

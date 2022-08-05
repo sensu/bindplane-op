@@ -97,6 +97,7 @@ func (r *parameterDefinitionResolver) Type(ctx context.Context, obj *model.Param
 	switch obj.Type {
 	case "strings":
 		return model1.ParameterTypeStrings, nil
+
 	case "string":
 		return model1.ParameterTypeString, nil
 
@@ -117,6 +118,9 @@ func (r *parameterDefinitionResolver) Type(ctx context.Context, obj *model.Param
 
 	case "enums":
 		return model1.ParameterTypeEnums, nil
+
+	case "timezone":
+		return model1.ParameterTypeTimezone, nil
 
 	default:
 		return "", errors.New("unknown parameter type")

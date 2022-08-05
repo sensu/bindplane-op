@@ -1,5 +1,5 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { StringParamInput, ParameterInput } from "./ParameterInput";
+import { ParameterInput, StringParamInput } from "./ParameterInput";
 import {
   stringDef,
   stringDefRequired,

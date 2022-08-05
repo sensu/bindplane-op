@@ -1528,6 +1528,7 @@ enum ParameterType {
   enums
   map
   yaml
+  timezone
 }
 
 type ParameterDefinition {

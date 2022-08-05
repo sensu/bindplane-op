@@ -27,14 +27,15 @@ import (
 )
 
 const (
-	stringType  = "string"
-	boolType    = "bool"
-	intType     = "int"
-	stringsType = "strings"
-	enumType    = "enum"
-	enumsType   = "enums"
-	yamlType    = "yaml"
-	mapType     = "map"
+	stringType   = "string"
+	boolType     = "bool"
+	intType      = "int"
+	stringsType  = "strings"
+	enumType     = "enum"
+	enumsType    = "enums"
+	yamlType     = "yaml"
+	mapType      = "map"
+	timezoneType = "timezone"
 )
 
 // ParameterDefinition is a basic description of a definition's parameter. This implementation comes directly from
@@ -124,7 +125,7 @@ func (p ParameterDefinition) validateType() error {
 		)
 	}
 	switch p.Type {
-	case stringType, intType, boolType, stringsType, enumType, enumsType, mapType, yamlType: // ok
+	case stringType, intType, boolType, stringsType, enumType, enumsType, mapType, yamlType, timezoneType: // ok
 	default:
 		return errors.NewError(
 			fmt.Sprintf("invalid type '%s' for '%s'", p.Type, p.Name),
@@ -205,6 +206,8 @@ func (p ParameterDefinition) validateValueType(fieldType parameterFieldType, val
 		return p.validateMapValue(fieldType, value)
 	case yamlType:
 		return p.validateYamlValue(fieldType, value)
+	case timezoneType:
+		return p.validateTimezoneType(fieldType, value)
 	default:
 		return errors.NewError(
 			"invalid type for parameter",
@@ -345,6 +348,23 @@ func (p ParameterDefinition) validateEnumsValue(fieldType parameterFieldType, va
 	}
 
 	return err.ErrorOrNil()
+}
+
+func (p ParameterDefinition) validateTimezoneType(fieldType parameterFieldType, value any) error {
+	tzErr := errors.NewError(fmt.Sprintf("invalid value for timezone for parameter %s", p.Name),
+		"ensure that the value is one of the possible timezone values found here: https://github.com/observIQ/observiq-otel-collector/blob/main/receiver/pluginreceiver/timezone.go",
+	)
+
+	str, ok := value.(string)
+	if !ok {
+		return tzErr
+	}
+
+	if !validation.IsTimezone(str) {
+		return tzErr
+	}
+
+	return nil
 }
 
 func (p ParameterDefinition) validateYamlValue(fieldType parameterFieldType, value any) error {

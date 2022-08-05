@@ -463,6 +463,30 @@ eleven:
 				"one", "seven",
 			},
 		},
+		{
+			"ValidTimezone",
+			false,
+			ParameterDefinition{
+				Type: "timezone",
+			},
+			"UTC",
+		},
+		{
+			"InvalidTimezone",
+			true,
+			ParameterDefinition{
+				Type: "timezone",
+			},
+			10,
+		},
+		{
+			"InvalidTimezoneValue",
+			true,
+			ParameterDefinition{
+				Type: "timezone",
+			},
+			"America/NewJersey",
+		},
 	}
 
 	for _, tc := range testCases {
