@@ -26,6 +26,7 @@ import (
 
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 	cors "github.com/itsjamie/gin-cors"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -61,6 +62,11 @@ func (s *Server) Start(bindplane *cli.BindPlane, h profile.Helper, forceConsoleC
 	err := s.ensureSecretKey(config, h)
 	if err != nil {
 		return err
+	}
+
+	// If session secret is not set, set it randomly at startup.
+	if config.SessionsSecret == "" {
+		config.SessionsSecret = uuid.NewString()
 	}
 
 	// initialize the store which stores bindplane resources
