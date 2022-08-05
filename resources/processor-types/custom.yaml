@@ -8,7 +8,7 @@ spec:
   parameters:
     - name: configuration
       label: Configuration
-      description: Enter any OpenTelemetry Processor and the YAML will be inserted into the configuration. Processor configuration documentation can be found here https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor.
+      description: Enter any OpenTelemetry Processor and the YAML will be inserted into the configuration. Processor configuration documentation can be found here https://github.com/observIQ/observiq-otel-collector/blob/main/docs/processors.md.
       type: yaml
       required: true
 
