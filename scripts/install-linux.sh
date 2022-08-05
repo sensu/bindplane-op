@@ -322,6 +322,22 @@ yum_install() {
     decrease_indent
 }
 
+zypper_install() {
+    banner "Installing package ${package_name}"
+    increase_indent
+
+    if [ -z "$package_file" ] ; then
+      url=$(download_url "rpm")
+      curl -fsSlL -o bindplane.rpm "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
+      package_file="./bindplane.rpm"
+    fi
+
+    sudo zypper --no-gpg-checks install -y "$package_file" || error_exit "$LINENO" "Failed to install BindPlane"
+
+    succeeded
+    decrease_indent
+}
+
 # run_service always enables and restarts BindPlane and is safe to
 # call after initial install or upgrade.
 run_service() {
@@ -345,6 +361,8 @@ install() {
         dnf_install
     elif command -v yum >/dev/null; then
         yum_install
+    elif command -v zypper >/dev/null; then
+        zypper_install
     fi
 
     run_service
