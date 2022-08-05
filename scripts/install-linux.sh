@@ -106,6 +106,9 @@ Usage:
   $(fg_yellow '-v, --version')
       An optional BindPlane package version. Defaults to the latest version
       present in the package repository.
+
+  $(fg_yellow '-f, --file')
+      Install BindPlane package from a local file instead of downloading from Github.
 EOF
   )
   info "$USAGE"
@@ -267,14 +270,13 @@ deb_install() {
     banner "Installing package ${package_name}"
     increase_indent
 
-    url=$(download_url "deb")
-    curl -fsSlL -o bindplane.deb "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
-
-    if dpkg -s bindplane &>/dev/null; then
-        sudo apt-get install --only-upgrade -y -f ./bindplane.deb  || error_exit "$LINENO" "Failed to upgrade BindPlane"
-    else
-        sudo apt-get install -y -f ./bindplane.deb  || error_exit "$LINENO" "Failed to install BindPlane"
+    if [ -z "$package_file" ] ; then
+      url=$(download_url "deb")
+      curl -fsSlL -o bindplane.deb "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
+      package_file="./bindplane.deb"
     fi
+
+    sudo apt-get install -y -f "$package_file"  || error_exit "$LINENO" "Failed to install BindPlane"
 
     succeeded
     decrease_indent
@@ -284,13 +286,16 @@ dnf_install() {
     banner "Installing package ${package_name}"
     increase_indent
 
-    url=$(download_url "rpm")
-    curl -fsSlL -o bindplane.rpm "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
+    if [ -z "$package_file" ] ; then
+      url=$(download_url "rpm")
+      curl -fsSlL -o bindplane.rpm "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
+      package_file="./bindplane.rpm"
+    fi
 
     if rpm -q bindplane &>/dev/null; then
-        sudo dnf upgrade -y bindplane.rpm || error_exit "$LINENO" "Failed to upgrade BindPlane"
+        sudo dnf upgrade -y "$package_file" || error_exit "$LINENO" "Failed to upgrade BindPlane"
     else
-        sudo dnf install -y bindplane.rpm || error_exit "$LINENO" "Failed to install BindPlane"
+        sudo dnf install -y "$package_file" || error_exit "$LINENO" "Failed to install BindPlane"
     fi
 
     succeeded
@@ -301,13 +306,16 @@ yum_install() {
     banner "Installing package ${package_name}"
     increase_indent
 
-    url=$(download_url "rpm")
-    curl -fsSlL -o bindplane.rpm "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
+    if [ -z "$package_file" ] ; then
+      url=$(download_url "rpm")
+      curl -fsSlL -o bindplane.rpm "$url" || error_exit "$LINENO" "Failed to download BindPlane package from ${url}"
+      package_file="./bindplane.rpm"
+    fi
 
     if rpm -q bindplane &>/dev/null; then
-        sudo yum upgrade -y bindplane.rpm || error_exit "$LINENO" "Failed to upgrade BindPlane"
+        sudo yum upgrade -y "$package_file" || error_exit "$LINENO" "Failed to upgrade BindPlane"
     else
-        sudo yum install -y bindplane.rpm || error_exit "$LINENO" "Failed to install BindPlane"
+        sudo yum install -y "$package_file" || error_exit "$LINENO" "Failed to install BindPlane"
     fi
 
     succeeded
@@ -373,6 +381,9 @@ main() {
       case "$1" in
         -v|--version)
           version=$2 ; shift 2
+          ;;
+        -f|--file)
+          package_file=$2 ; shift 2
           ;;
         -h|--help)
           usage
