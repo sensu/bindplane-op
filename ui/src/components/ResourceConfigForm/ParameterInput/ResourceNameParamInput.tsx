@@ -40,7 +40,17 @@ export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
         "data-testid": "name-field",
       }}
       error={errors.name != null && touched.name}
-      helperText={errors.name}
+      helperText={
+        <>
+          Choose a name for the reusable resource in BindPlane OP.
+          {errors.name && (
+            <>
+              <br />
+              {errors.name}
+            </>
+          )}
+        </>
+      }
       color={errors.name != null ? "error" : "primary"}
       name={"name"}
       fullWidth

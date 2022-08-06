@@ -118,9 +118,6 @@ export const MainView: React.FC<MainProps> = ({
       <FormTitle title={title} description={description} />
 
       <form onSubmit={handleSubmit} data-testid="resource-form">
-        <Typography fontWeight={600} marginBottom={2}>
-          Configure
-        </Typography>
         <Grid
           container
           direction={"column"}
@@ -139,6 +136,9 @@ export const MainView: React.FC<MainProps> = ({
               />
             </Grid>
           )}
+          <Grid item>
+            <Typography fontWeight={600}>Configure</Typography>
+          </Grid>
           {parameterDefinitions.length === 0 ? (
             <Grid item>
               <Typography>No additional configuration needed.</Typography>
