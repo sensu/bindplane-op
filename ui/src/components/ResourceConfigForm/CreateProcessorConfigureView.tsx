@@ -11,10 +11,10 @@ export const CreateProcessorConfigureView: React.FC<CreateProcessorConfigureView
   ({ title, processorType, onSave, onBack }) => {
     return (
       <>
-        <FormTitle title={title} crumbs={["Add a processor", "Configure"]} />
+        <FormTitle title={title} crumbs={["Add a processor"]} />
         <ResourceConfigForm
-          title={""}
-          description={""}
+          title={processorType.metadata.displayName ?? ""}
+          description={processorType.metadata.description ?? ""}
           kind={"processor"}
           parameterDefinitions={processorType.spec.parameters}
           onSave={onSave}

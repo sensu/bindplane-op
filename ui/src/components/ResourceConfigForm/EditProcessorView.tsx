@@ -45,12 +45,9 @@ export const EditProcessorView: React.FC<EditProcessorViewProps> = ({
 
   return (
     <>
-      <FormTitle
-        title={title}
-        crumbs={[`Editing ${data?.processorType?.metadata.displayName}`]}
-      />
+      <FormTitle title={title} crumbs={["Edit Processor"]} />
       <ResourceConfigForm
-        title={""}
+        title={data?.processorType?.metadata.displayName ?? ""}
         description={data?.processorType?.metadata.description ?? ""}
         kind={"processor"}
         parameterDefinitions={data?.processorType?.spec.parameters ?? []}
