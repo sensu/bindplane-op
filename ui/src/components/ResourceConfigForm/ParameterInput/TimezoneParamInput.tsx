@@ -1,6 +1,8 @@
 import { Autocomplete, TextField } from "@mui/material";
 import { ParamInputProps } from "./ParameterInput";
 
+import styles from "./parameter-input.module.scss";
+
 const TIMEZONE_OPTIONS = [
   "UTC",
   "Africa/Abidjan",
@@ -431,7 +433,6 @@ const TIMEZONE_OPTIONS = [
 ];
 
 export const TimezoneParamInput: React.FC<ParamInputProps<string>> = ({
-  classes,
   definition,
   value,
   onValueChange,
@@ -445,7 +446,9 @@ export const TimezoneParamInput: React.FC<ParamInputProps<string>> = ({
       options={TIMEZONE_OPTIONS}
       renderInput={(params) => (
         <TextField
-          classes={classes}
+          classes={{
+            root: definition.relevantIf ? styles.indent : undefined,
+          }}
           {...params}
           fullWidth
           size="small"

@@ -14,7 +14,6 @@ import { ParamInputProps } from "./ParameterInput";
 import styles from "./parameter-input.module.scss";
 
 export const StringsParamInput: React.FC<ParamInputProps<string[]>> = ({
-  classes,
   definition,
   value,
   onValueChange,
@@ -67,7 +66,9 @@ export const StringsParamInput: React.FC<ParamInputProps<string[]>> = ({
         multiple
         disableClearable
         freeSolo
-        classes={classes}
+        classes={{
+          root: definition.relevantIf ? styles.indent : undefined,
+        }}
         // value and onChange pertain to the string[] value of the input
         value={value ?? []}
         onChange={(e, v: string[]) => handleValueChange(v)}

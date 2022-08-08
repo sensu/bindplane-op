@@ -1659,6 +1659,10 @@ const docTemplate = `{
                 "creatable": {
                     "description": "Creatable will modify the \"enum\" parameter from a select to\na creatable select where a user can specify a custom value",
                     "type": "boolean"
+                },
+                "trackUnchecked": {
+                    "description": "TrackUnchecked will modify the \"enums\" parameter to store the\nunchecked values as the value.",
+                    "type": "boolean"
                 }
             }
         },

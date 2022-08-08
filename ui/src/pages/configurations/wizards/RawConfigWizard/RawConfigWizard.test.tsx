@@ -1,14 +1,13 @@
-import { ApolloProvider } from "@apollo/client";
 import { screen, render, fireEvent, waitFor } from "@testing-library/react";
 import nock from "nock";
 import { SnackbarProvider } from "notistack";
 import { MemoryRouter } from "react-router-dom";
 import { DEFAULT_RAW_CONFIG, RawConfigWizard } from ".";
-import APOLLO_CLIENT from "../../../../apollo-client";
 import { RawConfigFormValues } from "../../../../types/forms";
 import { UpdateStatus } from "../../../../types/resources";
 import { ApplyPayload } from "../../../../types/rest";
 import { newConfiguration } from "../../../../utils/resources";
+import { MockedProvider } from "@apollo/client/testing";
 
 describe("RawConfigForm", () => {
   const initFormValues: RawConfigFormValues = {
@@ -29,7 +28,7 @@ describe("RawConfigForm", () => {
     };
 
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <SnackbarProvider>
           <MemoryRouter>
             <RawConfigWizard
@@ -38,7 +37,7 @@ describe("RawConfigForm", () => {
             />
           </MemoryRouter>
         </SnackbarProvider>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     // Correct value for name input
@@ -57,7 +56,7 @@ describe("RawConfigForm", () => {
 
   it("renders correct copy when fromInput=true", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard
@@ -67,7 +66,7 @@ describe("RawConfigForm", () => {
             />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
     // Step one copy
     expect(
@@ -91,11 +90,11 @@ describe("RawConfigForm", () => {
 
   it("will block going to step two if fields aren't valid", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <MemoryRouter>
           <RawConfigWizard onSuccess={() => {}} />
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     expect(screen.getByTestId("step-one")).toBeInTheDocument();
@@ -106,13 +105,13 @@ describe("RawConfigForm", () => {
 
   it("can navigate to step two with valid form values", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <SnackbarProvider>
           <MemoryRouter>
             <RawConfigWizard onSuccess={() => {}} />
           </MemoryRouter>
         </SnackbarProvider>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     fireEvent.change(screen.getByLabelText("Name"), {
@@ -129,13 +128,13 @@ describe("RawConfigForm", () => {
 
   it("contains correct doc links", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <SnackbarProvider>
           <MemoryRouter>
             <RawConfigWizard onSuccess={() => {}} />
           </MemoryRouter>
         </SnackbarProvider>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     expect(screen.getByText("sample files")).toHaveAttribute(
@@ -150,13 +149,13 @@ describe("RawConfigForm", () => {
 
   it("persists form data between steps", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <SnackbarProvider>
           <MemoryRouter>
             <RawConfigWizard onSuccess={() => {}} />
           </MemoryRouter>
         </SnackbarProvider>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     fireEvent.change(screen.getByLabelText("Name"), {
@@ -185,13 +184,13 @@ describe("RawConfigForm", () => {
 
   it("displays the expected default config", () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard onSuccess={() => {}} />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepTwo();
@@ -201,13 +200,13 @@ describe("RawConfigForm", () => {
 
   it("posts the correct data to /v1/apply", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard onSuccess={() => {}} />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     // Rest Mock for POST /apply
@@ -227,16 +226,6 @@ describe("RawConfigForm", () => {
       });
 
     let gotApplyBody: ApplyPayload = { resources: [] };
-    // GQL Mock for getConfigNamesQuery
-    nock("http://localhost")
-      .post("/v1/graphql", (body) => true)
-      .reply(200, { data: { configurations: [] } });
-
-    // Make sure config names query is called
-    await waitFor(
-      () =>
-        !restScope.activeMocks().includes("POST http://localhost:80/v1/graphql")
-    );
 
     goToStepTwo();
 
@@ -269,13 +258,13 @@ describe("RawConfigForm", () => {
 
   it("can upload a file", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard onSuccess={() => {}} />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     goToStepTwo();
@@ -297,7 +286,7 @@ describe("RawConfigForm", () => {
     let onSuccessCalled = false;
 
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard
@@ -308,7 +297,7 @@ describe("RawConfigForm", () => {
             />{" "}
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     nock("http://localhost:80")
@@ -325,10 +314,6 @@ describe("RawConfigForm", () => {
         ],
       });
 
-    nock("http://localhost")
-      .post("/v1/graphql", (body) => true)
-      .reply(200, { data: { configurations: [] } });
-
     screen.getByTestId("step-one-next").click();
     screen.getByTestId("save-button").click();
 
@@ -339,7 +324,7 @@ describe("RawConfigForm", () => {
     let onSuccessCalled = false;
 
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard
@@ -351,7 +336,7 @@ describe("RawConfigForm", () => {
             />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     nock("http://localhost:80")
@@ -373,10 +358,6 @@ describe("RawConfigForm", () => {
       .once()
       .reply(200, { errors: [] });
 
-    nock("http://localhost")
-      .post("/v1/graphql", (body) => true)
-      .reply(200, { data: { configurations: [] } });
-
     screen.getByTestId("step-one-next").click();
     screen.getByTestId("save-button").click();
 
@@ -385,7 +366,7 @@ describe("RawConfigForm", () => {
 
   it("displays reason when apply returns update status invalid", async () => {
     render(
-      <ApolloProvider client={APOLLO_CLIENT}>
+      <MockedProvider mocks={[]}>
         <MemoryRouter>
           <SnackbarProvider>
             <RawConfigWizard
@@ -395,14 +376,10 @@ describe("RawConfigForm", () => {
             />
           </SnackbarProvider>
         </MemoryRouter>
-      </ApolloProvider>
+      </MockedProvider>
     );
 
     const invalidReasonText = "REASON_INVALID";
-
-    nock("http://localhost")
-      .post("/v1/graphql", (body) => true)
-      .reply(200, { data: { configurations: [] } });
 
     nock("http://localhost:80")
       .post("/v1/apply", (body) => {

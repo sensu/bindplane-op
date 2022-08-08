@@ -5,26 +5,23 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material";
-import { ChangeEvent } from "react";
 import { ParamInputProps } from "./ParameterInput";
 
+import styles from "./parameter-input.module.scss";
+
 export const EnumsParamInput: React.FC<ParamInputProps<string[]>> = ({
-  classes,
   definition,
   value,
   onValueChange,
 }) => {
-  function handleToggleValue(
-    event: ChangeEvent<HTMLInputElement>,
-    checked: boolean,
-    toggleValue: string
-  ) {
+  const indent = definition.relevantIf != null;
+
+  function handleToggleValue(toggleValue: string) {
     const newValue = [...(value ?? [])];
-    if (checked) {
+
+    if (!newValue.includes(toggleValue)) {
       // Make sure that toggleValue is in new value array
-      if (!newValue.includes(toggleValue)) {
-        newValue.push(toggleValue);
-      }
+      newValue.push(toggleValue);
     } else {
       // Remove the toggle value from the array
       const atIndex = newValue.findIndex((v) => v === toggleValue);
@@ -38,9 +35,13 @@ export const EnumsParamInput: React.FC<ParamInputProps<string[]>> = ({
 
   return (
     <>
-      <InputLabel>{definition.label}</InputLabel>
-      <FormHelperText>{definition.description}</FormHelperText>
-      <Stack>
+      <InputLabel className={indent ? styles.indent : undefined}>
+        {definition.label}
+      </InputLabel>
+      <FormHelperText className={indent ? styles.indent : undefined}>
+        {definition.description}
+      </FormHelperText>
+      <Stack marginLeft={2} marginTop={1}>
         {definition.validValues!.map((vv) => (
           <FormControlLabel
             key={`${definition.name}-label-${vv}`}
@@ -48,9 +49,15 @@ export const EnumsParamInput: React.FC<ParamInputProps<string[]>> = ({
               <Switch
                 key={`${definition.name}-switch-${vv}`}
                 size="small"
-                onChange={(e, c) => handleToggleValue(e, c, vv)}
-                checked={value?.includes(vv)}
-                classes={classes}
+                onChange={() => handleToggleValue(vv)}
+                checked={
+                  definition.options.trackUnchecked
+                    ? !value?.includes(vv)
+                    : value?.includes(vv)
+                }
+                classes={{
+                  root: definition.relevantIf ? styles.indent : undefined,
+                }}
               />
             }
             label={vv}

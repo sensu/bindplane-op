@@ -66,6 +66,10 @@ type ParameterOptions struct {
 	// Creatable will modify the "enum" parameter from a select to
 	// a creatable select where a user can specify a custom value
 	Creatable bool `json:"creatable" yaml:"creatable"`
+
+	// TrackUnchecked will modify the "enums" parameter to store the
+	// unchecked values as the value.
+	TrackUnchecked bool `json:"trackUnchecked" yaml:"trackUnchecked"`
 }
 
 // RelevantIfCondition specifies a condition under which a parameter is deemed relevant.
@@ -143,6 +147,16 @@ func (p ParameterDefinition) validateOptions() error {
 			errors.NewError(
 				fmt.Sprintf("creatable is true for parameter of type '%s'", p.Type),
 				"remove 'creatable' field or change type to 'enum'",
+			),
+		)
+	}
+
+	if p.Options.TrackUnchecked && p.Type != "enums" {
+		multierror.Append(
+			err,
+			errors.NewError(
+				fmt.Sprintf("trackUnchecked is true for parameter of type `%s`", p.Type),
+				"remove 'trackUnchecked' field or change type to 'enums`",
 			),
 		)
 	}

@@ -34,6 +34,7 @@ gql`
           validValues
           options {
             creatable
+            trackUnchecked
           }
         }
         telemetryTypes

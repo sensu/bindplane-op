@@ -12,7 +12,6 @@ interface ResourceNameInputProps
 }
 
 export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
-  classes,
   value,
   onValueChange,
   existingNames,
@@ -32,7 +31,6 @@ export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
 
   return (
     <TextField
-      classes={classes}
       onBlur={() => touch("name")}
       value={value}
       onChange={handleChange}

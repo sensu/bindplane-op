@@ -2,15 +2,18 @@ import { FormControlLabel, Switch } from "@mui/material";
 import { isFunction } from "lodash";
 import { ParamInputProps } from "./ParameterInput";
 
+import styles from "./parameter-input.module.scss";
+
 export const BoolParamInput: React.FC<ParamInputProps<boolean>> = ({
-  classes,
   definition,
   value,
   onValueChange,
 }) => {
   return (
     <FormControlLabel
-      classes={classes}
+      classes={{
+        root: definition.relevantIf ? styles.indent : undefined,
+      }}
       control={
         <Switch
           onChange={(e) => {

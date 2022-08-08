@@ -203,15 +203,44 @@ func TestValidateOptions(t *testing.T) {
 				},
 			},
 		},
+		{
+			"Enums TrackUnchecked OK",
+			false,
+			ParameterDefinition{
+				Type: "enums",
+				Options: ParameterOptions{
+					TrackUnchecked: true,
+				},
+			},
+		},
+		{
+			"Enums !TrackUnchecked OK",
+			false,
+			ParameterDefinition{
+				Type: "enums",
+			},
+		},
+		{
+			"Non Enums TrackUnchecked Error",
+			true,
+			ParameterDefinition{
+				Type: "map",
+				Options: ParameterOptions{
+					TrackUnchecked: true,
+				},
+			},
+		},
 	}
 
 	for _, test := range testCases {
-		err := test.param.validateOptions()
-		if test.expectErr {
-			require.Error(t, err)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			err := test.param.validateOptions()
+			if test.expectErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
 

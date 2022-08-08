@@ -3,8 +3,9 @@ import { isFunction } from "lodash";
 import { ChangeEvent } from "react";
 import { ParamInputProps } from "./ParameterInput";
 
+import styles from "./parameter-input.module.scss";
+
 export const IntParamInput: React.FC<ParamInputProps<number>> = ({
-  classes,
   definition,
   value,
   onValueChange,
@@ -12,7 +13,9 @@ export const IntParamInput: React.FC<ParamInputProps<number>> = ({
   // TODO dsvanlani This should probably be a custom text input with validation
   return (
     <TextField
-      classes={classes}
+      classes={{
+        root: definition.relevantIf ? styles.indent : undefined,
+      }}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) =>
         isFunction(onValueChange) && onValueChange(Number(e.target.value))

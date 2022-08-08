@@ -4,8 +4,9 @@ import { useState, ChangeEvent } from "react";
 import { YamlEditor } from "../../YamlEditor";
 import { ParamInputProps } from "./ParameterInput";
 
+import styles from "./parameter-input.module.scss";
+
 export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
-  classes,
   definition,
   value,
   onValueChange,
@@ -19,7 +20,11 @@ export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
   }
 
   return (
-    <FormControl fullWidth classes={classes} required={definition.required}>
+    <FormControl
+      fullWidth
+      classes={{ root: definition.relevantIf ? styles.indent : undefined }}
+      required={definition.required}
+    >
       <InputLabel
         shrink={shrinkLabel}
         htmlFor={definition.name}

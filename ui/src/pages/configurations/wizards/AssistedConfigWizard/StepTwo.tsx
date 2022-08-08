@@ -61,6 +61,7 @@ gql`
           default
           options {
             creatable
+            trackUnchecked
           }
         }
         supportedPlatforms

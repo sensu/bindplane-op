@@ -74,6 +74,7 @@ gql`
           required
           options {
             creatable
+            trackUnchecked
           }
         }
         supportedPlatforms

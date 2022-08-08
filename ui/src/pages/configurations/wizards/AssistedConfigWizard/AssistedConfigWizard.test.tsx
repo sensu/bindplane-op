@@ -46,6 +46,7 @@ const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
         relevantIf: null,
         options: {
           creatable: null,
+          trackUnchecked: null,
         },
       },
       {
@@ -60,6 +61,7 @@ const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
         relevantIf: null,
         options: {
           creatable: null,
+          trackUnchecked: null,
         },
       },
     ],
@@ -96,6 +98,7 @@ const dummyDestinationType: DestinationsAndTypesQuery["destinationTypes"][0] = {
         relevantIf: null,
         options: {
           creatable: null,
+          trackUnchecked: null,
         },
       },
       {
@@ -110,6 +113,7 @@ const dummyDestinationType: DestinationsAndTypesQuery["destinationTypes"][0] = {
         relevantIf: null,
         options: {
           creatable: null,
+          trackUnchecked: null,
         },
       },
     ],
