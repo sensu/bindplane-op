@@ -117,27 +117,6 @@ func TestSetCommand(t *testing.T) {
 				Server: common.Server{StorageFilePath: "/path/to/file"},
 			})},
 		{
-			name:  "downloads-folder-path",
-			flag:  "--downloads-folder-path",
-			value: "/path/to/downloads",
-			want: *model.NewProfileWithMetadata(model.Metadata{Name: "downloads-folder-path"}, model.ProfileSpec{
-				Server: common.Server{DownloadsFolderPath: "/path/to/downloads"},
-			})},
-		{
-			name:  "agents-service-url",
-			flag:  "--agents-service-url",
-			value: "https://agents.remote.com",
-			want: *model.NewProfileWithMetadata(model.Metadata{Name: "agents-service-url"}, model.ProfileSpec{
-				Server: common.Server{AgentsServiceURL: "https://agents.remote.com"},
-			})},
-		{
-			name:  "disable-downloads-cache",
-			flag:  "--disable-downloads-cache",
-			value: true,
-			want: *model.NewProfileWithMetadata(model.Metadata{Name: "disable-downloads-cache"}, model.ProfileSpec{
-				Server: common.Server{DisableDownloadsCache: true},
-			})},
-		{
 			name:  "password",
 			flag:  "--password",
 			value: "p$ssword!1",
@@ -239,13 +218,10 @@ func TestSetCommand(t *testing.T) {
 				},
 			},
 			Server: common.Server{
-				StorageFilePath:       "/path/to/file",
-				SecretKey:             "5ce40143-61d7-43cb-bd81-051453f05dfe",
-				RemoteURL:             "http://localhost:3001",
-				Offline:               true,
-				AgentsServiceURL:      "https://agents.remote.com",
-				DownloadsFolderPath:   "/path/to/downloads",
-				DisableDownloadsCache: true,
+				StorageFilePath: "/path/to/file",
+				SecretKey:       "5ce40143-61d7-43cb-bd81-051453f05dfe",
+				RemoteURL:       "http://localhost:3001",
+				Offline:         true,
 			},
 		})
 

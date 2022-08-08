@@ -38,7 +38,7 @@ type BindPlane interface {
 
 // NewBindPlane TODO(doc)
 func NewBindPlane(config *common.Server, logger *zap.Logger, s store.Store, versions agent.Versions) (BindPlane, error) {
-	manager, err := NewManager(config, s, logger)
+	manager, err := NewManager(config, s, versions, logger)
 	if err != nil {
 		return nil, err
 	}

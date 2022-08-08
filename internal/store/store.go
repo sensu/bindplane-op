@@ -53,6 +53,10 @@ type Store interface {
 	UpsertAgents(ctx context.Context, agentIDs []string, updater AgentUpdater) ([]*model.Agent, error)
 	DeleteAgents(ctx context.Context, agentIDs []string) ([]*model.Agent, error)
 
+	AgentVersion(name string) (*model.AgentVersion, error)
+	AgentVersions() ([]*model.AgentVersion, error)
+	DeleteAgentVersion(string) (*model.AgentVersion, error)
+
 	Configurations(options ...QueryOption) ([]*model.Configuration, error)
 	Configuration(string) (*model.Configuration, error)
 	DeleteConfiguration(string) (*model.Configuration, error)
@@ -192,7 +196,7 @@ func WithSort(field string) QueryOption {
 // Seed adds bundled resources to the store
 func Seed(store Store, logger *zap.Logger) error {
 	var errs error
-	for _, dir := range []string{"processor-types", "source-types", "destination-types"} {
+	for _, dir := range embedded.SeedFolders {
 		err := seedDir(dir, store, logger)
 		if err != nil {
 			errs = multierror.Append(errs, err)

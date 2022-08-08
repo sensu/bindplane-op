@@ -10,6 +10,12 @@ scalar Any
 # ----------------------------------------------------------------------
 # agent model
 
+type AgentUpgrade {
+  status: Int!
+  version: String!
+  error: String
+}
+
 type Agent {
   id: ID!
   architecture: String
@@ -36,6 +42,11 @@ type Agent {
 
   # resource of the configuration in use by this agent
   configurationResource: Configuration
+
+  upgrade: AgentUpgrade
+
+  # latest version of the agent if an upgrade is available
+  upgradeAvailable: String
 }
 
 type AgentConfiguration {
@@ -106,6 +117,7 @@ type Agents {
   query: String
   agents: [Agent!]!
   suggestions: [Suggestion!]
+  latestVersion: String!
 }
 
 type Suggestion {

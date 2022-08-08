@@ -87,7 +87,7 @@ func (s *Server) Start(bindplane *cli.BindPlane, h profile.Helper, forceConsoleC
 	s.seedSearchIndexes(st)
 
 	// initialize the versions which provides agent versions for updates
-	versions := s.createVersions(config)
+	versions := s.createVersions(config, st)
 
 	// initialize the server which provides access to everything
 	server, err := server.NewBindPlane(config, s.logger, st, versions)
@@ -123,9 +123,6 @@ func (s *Server) Start(bindplane *cli.BindPlane, h profile.Helper, forceConsoleC
 
 	authv1 := v1.Group("/", auth.Chain(server)...)
 	rest.AddRestRoutes(authv1, server)
-
-	// download routes do not require authorization
-	rest.AddDownloadRoutes(router, server)
 
 	graphql.AddRoutes(authv1, server)
 
@@ -246,20 +243,12 @@ func (s *Server) createStore(config *common.Server) (store.Store, error) {
 	}
 }
 
-func (s *Server) createVersions(config *common.Server) agent.Versions {
+func (s *Server) createVersions(config *common.Server, st store.Store) agent.Versions {
 	var client agent.Client
 	if !config.Offline {
-		client = agent.NewClient(agent.ClientSettings{
-			AgentVersionsURL: config.AgentsServiceURL,
-		})
+		client = agent.NewClient()
 	}
-	var cache agent.Cache
-	if !config.DisableDownloadsCache {
-		cache = agent.NewCache(agent.CacheSettings{
-			Directory: config.BindPlaneDownloadsPath(),
-		})
-	}
-	return agent.NewVersions(client, cache, agent.VersionsSettings{
+	return agent.NewVersions(client, st, agent.VersionsSettings{
 		Logger: s.logger.Named("versions"),
 	})
 }

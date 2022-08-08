@@ -17,6 +17,7 @@ package opamp
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strings"
@@ -40,6 +41,9 @@ var tracer = otel.Tracer("bindplane/opamp")
 
 // ProtocolName is "opamp"
 const ProtocolName = "opamp"
+
+// CollectorPackageName is the name for the top level packages for this collector
+const CollectorPackageName = "observiq-otel-collector"
 
 var compatibleOpAMPVersions = []string{"v0.2.0"}
 
@@ -295,23 +299,95 @@ func (s *opampServer) UpdateAgent(ctx context.Context, agent *model.Agent, updat
 		return fmt.Errorf("unable to get the new configuration for agent [%s]: %w", agent.ID, err)
 	}
 
+	serverToAgent := &protobufs.ServerToAgent{
+		InstanceUid:  agent.ID,
+		Capabilities: capabilities,
+		Flags:        protobufs.ServerToAgent_ReportFullState,
+	}
+
 	if newConfiguration.Empty() {
 		s.logger.Info("agent already has the correct configuration")
+	} else {
+		agentRawConfiguration := agentConfiguration.Raw()
+		newRawConfiguration := newConfiguration.Raw()
+
+		serverToAgent.RemoteConfig = agentRemoteConfig(&newRawConfiguration, &agentRawConfiguration)
+
+		// use a separate goroutine to avoid blocking on the channel write
+		go func() {
+			// change the agent status to Configuring, but ignore any failure as this status is considered nice to have and not required to update the agent
+			_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.Status = model.Configuring })
+		}()
+	}
+
+	if updates.Version != "" {
+		s.logger.Info("sending agent update to version", zap.String("version", updates.Version))
+		downloadableFile, err := s.getDownloadableFile(ctx, agent, updates.Version)
+		if err != nil || downloadableFile == nil {
+			s.logger.Error("unable to send agent update", zap.Error(err))
+			agent, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) {
+				current.UpgradeComplete(updates.Version, err.Error())
+			})
+		} else {
+
+			allPackagesHash := []byte(updates.Version)
+			serverToAgent.PackagesAvailable = &protobufs.PackagesAvailable{
+				AllPackagesHash: allPackagesHash,
+				Packages: map[string]*protobufs.PackageAvailable{
+					CollectorPackageName: {
+						Type:    protobufs.PackageAvailable_TopLevelPackage,
+						Version: updates.Version,
+						File:    downloadableFile,
+						Hash:    []byte(updates.Version),
+					},
+				},
+			}
+			agent, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) {
+				current.UpgradeStarted(updates.Version, allPackagesHash)
+			})
+
+			s.logger.Info("sending PackagesAvailable", zap.Any("PackagesAvailable", serverToAgent.PackagesAvailable), zap.Any("Upgrade", agent.Upgrade))
+		}
+	}
+
+	// if the message doesn't have a new configuration or a new package available, do nothing
+	if serverToAgent.RemoteConfig == nil && serverToAgent.PackagesAvailable == nil {
 		return nil
 	}
 
-	agentRawConfiguration := agentConfiguration.Raw()
-	newRawConfiguration := newConfiguration.Raw()
+	return s.send(context.Background(), conn, serverToAgent)
+}
 
-	// change the agent status to Configuring, but ignore any failure as this status is considered nice to have and not required to update the agent
-	_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.Status = model.Configuring })
+func (s *opampServer) getDownloadableFile(ctx context.Context, a *model.Agent, versionString string) (*protobufs.DownloadableFile, error) {
+	version, err := s.manager.AgentVersion(ctx, versionString)
+	if version == nil {
+		return nil, fmt.Errorf("agent version %s not found", versionString)
+	}
+	if err != nil {
+		return nil, err
+	}
+	platform := fmt.Sprintf("%s/%s", a.Platform, a.Architecture)
+	artifact := version.Download(platform)
 
-	return s.send(context.Background(), conn, &protobufs.ServerToAgent{
-		InstanceUid:  agent.ID,
-		Capabilities: capabilities,
-		RemoteConfig: agentRemoteConfig(&newRawConfiguration, &agentRawConfiguration),
-		Flags:        protobufs.ServerToAgent_ReportFullState,
-	})
+	if artifact == nil {
+		return nil, fmt.Errorf("artifact not found for platform %s", platform)
+	}
+
+	url := artifact.URL
+	hash := artifact.Hash
+	if url == "" || hash == "" {
+		return nil, nil
+	}
+
+	hashBytes, err := hex.DecodeString(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	return &protobufs.DownloadableFile{
+		DownloadUrl: url,
+		ContentHash: hashBytes,
+	}, nil
 }
 
 // SendHeartbeat sends a heartbeat to the agent to keep the websocket open

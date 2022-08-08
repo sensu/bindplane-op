@@ -59,6 +59,15 @@ func (r *agentResolver) ConfigurationResource(ctx context.Context, obj *model.Ag
 	return r.bindplane.Store().AgentConfiguration(obj.ID)
 }
 
+// UpgradeAvailable is the resolver for the upgradeAvailable field.
+func (r *agentResolver) UpgradeAvailable(ctx context.Context, obj *model.Agent) (*string, error) {
+	latestVersion := r.bindplane.Versions().LatestVersionString()
+	if obj.Version != latestVersion {
+		return &latestVersion, nil
+	}
+	return nil, nil
+}
+
 // MatchLabels is the resolver for the matchLabels field.
 func (r *agentSelectorResolver) MatchLabels(ctx context.Context, obj *model.AgentSelector) (map[string]interface{}, error) {
 	labels := map[string]interface{}{}
@@ -66,6 +75,11 @@ func (r *agentSelectorResolver) MatchLabels(ctx context.Context, obj *model.Agen
 		labels[k] = obj.MatchLabels[k]
 	}
 	return labels, nil
+}
+
+// Status is the resolver for the status field.
+func (r *agentUpgradeResolver) Status(ctx context.Context, obj *model.AgentUpgrade) (int, error) {
+	return int(obj.Status), nil
 }
 
 // Kind is the resolver for the kind field.
@@ -142,28 +156,30 @@ func (r *queryResolver) Agents(ctx context.Context, selector *string, query *str
 	ctx, span := tracer.Start(ctx, "graphql/Agents")
 	defer span.End()
 
-	options, suggestions, err := r.queryOptionsAndSuggestions(selector, query, r.Resolver.bindplane.Store().AgentIndex())
-	agents, err := r.Resolver.bindplane.Store().Agents(ctx, options...)
+	options, suggestions, err := r.queryOptionsAndSuggestions(selector, query, r.bindplane.Store().AgentIndex())
+	agents, err := r.bindplane.Store().Agents(ctx, options...)
 	if err != nil {
 		r.bindplane.Logger().Error("error in graphql Agents", zap.Error(err))
 		return nil, err
 	}
+
 	return &model1.Agents{
-		Agents:      agents,
-		Query:       query,
-		Suggestions: suggestions,
+		Agents:        agents,
+		Query:         query,
+		Suggestions:   suggestions,
+		LatestVersion: r.bindplane.Versions().LatestVersionString(),
 	}, nil
 }
 
 // Agent is the resolver for the agent field.
 func (r *queryResolver) Agent(ctx context.Context, id string) (*model.Agent, error) {
-	return r.Resolver.bindplane.Store().Agent(id)
+	return r.bindplane.Store().Agent(id)
 }
 
 // Configurations is the resolver for the configurations field.
 func (r *queryResolver) Configurations(ctx context.Context, selector *string, query *string) (*model1.Configurations, error) {
-	options, suggestions, err := r.queryOptionsAndSuggestions(selector, query, r.Resolver.bindplane.Store().ConfigurationIndex())
-	configurations, err := r.Resolver.bindplane.Store().Configurations(options...)
+	options, suggestions, err := r.queryOptionsAndSuggestions(selector, query, r.bindplane.Store().ConfigurationIndex())
+	configurations, err := r.bindplane.Store().Configurations(options...)
 	if err != nil {
 		return nil, err
 	}
@@ -176,64 +192,64 @@ func (r *queryResolver) Configurations(ctx context.Context, selector *string, qu
 
 // Configuration is the resolver for the configuration field.
 func (r *queryResolver) Configuration(ctx context.Context, name string) (*model.Configuration, error) {
-	return r.Resolver.bindplane.Store().Configuration(name)
+	return r.bindplane.Store().Configuration(name)
 }
 
 // Sources is the resolver for the sources field.
 func (r *queryResolver) Sources(ctx context.Context) ([]*model.Source, error) {
-	return r.Resolver.bindplane.Store().Sources()
+	return r.bindplane.Store().Sources()
 }
 
 // Source is the resolver for the source field.
 func (r *queryResolver) Source(ctx context.Context, name string) (*model.Source, error) {
-	return r.Resolver.bindplane.Store().Source(name)
+	return r.bindplane.Store().Source(name)
 }
 
 // SourceTypes is the resolver for the sourceTypes field.
 func (r *queryResolver) SourceTypes(ctx context.Context) ([]*model.SourceType, error) {
-	return r.Resolver.bindplane.Store().SourceTypes()
+	return r.bindplane.Store().SourceTypes()
 }
 
 // SourceType is the resolver for the sourceType field.
 func (r *queryResolver) SourceType(ctx context.Context, name string) (*model.SourceType, error) {
-	return r.Resolver.bindplane.Store().SourceType(name)
+	return r.bindplane.Store().SourceType(name)
 }
 
 // Processors is the resolver for the processors field.
 func (r *queryResolver) Processors(ctx context.Context) ([]*model.Processor, error) {
-	return r.Resolver.bindplane.Store().Processors()
+	return r.bindplane.Store().Processors()
 }
 
 // Processor is the resolver for the processor field.
 func (r *queryResolver) Processor(ctx context.Context, name string) (*model.Processor, error) {
-	return r.Resolver.bindplane.Store().Processor(name)
+	return r.bindplane.Store().Processor(name)
 }
 
 // ProcessorTypes is the resolver for the processorTypes field.
 func (r *queryResolver) ProcessorTypes(ctx context.Context) ([]*model.ProcessorType, error) {
-	return r.Resolver.bindplane.Store().ProcessorTypes()
+	return r.bindplane.Store().ProcessorTypes()
 }
 
 // ProcessorType is the resolver for the processorType field.
 func (r *queryResolver) ProcessorType(ctx context.Context, name string) (*model.ProcessorType, error) {
-	return r.Resolver.bindplane.Store().ProcessorType(name)
+	return r.bindplane.Store().ProcessorType(name)
 }
 
 // Destinations is the resolver for the destinations field.
 func (r *queryResolver) Destinations(ctx context.Context) ([]*model.Destination, error) {
-	return r.Resolver.bindplane.Store().Destinations()
+	return r.bindplane.Store().Destinations()
 }
 
 // Destination is the resolver for the destination field.
 func (r *queryResolver) Destination(ctx context.Context, name string) (*model.Destination, error) {
-	return r.Resolver.bindplane.Store().Destination(name)
+	return r.bindplane.Store().Destination(name)
 }
 
 // DestinationWithType is the resolver for the destinationWithType field.
 func (r *queryResolver) DestinationWithType(ctx context.Context, name string) (*model1.DestinationWithType, error) {
 	resp := &model1.DestinationWithType{}
 
-	dest, err := r.Resolver.bindplane.Store().Destination(name)
+	dest, err := r.bindplane.Store().Destination(name)
 	if err != nil {
 		return resp, err
 	}
@@ -242,7 +258,7 @@ func (r *queryResolver) DestinationWithType(ctx context.Context, name string) (*
 		return resp, nil
 	}
 
-	destinationType, err := r.Resolver.bindplane.Store().DestinationType(dest.Spec.Type)
+	destinationType, err := r.bindplane.Store().DestinationType(dest.Spec.Type)
 	if err != nil {
 		return resp, err
 	}
@@ -255,12 +271,12 @@ func (r *queryResolver) DestinationWithType(ctx context.Context, name string) (*
 
 // DestinationTypes is the resolver for the destinationTypes field.
 func (r *queryResolver) DestinationTypes(ctx context.Context) ([]*model.DestinationType, error) {
-	return r.Resolver.bindplane.Store().DestinationTypes()
+	return r.bindplane.Store().DestinationTypes()
 }
 
 // DestinationType is the resolver for the destinationType field.
 func (r *queryResolver) DestinationType(ctx context.Context, name string) (*model.DestinationType, error) {
-	return r.Resolver.bindplane.Store().DestinationType(name)
+	return r.bindplane.Store().DestinationType(name)
 }
 
 // Components is the resolver for the components field.
@@ -354,6 +370,9 @@ func (r *Resolver) Agent() generated.AgentResolver { return &agentResolver{r} }
 // AgentSelector returns generated.AgentSelectorResolver implementation.
 func (r *Resolver) AgentSelector() generated.AgentSelectorResolver { return &agentSelectorResolver{r} }
 
+// AgentUpgrade returns generated.AgentUpgradeResolver implementation.
+func (r *Resolver) AgentUpgrade() generated.AgentUpgradeResolver { return &agentUpgradeResolver{r} }
+
 // Configuration returns generated.ConfigurationResolver implementation.
 func (r *Resolver) Configuration() generated.ConfigurationResolver { return &configurationResolver{r} }
 
@@ -398,6 +417,7 @@ func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subsc
 
 type agentResolver struct{ *Resolver }
 type agentSelectorResolver struct{ *Resolver }
+type agentUpgradeResolver struct{ *Resolver }
 type configurationResolver struct{ *Resolver }
 type destinationResolver struct{ *Resolver }
 type destinationTypeResolver struct{ *Resolver }

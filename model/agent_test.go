@@ -113,3 +113,69 @@ func TestAgentMatchesSelector(t *testing.T) {
 		})
 	}
 }
+
+func TestAgentUpgradeComplete(t *testing.T) {
+	tests := []struct {
+		name          string
+		prepareAgent  func(a *Agent)
+		errorMessage  string
+		expectStatus  AgentStatus
+		expectUpgrade *AgentUpgrade
+	}{
+		{
+			name: "success",
+			prepareAgent: func(a *Agent) {
+				a.UpgradeTo("v1.1")
+			},
+			errorMessage:  "",
+			expectStatus:  Connected,
+			expectUpgrade: nil,
+		},
+		{
+			name: "success with existing error",
+			prepareAgent: func(a *Agent) {
+				a.UpgradeStarted("v1.1", []byte{1})
+				a.ErrorMessage = "error"
+			},
+			errorMessage:  "",
+			expectStatus:  Error,
+			expectUpgrade: nil,
+		},
+		{
+			name: "fail",
+			prepareAgent: func(a *Agent) {
+				a.Status = Connected
+			},
+			errorMessage: "upgrade error",
+			expectStatus: Connected,
+			expectUpgrade: &AgentUpgrade{
+				Status:  UpgradeFailed,
+				Version: "v1.2",
+				Error:   "upgrade error",
+			},
+		},
+		{
+			name: "fail with upgrade",
+			prepareAgent: func(a *Agent) {
+				a.UpgradeTo("v1.1")
+				a.Status = Connected
+			},
+			errorMessage: "upgrade error",
+			expectStatus: Connected,
+			expectUpgrade: &AgentUpgrade{
+				Status:  UpgradeFailed,
+				Version: "v1.2",
+				Error:   "upgrade error",
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			agent := &Agent{}
+			test.prepareAgent(agent)
+			agent.UpgradeComplete("v1.2", test.errorMessage)
+			require.Equal(t, test.expectStatus, agent.Status)
+			require.Equal(t, test.expectUpgrade, agent.Upgrade)
+		})
+	}
+}

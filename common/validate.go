@@ -59,18 +59,6 @@ func (s *Server) validate() (errGroup error) {
 		errGroup = multierror.Append(errGroup, err)
 	}
 
-	if err := validateURL(s.AgentsServiceURL, []string{"http", "https"}); err != nil {
-		err = fmt.Errorf("failed to validate agents service url %s: %w", s.AgentsServiceURL, err)
-		errGroup = multierror.Append(errGroup, err)
-	}
-
-	if s.DownloadsFolderPath != "" {
-		if _, err := os.Stat(s.DownloadsFolderPath); err != nil {
-			err = fmt.Errorf("failed to lookup agents cache path %s: %w", s.DownloadsFolderPath, err)
-			errGroup = multierror.Append(errGroup, err)
-		}
-	}
-
 	if err := s.Common.validate(); err != nil {
 		errGroup = multierror.Append(errGroup, err)
 	}

@@ -26,6 +26,7 @@ import (
 // Updates are sent on the channel available from Store.Updates().
 type Updates struct {
 	Agents           Events[*model.Agent]
+	AgentVersions    Events[*model.AgentVersion]
 	Sources          Events[*model.Source]
 	SourceTypes      Events[*model.SourceType]
 	Processors       Events[*model.Processor]
@@ -40,6 +41,7 @@ func NewUpdates() *Updates {
 	// TODO: optimize allocate as needed
 	return &Updates{
 		Agents:           NewEvents[*model.Agent](),
+		AgentVersions:    NewEvents[*model.AgentVersion](),
 		Sources:          NewEvents[*model.Source](),
 		SourceTypes:      NewEvents[*model.SourceType](),
 		Processors:       NewEvents[*model.Processor](),
@@ -60,6 +62,8 @@ func (updates *Updates) IncludeAgent(agent *model.Agent, eventType EventType) {
 // supported by Updates, this will do nothing.
 func (updates *Updates) IncludeResource(r model.Resource, eventType EventType) {
 	switch r := r.(type) {
+	case *model.AgentVersion:
+		updates.AgentVersions.Include(r, eventType)
 	case *model.Source:
 		updates.Sources.Include(r, eventType)
 	case *model.SourceType:
@@ -85,6 +89,7 @@ func (updates *Updates) Empty() bool {
 // Size returns the sum of all updates of all types
 func (updates *Updates) Size() int {
 	return len(updates.Agents) +
+		len(updates.AgentVersions) +
 		len(updates.Sources) +
 		len(updates.SourceTypes) +
 		len(updates.Processors) +
@@ -281,8 +286,11 @@ func (updates *Updates) addConfigurationUpdatesFromComponents(configuration *mod
 func mergeUpdates(into, single *Updates) bool {
 	// first make sure we can safely merge
 	safe := into.Agents.CanSafelyMerge(single.Agents) &&
+		into.AgentVersions.CanSafelyMerge(single.AgentVersions) &&
 		into.Sources.CanSafelyMerge(single.Sources) &&
 		into.SourceTypes.CanSafelyMerge(single.SourceTypes) &&
+		into.Processors.CanSafelyMerge(single.Processors) &&
+		into.ProcessorTypes.CanSafelyMerge(single.ProcessorTypes) &&
 		into.Destinations.CanSafelyMerge(single.Destinations) &&
 		into.DestinationTypes.CanSafelyMerge(single.DestinationTypes) &&
 		into.Configurations.CanSafelyMerge(single.Configurations)
@@ -293,8 +301,11 @@ func mergeUpdates(into, single *Updates) bool {
 
 	// merge individual events
 	into.Agents.Merge(single.Agents)
+	into.AgentVersions.Merge(single.AgentVersions)
 	into.Sources.Merge(single.Sources)
 	into.SourceTypes.Merge(single.SourceTypes)
+	into.Processors.Merge(single.Processors)
+	into.ProcessorTypes.Merge(single.ProcessorTypes)
 	into.Destinations.Merge(single.Destinations)
 	into.DestinationTypes.Merge(single.DestinationTypes)
 	into.Configurations.Merge(single.Configurations)

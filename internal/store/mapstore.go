@@ -35,6 +35,7 @@ import (
 type mapStore struct {
 	agents map[string]*model.Agent
 
+	agentVersions    resourceStore[*model.AgentVersion]
 	configurations   resourceStore[*model.Configuration]
 	sources          resourceStore[*model.Source]
 	sourceTypes      resourceStore[*model.SourceType]
@@ -264,7 +265,7 @@ func (mapstore *mapStore) DeleteAgents(ctx context.Context, agentIDs []string) (
 	for _, id := range agentIDs {
 		if agent, ok := mapstore.agents[id]; ok {
 			// set status deleted
-			agent.Status = 5
+			agent.Status = model.Deleted
 
 			// save the agent to return
 			deleted = append(deleted, agent)
@@ -285,6 +286,23 @@ func (mapstore *mapStore) DeleteAgents(ctx context.Context, agentIDs []string) (
 	mapstore.notify(updates)
 
 	return deleted, nil
+}
+
+func (mapstore *mapStore) AgentVersion(name string) (*model.AgentVersion, error) {
+	return mapstore.agentVersions.get(name), nil
+}
+func (mapstore *mapStore) AgentVersions() ([]*model.AgentVersion, error) {
+	return mapstore.agentVersions.list(), nil
+}
+func (mapstore *mapStore) DeleteAgentVersion(name string) (*model.AgentVersion, error) {
+	item, exists, err := mapstore.agentVersions.removeAndNotify(name, mapstore)
+	if err != nil {
+		return item, err
+	}
+	if !exists {
+		return nil, nil
+	}
+	return item, nil
 }
 
 func (mapstore *mapStore) Configurations(options ...QueryOption) ([]*model.Configuration, error) {
@@ -438,6 +456,8 @@ func (mapstore *mapStore) ApplyResources(resources []model.Resource) ([]model.Re
 
 		var resourceStatus *model.ResourceStatus
 		switch r := resource.(type) {
+		case *model.AgentVersion:
+			resourceStatus = mapstore.agentVersions.add(r)
 		case *model.Configuration:
 			resourceStatus = mapstore.configurations.add(r)
 			if err := mapstore.configurationIndex.Upsert(resourceStatus.Resource); err != nil {
@@ -504,6 +524,9 @@ func (mapstore *mapStore) DeleteResources(resources []model.Resource) ([]model.R
 
 		var exists bool
 		switch r := r.(type) {
+		case *model.AgentVersion:
+			_, exists = mapstore.agentVersions.remove(r.Name())
+
 		case *model.Configuration:
 			c, e := mapstore.configurations.remove(r.Name())
 			if err := mapstore.configurationIndex.Remove(c); err != nil {

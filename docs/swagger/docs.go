@@ -30,6 +30,97 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/agent-versions": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List agent versions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentVersionsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agent-versions/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get agent version by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the agent version",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentVersionResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete agent version by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the agent version to delete",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Delete, no content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/agent-versions/{version}/install-command": {
             "get": {
                 "description": "Get the proper install command for the provided parameters.",
@@ -75,6 +166,44 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.InstallCommandResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agent-versions/{version}/sync": {
+            "post": {
+                "description": "Create an agent-version from the contents of a github release.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Sync Agent Version",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "2.1.1",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ApplyResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
                         }
                     }
                 }
@@ -190,6 +319,23 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/agents/version": {
+            "patch": {
+                "summary": "Update multiple agents",
+                "parameters": [
+                    {
+                        "description": "request body containing ids and version",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PatchAgentVersionsRequest"
+                        }
+                    }
+                ],
+                "responses": {}
             }
         },
         "/agents/{id}": {
@@ -382,7 +528,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "TODO update agent",
+                "summary": "Update agent",
                 "parameters": [
                     {
                         "type": "string",
@@ -390,6 +536,15 @@ const docTemplate = `{
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "request body containing version",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PostAgentVersionRequest"
+                        }
                     }
                 ],
                 "responses": {}
@@ -781,72 +936,6 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "Successful Delete, no content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/downloads/{agent}/{version}/{platform}/{type}/{file}": {
-            "get": {
-                "description": "Get the agent download with the specified parameters",
-                "produces": [
-                    "application/octet-stream"
-                ],
-                "summary": "Get Agent Download",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "observiq-agent",
-                        "name": "agent",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "2.1.1",
-                        "name": "version",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "darwin-arm64",
-                        "name": "platform",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "installer",
-                        "name": "type",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "observiq-agent-installer.sh",
-                        "name": "file",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "file"
-                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -1303,7 +1392,30 @@ const docTemplate = `{
                 "type": {
                     "type": "string"
                 },
+                "upgrade": {
+                    "description": "Upgrade stores information about an agent upgrade",
+                    "$ref": "#/definitions/model.AgentUpgrade"
+                },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentDownload": {
+            "type": "object",
+            "properties": {
+                "hash": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentInstaller": {
+            "type": "object",
+            "properties": {
+                "url": {
                     "type": "string"
                 }
             }
@@ -1343,6 +1455,102 @@ const docTemplate = `{
         },
         "model.AgentSelector": {
             "type": "object"
+        },
+        "model.AgentUpgrade": {
+            "type": "object",
+            "properties": {
+                "allPackagesHash": {
+                    "description": "AllPackagesHash is the hash of the packages sent to the agent to upgrade",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "error": {
+                    "description": "Error is set if there were errors upgrading the agent",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status indicates the progress of the agent upgrade",
+                    "type": "integer"
+                },
+                "version": {
+                    "description": "Version is used to indicate that an agent should be or is being upgraded. The agent status will be set to Upgrading\nwhen the upgrade begins.",
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentVersion": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "description": "Spec TODO(doc)",
+                    "$ref": "#/definitions/model.AgentVersionSpec"
+                }
+            }
+        },
+        "model.AgentVersionResponse": {
+            "type": "object",
+            "properties": {
+                "agentVersion": {
+                    "$ref": "#/definitions/model.AgentVersion"
+                }
+            }
+        },
+        "model.AgentVersionSpec": {
+            "type": "object",
+            "properties": {
+                "download": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/model.AgentDownload"
+                    }
+                },
+                "draft": {
+                    "type": "boolean"
+                },
+                "installer": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/model.AgentInstaller"
+                    }
+                },
+                "prerelease": {
+                    "type": "boolean"
+                },
+                "releaseDate": {
+                    "type": "string"
+                },
+                "releaseNotesURL": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentVersionsResponse": {
+            "type": "object",
+            "properties": {
+                "agentVersions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AgentVersion"
+                    }
+                }
+            }
         },
         "model.AgentsResponse": {
             "type": "object",
@@ -1682,6 +1890,28 @@ const docTemplate = `{
                     }
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PatchAgentVersionsRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PostAgentVersionRequest": {
+            "type": "object",
+            "properties": {
+                "version": {
                     "type": "string"
                 }
             }

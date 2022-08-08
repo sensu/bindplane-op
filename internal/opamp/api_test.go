@@ -371,6 +371,7 @@ service:
 			SecretKey: "secret",
 		},
 		testMapStore,
+		nil,
 		logger,
 	)
 	require.NoError(t, err)
@@ -842,7 +843,7 @@ func TestOnConnectingOpAMPCompatibility(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		testManager, err := server.NewManager(&common.Server{SecretKey: "a0f1db77-818a-4f1a-81a3-7b6a9613ef41"}, nil, zap.NewNop())
+		testManager, err := server.NewManager(&common.Server{SecretKey: "a0f1db77-818a-4f1a-81a3-7b6a9613ef41"}, nil, nil, zap.NewNop())
 		require.NoError(t, err)
 		testServer := newServer(testManager, zap.NewNop())
 		testServer.compatibleOpAMPVersions = []string{"v0.2.0"}

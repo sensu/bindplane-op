@@ -21,9 +21,11 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 
 	"github.com/observiq/bindplane-op/common"
+	"github.com/observiq/bindplane-op/internal/agent"
 	"github.com/observiq/bindplane-op/internal/eventbus"
 	"github.com/observiq/bindplane-op/internal/store"
 	"github.com/observiq/bindplane-op/model"
@@ -56,6 +58,8 @@ type Manager interface {
 	VerifySecretKey(ctx context.Context, secretKey string) bool
 	// ResourceStore provides access to the store to render configurations
 	ResourceStore() model.ResourceStore
+	// AgentVersion returns information about a version of an agent
+	AgentVersion(ctx context.Context, version string) (*model.AgentVersion, error)
 }
 
 // ----------------------------------------------------------------------
@@ -64,6 +68,7 @@ type manager struct {
 	// agentCleanupTicker   *time.Ticker
 	// agentHeartbeatTicker *time.Ticker
 	store     store.Store
+	versions  agent.Versions
 	logger    *zap.Logger
 	protocols []Protocol
 	secretKey string
@@ -72,11 +77,12 @@ type manager struct {
 var _ Manager = (*manager)(nil)
 
 // NewManager returns a new implementation of the Manager interface
-func NewManager(config *common.Server, store store.Store, logger *zap.Logger) (Manager, error) {
+func NewManager(config *common.Server, store store.Store, versions agent.Versions, logger *zap.Logger) (Manager, error) {
 	return &manager{
 		// agentCleanupTicker:   time.NewTicker(AgentCleanupInterval),
 		// agentHeartbeatTicker: time.NewTicker(AgentHeartbeatInterval),
 		store:     store,
+		versions:  versions,
 		logger:    logger,
 		protocols: []Protocol{},
 		secretKey: config.SecretKey,
@@ -205,11 +211,15 @@ func (m *manager) handleUpdates(updates *store.Updates) {
 			m.disconnect(change.Item.ID)
 			continue
 		}
+		agent := change.Item
 		// otherwise, we only care able label changes
 		if change.Type != store.EventTypeLabel {
+			// unless there is a pending version update
+			if agent.Upgrade != nil && agent.Upgrade.Status == model.UpgradePending {
+				pending.agent(agent).updates.Version = agent.Upgrade.Version
+			}
 			continue
 		}
-		agent := change.Item
 
 		// only consider connected agents
 		if !m.connected(agent.ID) {
@@ -219,7 +229,11 @@ func (m *manager) handleUpdates(updates *store.Updates) {
 		// this is only triggered for label changes right now, so we can just update that field
 		m.logger.Info("updating labels for agent", zap.String("agentID", agent.ID), zap.String("labels", agent.Labels.String()))
 		labels := agent.Labels.Custom()
-		pending.agent(agent).updates.Labels = &labels
+		agentUpdates := pending.agent(agent).updates
+		agentUpdates.Labels = &labels
+		if agent.Upgrade != nil && agent.Upgrade.Status == model.UpgradePending {
+			agentUpdates.Version = agent.Upgrade.Version
+		}
 
 		// if the labels changed, there may be new configuration
 		if configuration, err := m.store.AgentConfiguration(agent.ID); err != nil {
@@ -227,7 +241,7 @@ func (m *manager) handleUpdates(updates *store.Updates) {
 		} else {
 			if configuration != nil {
 				m.logger.Info("updating configuration for agent with new labels", zap.String("agentID", agent.ID), zap.String("labels", agent.Labels.String()), zap.String("configuration.name", configuration.Name()))
-				pending.agent(agent).updates.Configuration = configuration
+				agentUpdates.Configuration = configuration
 			}
 		}
 	}
@@ -301,6 +315,18 @@ func (m *manager) VerifySecretKey(ctx context.Context, secretKey string) bool {
 func (m *manager) ResourceStore() model.ResourceStore {
 	return m.store
 }
+
+// AgentVersion returns information about a version of an agent
+func (m *manager) AgentVersion(ctx context.Context, version string) (*model.AgentVersion, error) {
+	_, span := tracer.Start(ctx, "manager/AgentVersion")
+	defer span.End()
+
+	span.SetAttributes(attribute.String("version", version))
+
+	return m.versions.Version(version)
+}
+
+// ----------------------------------------------------------------------
 
 // handleAgentCleanup removes disconnected agents from the store.
 func (m *manager) handleAgentCleanup() {

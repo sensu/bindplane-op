@@ -24,6 +24,8 @@ import (
 	"go.uber.org/zap/zaptest"
 
 	"github.com/observiq/bindplane-op/common"
+	"github.com/observiq/bindplane-op/internal/agent"
+	"github.com/observiq/bindplane-op/internal/agent/mocks"
 	model1 "github.com/observiq/bindplane-op/internal/graphql/model"
 	"github.com/observiq/bindplane-op/internal/server"
 	"github.com/observiq/bindplane-op/internal/store"
@@ -37,6 +39,14 @@ func addAgent(s store.Store, agent *model.Agent) (*model.Agent, error) {
 	return agent, err
 }
 
+const mockLatestVersion = "v1.5.0"
+
+func mockVersions() agent.Versions {
+	v := &mocks.Versions{}
+	v.On("LatestVersionString").Return(mockLatestVersion)
+	return v
+}
+
 func TestQueryResolvers(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -45,7 +55,7 @@ func TestQueryResolvers(t *testing.T) {
 		MaxEventsToMerge: 1,
 	}, zap.NewNop())
 
-	bindplane, err := server.NewBindPlane(&common.Server{}, zaptest.NewLogger(t), mapstore, nil)
+	bindplane, err := server.NewBindPlane(&common.Server{}, zaptest.NewLogger(t), mapstore, mockVersions())
 	require.NoError(t, err)
 
 	srv := newHandler(bindplane)
@@ -105,7 +115,7 @@ func TestConfigForAgent(t *testing.T) {
 		MaxEventsToMerge: 1,
 	}, zap.NewNop())
 
-	bindplane, err := server.NewBindPlane(&common.Server{}, zaptest.NewLogger(t), mapstore, nil)
+	bindplane, err := server.NewBindPlane(&common.Server{}, zaptest.NewLogger(t), mapstore, mockVersions())
 	require.NoError(t, err)
 
 	srv := newHandler(bindplane)
@@ -156,6 +166,7 @@ func TestConfigForAgent(t *testing.T) {
 					}
 				}
 			}
+			LatestVersion string
 		}
 	}{}
 
@@ -171,6 +182,7 @@ func TestConfigForAgent(t *testing.T) {
 					}
 				}
 			}
+			latestVersion
 		}
 	}
 `
@@ -186,4 +198,6 @@ func TestConfigForAgent(t *testing.T) {
 			require.Nil(t, agent.ConfigurationResource)
 		}
 	}
+
+	require.Equal(t, mockLatestVersion, resp.Agents.LatestVersion)
 }

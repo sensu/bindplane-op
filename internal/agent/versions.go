@@ -15,19 +15,29 @@
 package agent
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/observiq/bindplane-op/internal/store"
 	"github.com/observiq/bindplane-op/internal/util"
+	"github.com/observiq/bindplane-op/model"
 	"go.uber.org/zap"
 )
 
-// Versions TODO(doc)
+const (
+	// VersionLatest can be used in requests instead of an actual version
+	VersionLatest = "latest"
+)
+
+// Versions manages versions of agents that are used during install and upgrade. The versions are stored in the Store as
+// agent-version resources, but Versions provides quick access to the latest version.
 type Versions interface {
 	LatestVersionString() string
-	LatestVersion() (*Version, error)
-	Version(version string) (*Version, error)
+	LatestVersion() (*model.AgentVersion, error)
+	Version(version string) (*model.AgentVersion, error)
 
-	Artifact(artifactType ArtifactType, version *Version, platform string) Artifact
+	SyncVersion(version string) (*model.AgentVersion, error)
+	SyncVersions() ([]*model.AgentVersion, error)
 }
 
 // VersionsSettings TODO(doc)
@@ -43,8 +53,8 @@ const (
 
 type versions struct {
 	client        Client
-	cache         Cache
-	latestVersion util.Remember[Version]
+	store         store.Store
+	latestVersion util.Remember[model.AgentVersion]
 	logger        *zap.Logger
 }
 
@@ -52,17 +62,11 @@ var _ Versions = (*versions)(nil)
 
 // NewVersions creates an implementation of Versions using the specified client, cache, and settings. To disable
 // caching, pass nil for the Cache.
-func NewVersions(client Client, cache Cache, settings VersionsSettings) Versions {
-	if client == nil {
-		client = &nopClient{}
-	}
-	if cache == nil {
-		cache = &nopCache{}
-	}
+func NewVersions(client Client, store store.Store, settings VersionsSettings) Versions {
 	return &versions{
 		client:        client,
-		cache:         cache,
-		latestVersion: util.NewRemember[Version](latestVersionCacheDuration),
+		store:         store,
+		latestVersion: util.NewRemember[model.AgentVersion](latestVersionCacheDuration),
 		logger:        settings.Logger,
 	}
 }
@@ -72,32 +76,33 @@ func (v *versions) LatestVersionString() string {
 	if err != nil {
 		return ""
 	}
-	return version.Version
+	return version.Version()
 }
 
-// LatestVersion returns the latest *Version.
-func (v *versions) LatestVersion() (*Version, error) {
-	version := VersionLatest
-
+// LatestVersion returns the latest *model.AgentVersion.
+func (v *versions) LatestVersion() (*model.AgentVersion, error) {
 	// check if we have a remembered result
 	if remembered := v.latestVersion.Get(); remembered != nil {
 		return remembered, nil
 	}
 
-	// always check the server for the latest
-	found, err := v.client.Version(version)
-	if found == nil || err != nil {
-		// on error, check the cache which may be outdated but allows installations to provide a cached latest version when
-		// disconnected
-		if cached := v.cache.Version(version); cached != nil {
-			return cached, nil
+	// find the latest public version
+	agentVersions, err := v.store.AgentVersions()
+	if err != nil {
+		return nil, err
+	}
+	model.SortAgentVersionsLatestFirst(agentVersions)
+
+	var found *model.AgentVersion
+	for _, agentVersion := range agentVersions {
+		if agentVersion.Public() {
+			found = agentVersion
+			break
 		}
-		return found, err
 	}
 
 	// cache it before returning
 	if found != nil {
-		v.cache.SaveLatestVersion(found)
 		v.latestVersion.Update(found)
 	}
 
@@ -106,31 +111,31 @@ func (v *versions) LatestVersion() (*Version, error) {
 
 // Version returns the specified agent version. If the version is invalid or does not exist, it returns an error. If
 // version is "latest", it returns the latest version.
-func (v *versions) Version(version string) (*Version, error) {
+func (v *versions) Version(version string) (*model.AgentVersion, error) {
 	if version == VersionLatest {
 		return v.LatestVersion()
 	}
 
-	// first try the cache
-	if cached := v.cache.Version(version); cached != nil {
-		return cached, nil
-	}
+	name := fmt.Sprintf("%s-%s", model.AgentTypeNameObservIQOtelCollector, version)
 
-	// not in the cache, download it
-	found, err := v.client.Version(version)
+	found, err := v.store.AgentVersion(name)
 	if err != nil {
 		return nil, err
-	}
-
-	// cache it before returning
-	if found != nil {
-		v.cache.SaveVersion(found)
 	}
 
 	return found, nil
 }
 
-// Artifact returns an Artifact corresponding to the specified artifact type, version, and platform
-func (v *versions) Artifact(artifactType ArtifactType, version *Version, platform string) Artifact {
-	return v.client.Artifact(artifactType, version, platform)
+func (v *versions) SyncVersion(version string) (*model.AgentVersion, error) {
+	if v.client == nil {
+		return nil, fmt.Errorf("unable to sync versions: server is running in offline mode")
+	}
+	return v.client.Version(version)
+}
+
+func (v *versions) SyncVersions() ([]*model.AgentVersion, error) {
+	if v.client == nil {
+		return nil, fmt.Errorf("unable to sync versions: server is running in offline mode")
+	}
+	return v.client.Versions()
 }

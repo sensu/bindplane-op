@@ -57,6 +57,10 @@ export function renderAgentStatus(
     case AgentStatus.CONFIGURING:
       statusText = "Configuring";
       break;
+    case AgentStatus.UPGRADING:
+      statusText = "Upgrading";
+      color = "warning";
+      break;
     default:
       statusText = "";
       break;

@@ -96,15 +96,6 @@ func TestValidate(t *testing.T) {
 			"",
 		},
 		{
-			"valid-agents-service-url",
-			Config{
-				Server: Server{
-					AgentsServiceURL: "https://github.com:3000",
-				},
-			},
-			"",
-		},
-		{
 			"valid-secret-key-uuid-v1",
 			Config{
 				Server: Server{
@@ -191,16 +182,6 @@ func TestValidate(t *testing.T) {
 			Config{
 				Server: Server{
 					StorageFilePath: "./testdata",
-				},
-				Client: Client{},
-			},
-			"",
-		},
-		{
-			"valid-agents-cache-path",
-			Config{
-				Server: Server{
-					DownloadsFolderPath: "./testdata",
 				},
 				Client: Client{},
 			},
@@ -477,25 +458,6 @@ func TestValidate(t *testing.T) {
 				Client: Client{},
 			},
 			"failed to lookup storage file path",
-		},
-		{
-			"invalid-agents-cache-path",
-			Config{
-				Server: Server{
-					DownloadsFolderPath: "/invalid/cache/path",
-				},
-				Client: Client{},
-			},
-			"failed to lookup agents cache path",
-		},
-		{
-			"invalid-agents-service-url",
-			Config{
-				Server: Server{
-					AgentsServiceURL: "ws://github.com:3000",
-				},
-			},
-			"failed to validate agents service url ws://github.com:3000: scheme ws is invalid: valid schemes are [http https]",
 		},
 	}
 

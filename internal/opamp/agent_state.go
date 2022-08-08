@@ -138,7 +138,7 @@ func (s *agentState) UpdateSequenceNumber(agentToServer *protobufs.AgentToServer
 }
 
 func (s *agentState) IsMissingMessage(agentToServer *protobufs.AgentToServer) bool {
-	return agentToServer.GetSequenceNum()-s.SequenceNum > 1
+	return agentToServer.GetSequenceNum()-s.SequenceNum != 1
 }
 
 // ----------------------------------------------------------------------

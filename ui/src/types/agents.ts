@@ -6,4 +6,5 @@ export enum AgentStatus {
   COMPONENT_FAILED = 4,
   DELETED = 5,
   CONFIGURING = 6,
+  UPGRADING = 7,
 }

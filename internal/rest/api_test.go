@@ -1258,6 +1258,22 @@ func TestRESTMock(t *testing.T) {
 			mockReturn:   []interface{}{agent1, nil},
 		},
 		{
+			method:   "POST",
+			endpoint: "/agents/does-not-exist/version",
+			requestBody: &model.PostAgentVersionRequest{
+				Version: "v1.5.0",
+			},
+			resultPtr:    &ErrorResponse{},
+			expectStatus: 404,
+			expectResult: &ErrorResponse{
+				Errors: []string{store.ErrResourceMissing.Error()},
+			},
+
+			mockFunction: "Agent",
+			mockArgs:     []interface{}{"does-not-exist"},
+			mockReturn:   []interface{}{nil, nil},
+		},
+		{
 			method:       "GET",
 			endpoint:     "/agents/does-not-exist",
 			requestBody:  nil,

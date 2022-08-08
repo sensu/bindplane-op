@@ -21,6 +21,14 @@ import (
 	"github.com/observiq/bindplane-op/internal/store/search"
 )
 
+// AgentTypeName is the name of a type of agent
+type AgentTypeName string
+
+const (
+	// AgentTypeNameObservIQOtelCollector is the name of the observIQ Distro for OpenTelemetry Collector
+	AgentTypeNameObservIQOtelCollector AgentTypeName = "observiq-otel-collector"
+)
+
 // AgentStatus TODO(doc)
 type AgentStatus uint8
 
@@ -45,7 +53,40 @@ const (
 	// Configuring is set on an Agent when it is sent a new configuration that has not been applied. After successful
 	// Configuring, it will transition back to Connected. If there is an error Configuring, it will transition to Error.
 	Configuring AgentStatus = 6
+
+	// Upgrading is set on an Agent when it has been sent a new package that is being applied. After Upgrading, it will
+	// transition back to Connected or Error unless it already has the Configuring status.
+	Upgrading AgentStatus = 7
 )
+
+// AgentUpgradeStatus is the status of the AgentUpgrade
+type AgentUpgradeStatus uint8
+
+const (
+	// UpgradePending is set when the upgrade is initially started
+	UpgradePending AgentUpgradeStatus = 0
+	// UpgradeStarted is set when the upgrade has been sent to the agent
+	UpgradeStarted AgentUpgradeStatus = 1
+	// UpgradeFailed is set when the upgrade is complete but there was an error. If the upgrade is successful, the Agent
+	// Upgrade field will be set to nil and there is no corresponding status.
+	UpgradeFailed AgentUpgradeStatus = 2
+)
+
+// AgentUpgrade stores information on an Agent about the upgrade process.
+type AgentUpgrade struct {
+	// Status indicates the progress of the agent upgrade
+	Status AgentUpgradeStatus `json:"status" yaml:"status"`
+
+	// Version is used to indicate that an agent should be or is being upgraded. The agent status will be set to Upgrading
+	// when the upgrade begins.
+	Version string `json:"version,omitempty" yaml:"version,omitempty"`
+
+	// AllPackagesHash is the hash of the packages sent to the agent to upgrade
+	AllPackagesHash []byte `json:"allPackagesHash,omitempty" yaml:"allPackagesHash,omitempty"`
+
+	// Error is set if there were errors upgrading the agent
+	Error string `json:"error,omitempty" yaml:"error,omitempty"`
+}
 
 // Agent TODO(doc)
 type Agent struct {
@@ -64,6 +105,9 @@ type Agent struct {
 
 	// SecretKey is provided by the agent to authenticate
 	SecretKey string `json:"-" yaml:"-"`
+
+	// Upgrade stores information about an agent upgrade
+	Upgrade *AgentUpgrade `json:"upgrade,omitempty" yaml:"upgrade,omitempty"`
 
 	// reported by Status messages
 	Status       AgentStatus `json:"status"`
@@ -103,6 +147,8 @@ func (a *Agent) StatusDisplayText() string {
 		return "Deleted"
 	case Configuring:
 		return "Configuring"
+	case Upgrading:
+		return "Upgrading"
 	default:
 		return "Unknown"
 	}
@@ -159,6 +205,57 @@ func durationDisplay(t *time.Time) string {
 		return "-"
 	}
 	return time.Since(*t).Round(time.Second).String()
+}
+
+// ----------------------------------------------------------------------
+// upgrading
+
+// UpgradeTo begins an upgrade by setting the status to Upgrading and setting the Upgrade field to the specified
+// version.
+func (a *Agent) UpgradeTo(version string) {
+	a.Upgrade = &AgentUpgrade{
+		Version: version,
+		Status:  UpgradePending,
+	}
+	a.Status = Upgrading
+}
+
+// UpgradeStarted it set when the upgrade instructions have actually been sent to the Agent.
+func (a *Agent) UpgradeStarted(version string, allPackagesHash []byte) {
+	a.Upgrade = &AgentUpgrade{
+		Version:         version,
+		Status:          UpgradeStarted,
+		AllPackagesHash: allPackagesHash,
+	}
+	a.Status = Upgrading
+}
+
+// UpgradeComplete completes an upgrade by setting the status back to either Connected or Error (depending on
+// ErrorMessage) and either removing the AgentUpgrade field or setting the Error on it if the specified errorMessage is
+// not empty.
+func (a *Agent) UpgradeComplete(version, errorMessage string) {
+	if errorMessage != "" {
+		// set the errorMessage on the AgentUpgrade
+		if a.Upgrade == nil {
+			a.Upgrade = &AgentUpgrade{}
+		}
+		a.Upgrade.Status = UpgradeFailed
+		a.Upgrade.Error = errorMessage
+		if version != "" {
+			a.Upgrade.Version = version
+		}
+	} else {
+		// clear the upgrade and reset the Status. if the Status is Configuring, allow the configuring process to continue.
+		a.Upgrade = nil
+	}
+	if a.Status != Configuring {
+		// preserve Error state if a configuration error exists after update.
+		if a.ErrorMessage != "" {
+			a.Status = Error
+		} else {
+			a.Status = Connected
+		}
+	}
 }
 
 // ----------------------------------------------------------------------

@@ -37,6 +37,8 @@ export type Agent = {
   remoteAddress?: Maybe<Scalars['String']>;
   status: Scalars['Int'];
   type?: Maybe<Scalars['String']>;
+  upgrade?: Maybe<AgentUpgrade>;
+  upgradeAvailable?: Maybe<Scalars['String']>;
   version?: Maybe<Scalars['String']>;
 };
 
@@ -64,9 +66,17 @@ export type AgentSelector = {
   matchLabels?: Maybe<Scalars['Map']>;
 };
 
+export type AgentUpgrade = {
+  __typename?: 'AgentUpgrade';
+  error?: Maybe<Scalars['String']>;
+  status: Scalars['Int'];
+  version: Scalars['String'];
+};
+
 export type Agents = {
   __typename?: 'Agents';
   agents: Array<Agent>;
+  latestVersion: Scalars['String'];
   query?: Maybe<Scalars['String']>;
   suggestions?: Maybe<Array<Suggestion>>;
 };
@@ -374,7 +384,7 @@ export type AgentsTableQueryVariables = Exact<{
 }>;
 
 
-export type AgentsTableQuery = { __typename?: 'Query', agents: { __typename?: 'Agents', query?: string | null, agents: Array<{ __typename?: 'Agent', id: string, architecture?: string | null, hostName?: string | null, labels?: any | null, platform?: string | null, version?: string | null, name: string, home?: string | null, operatingSystem?: string | null, macAddress?: string | null, type?: string | null, status: number, connectedAt?: any | null, disconnectedAt?: any | null, configurationResource?: { __typename?: 'Configuration', apiVersion: string, kind: string, metadata: { __typename?: 'Metadata', id: string, name: string }, spec: { __typename?: 'ConfigurationSpec', contentType?: string | null } } | null }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
+export type AgentsTableQuery = { __typename?: 'Query', agents: { __typename?: 'Agents', query?: string | null, latestVersion: string, agents: Array<{ __typename?: 'Agent', id: string, architecture?: string | null, hostName?: string | null, labels?: any | null, platform?: string | null, version?: string | null, name: string, home?: string | null, operatingSystem?: string | null, macAddress?: string | null, type?: string | null, status: number, connectedAt?: any | null, disconnectedAt?: any | null, configurationResource?: { __typename?: 'Configuration', apiVersion: string, kind: string, metadata: { __typename?: 'Metadata', id: string, name: string }, spec: { __typename?: 'ConfigurationSpec', contentType?: string | null } } | null }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
 
 export type GetDestinationTypeDisplayInfoQueryVariables = Exact<{
   name: Scalars['String'];
@@ -424,7 +434,7 @@ export type GetAgentAndConfigurationsQueryVariables = Exact<{
 }>;
 
 
-export type GetAgentAndConfigurationsQuery = { __typename?: 'Query', agent?: { __typename?: 'Agent', id: string, name: string, architecture?: string | null, operatingSystem?: string | null, labels?: any | null, hostName?: string | null, platform?: string | null, version?: string | null, macAddress?: string | null, remoteAddress?: string | null, home?: string | null, status: number, connectedAt?: any | null, disconnectedAt?: any | null, errorMessage?: string | null, configuration?: { __typename?: 'AgentConfiguration', Collector?: string | null } | null, configurationResource?: { __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string } } | null } | null, configurations: { __typename?: 'Configurations', configurations: Array<{ __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string, labels?: any | null }, spec: { __typename?: 'ConfigurationSpec', raw?: string | null } }> } };
+export type GetAgentAndConfigurationsQuery = { __typename?: 'Query', agent?: { __typename?: 'Agent', id: string, name: string, architecture?: string | null, operatingSystem?: string | null, labels?: any | null, hostName?: string | null, platform?: string | null, version?: string | null, macAddress?: string | null, remoteAddress?: string | null, home?: string | null, status: number, connectedAt?: any | null, disconnectedAt?: any | null, errorMessage?: string | null, upgradeAvailable?: string | null, configuration?: { __typename?: 'AgentConfiguration', Collector?: string | null } | null, configurationResource?: { __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string } } | null, upgrade?: { __typename?: 'AgentUpgrade', status: number, version: string, error?: string | null } | null } | null, configurations: { __typename?: 'Configurations', configurations: Array<{ __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string, labels?: any | null }, spec: { __typename?: 'ConfigurationSpec', raw?: string | null } }> } };
 
 export type GetConfigurationNamesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -628,6 +638,7 @@ export const AgentsTableDocument = gql`
       query
       label
     }
+    latestVersion
   }
 }
     `;
@@ -959,6 +970,12 @@ export const GetAgentAndConfigurationsDocument = gql`
         name
       }
     }
+    upgrade {
+      status
+      version
+      error
+    }
+    upgradeAvailable
   }
   configurations {
     configurations {

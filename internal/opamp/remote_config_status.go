@@ -64,6 +64,8 @@ func updateAgentStatus(logger *zap.Logger, agent *model.Agent, remoteStatus *pro
 			agent.Status = model.Connected
 			agent.ErrorMessage = ""
 		}
+	case model.Upgrading:
+		// upgrading will be cleared by model.Agent.UpgradeComplete
 	default:
 		// either RemoteConfigStatus wasn't sent or wasn't failed
 		agent.Status = model.Connected

@@ -15,6 +15,7 @@
 package opamp
 
 import (
+	"bytes"
 	"context"
 
 	"github.com/observiq/bindplane-op/model"
@@ -44,6 +45,35 @@ func (s *packageStatusesSyncer) agentCapabilitiesFlag() protobufs.AgentCapabilit
 }
 
 func (s *packageStatusesSyncer) update(ctx context.Context, logger *zap.Logger, state *agentState, conn opamp.Connection, agent *model.Agent, value *protobufs.PackageStatuses) error {
+	// if an upgrade is in progress but the hash doesn't match, ignore the message. this could happen if two upgrades
+	// happen in quick succession and we will get another update soon.
+	if agent.Upgrade != nil && !bytes.Equal(agent.Upgrade.AllPackagesHash, value.ServerProvidedAllPackagesHash) {
+		return nil
+	}
+
 	state.Status.PackageStatuses = value
+
+	upgradeComplete := false
+
+	errorMessage := value.ErrorMessage
+	var agentVersion string
+	if agent.Upgrade != nil {
+		agentVersion = agent.Upgrade.Version
+	}
+
+	if packages := value.GetPackages(); packages != nil {
+		if collector := packages[CollectorPackageName]; collector != nil {
+			upgradeComplete = collector.Status == protobufs.PackageStatus_InstallFailed || collector.Status == protobufs.PackageStatus_Installed
+			agentVersion = collector.AgentHasVersion
+			if collector.ErrorMessage != "" {
+				errorMessage = collector.ErrorMessage
+			}
+		}
+	}
+
+	if upgradeComplete {
+		agent.UpgradeComplete(agentVersion, errorMessage)
+	}
+
 	return nil
 }

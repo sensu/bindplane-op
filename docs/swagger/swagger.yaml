@@ -38,7 +38,22 @@ definitions:
         type: integer
       type:
         type: string
+      upgrade:
+        $ref: '#/definitions/model.AgentUpgrade'
+        description: Upgrade stores information about an agent upgrade
       version:
+        type: string
+    type: object
+  model.AgentDownload:
+    properties:
+      hash:
+        type: string
+      url:
+        type: string
+    type: object
+  model.AgentInstaller:
+    properties:
+      url:
         type: string
     type: object
   model.AgentLabelsPayload:
@@ -63,6 +78,73 @@ definitions:
         $ref: '#/definitions/model.Agent'
     type: object
   model.AgentSelector:
+    type: object
+  model.AgentUpgrade:
+    properties:
+      allPackagesHash:
+        description: AllPackagesHash is the hash of the packages sent to the agent
+          to upgrade
+        items:
+          type: integer
+        type: array
+      error:
+        description: Error is set if there were errors upgrading the agent
+        type: string
+      status:
+        description: Status indicates the progress of the agent upgrade
+        type: integer
+      version:
+        description: |-
+          Version is used to indicate that an agent should be or is being upgraded. The agent status will be set to Upgrading
+          when the upgrade begins.
+        type: string
+    type: object
+  model.AgentVersion:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        $ref: '#/definitions/model.AgentVersionSpec'
+        description: Spec TODO(doc)
+    type: object
+  model.AgentVersionResponse:
+    properties:
+      agentVersion:
+        $ref: '#/definitions/model.AgentVersion'
+    type: object
+  model.AgentVersionSpec:
+    properties:
+      download:
+        additionalProperties:
+          $ref: '#/definitions/model.AgentDownload'
+        type: object
+      draft:
+        type: boolean
+      installer:
+        additionalProperties:
+          $ref: '#/definitions/model.AgentInstaller'
+        type: object
+      prerelease:
+        type: boolean
+      releaseDate:
+        type: string
+      releaseNotesURL:
+        type: string
+      type:
+        type: string
+      version:
+        type: string
+    type: object
+  model.AgentVersionsResponse:
+    properties:
+      agentVersions:
+        items:
+          $ref: '#/definitions/model.AgentVersion'
+        type: array
     type: object
   model.AgentsResponse:
     properties:
@@ -292,6 +374,20 @@ definitions:
       type:
         type: string
     type: object
+  model.PatchAgentVersionsRequest:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+      version:
+        type: string
+    type: object
+  model.PostAgentVersionRequest:
+    properties:
+      version:
+        type: string
+    type: object
   model.Processor:
     properties:
       apiVersion:
@@ -475,6 +571,65 @@ definitions:
 info:
   contact: {}
 paths:
+  /agent-versions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AgentVersionsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List agent versions
+  /agent-versions/{name}:
+    delete:
+      parameters:
+      - description: the name of the agent version to delete
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful Delete, no content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete agent version by name
+    get:
+      parameters:
+      - description: the name of the agent version
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AgentVersionResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get agent version by name
   /agent-versions/{version}/install-command:
     get:
       description: Get the proper install command for the provided parameters.
@@ -508,6 +663,31 @@ paths:
           schema:
             $ref: '#/definitions/model.InstallCommandResponse'
       summary: Get Install Command
+  /agent-versions/{version}/sync:
+    post:
+      description: Create an agent-version from the contents of a github release.
+      parameters:
+      - description: 2.1.1
+        in: path
+        name: version
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ApplyResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Sync Agent Version
   /agents:
     delete:
       parameters:
@@ -678,10 +858,16 @@ paths:
         name: name
         required: true
         type: string
+      - description: request body containing version
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PostAgentVersionRequest'
       produces:
       - application/json
       responses: {}
-      summary: TODO update agent
+      summary: Update agent
   /agents/labels:
     patch:
       parameters:
@@ -714,6 +900,17 @@ paths:
           schema:
             $ref: '#/definitions/model.BulkAgentLabelsResponse'
       summary: Bulk apply labels to agents
+  /agents/version:
+    patch:
+      parameters:
+      - description: request body containing ids and version
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PatchAgentVersionsRequest'
+      responses: {}
+      summary: Update multiple agents
   /apply:
     post:
       description: |-
@@ -981,51 +1178,6 @@ paths:
           schema:
             $ref: '#/definitions/rest.ErrorResponse'
       summary: Get destination by name
-  /downloads/{agent}/{version}/{platform}/{type}/{file}:
-    get:
-      description: Get the agent download with the specified parameters
-      parameters:
-      - description: observiq-agent
-        in: path
-        name: agent
-        required: true
-        type: string
-      - description: 2.1.1
-        in: path
-        name: version
-        required: true
-        type: string
-      - description: darwin-arm64
-        in: path
-        name: platform
-        required: true
-        type: string
-      - description: installer
-        in: path
-        name: type
-        required: true
-        type: string
-      - description: observiq-agent-installer.sh
-        in: path
-        name: file
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: file
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.ErrorResponse'
-      summary: Get Agent Download
   /processor-types:
     get:
       produces:

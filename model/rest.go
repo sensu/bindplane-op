@@ -55,6 +55,16 @@ type BulkAgentLabelsResponse struct {
 	Errors []string `json:"errors"`
 }
 
+// AgentVersionsResponse is the REST API response to GET /v1/agent-versions
+type AgentVersionsResponse struct {
+	AgentVersions []*AgentVersion `json:"agentVersions"`
+}
+
+// AgentVersionResponse is the REST API response to GET /v1/agent-versions/:name
+type AgentVersionResponse struct {
+	AgentVersion *AgentVersion `json:"agentVersion"`
+}
+
 // ConfigurationsResponse is the REST API response to GET /v1/configurations
 type ConfigurationsResponse struct {
 	Configurations []*Configuration `json:"configurations"`
@@ -165,6 +175,12 @@ type DeleteResponseClientSide struct {
 // InstallCommandResponse is the REST API response to GET /v1/agent-versions/{version}/install-command
 type InstallCommandResponse struct {
 	Command string `json:"command"`
+}
+
+// PatchAgentVersionsRequest is the REST API body for PATCH /v1/agents/version
+type PatchAgentVersionsRequest struct {
+	Version string   `json:"version"`
+	IDs     []string `json:"ids"`
 }
 
 // PostAgentVersionRequest is the REST API body for POST /v1/agents/{id}/version

@@ -44,6 +44,7 @@ const resultData: AgentsTableQuery = {
     agents: generateAgents(50),
     suggestions: [],
     query: "",
+    latestVersion: "v1.5.0",
   },
 };
 

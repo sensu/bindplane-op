@@ -1,6 +1,6 @@
 import { Button, Typography } from "@mui/material";
-import { GridRowParams, GridSelectionModel } from "@mui/x-data-grid";
-import React, { useState } from "react";
+import { GridSelectionModel } from "@mui/x-data-grid";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { CardContainer } from "../../components/CardContainer";
 import { PlusCircleIcon } from "../../components/Icons";
@@ -8,27 +8,34 @@ import { AgentsTable } from "../../components/Tables/AgentsTable";
 import { classes } from "../../utils/styles";
 import { deleteAgents } from "../../utils/rest/delete-agents";
 import { useSnackbar } from "notistack";
-import { Agent } from "../../graphql/generated";
-import { AgentStatus } from "../../types/agents";
 import { ConfirmDeleteResourceDialog } from "../../components/ConfirmDeleteResourceDialog";
 import { withRequireLogin } from "../../contexts/RequireLogin";
 import { withNavBar } from "../../components/NavBar";
+import { isFunction } from "lodash";
+import { upgradeAgents } from "../../utils/rest/upgrade-agent";
 
 import mixins from "../../styles/mixins.module.scss";
 
 export const AgentsPageContent: React.FC = () => {
-  const [selectedAgents, setSelectedAgents] = useState<GridSelectionModel>([]);
+  const [updatable, setUpdatable] = useState<GridSelectionModel>([]);
+  const [deletable, setDeletable] = useState<GridSelectionModel>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  const clearSelectionModelFnRef = useRef<(() => void) | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
-  function handleSelect(g: GridSelectionModel) {
-    setSelectedAgents(g);
+  function handleSelectUpdatable(agentIds: GridSelectionModel) {
+    setUpdatable(agentIds);
+  }
+  function handleSelectDeletable(agentIds: GridSelectionModel) {
+    setDeletable(agentIds);
   }
 
   async function handleDeleteAgents() {
     try {
-      await deleteAgents(selectedAgents as string[]);
+      await deleteAgents(deletable as string[]);
+      setDeletable([]);
       setDeleteConfirmOpen(false);
     } catch (err) {
       console.error(err);
@@ -36,19 +43,37 @@ export const AgentsPageContent: React.FC = () => {
     }
   }
 
-  function isRowSelectable(params: GridRowParams<Agent>): boolean {
-    return params.row.status === AgentStatus.DISCONNECTED;
+  async function handleUpgradeAgents() {
+    try {
+      const errors = await upgradeAgents(updatable as string[]);
+
+      if (isFunction(clearSelectionModelFnRef.current)) {
+        clearSelectionModelFnRef.current();
+      }
+
+      setUpdatable([]);
+
+      if (errors.length > 0) {
+        console.error("Upgrade errors.", { errors });
+      }
+    } catch (err) {
+      enqueueSnackbar("Failed to send upgrade request.", {
+        variant: "error",
+        key: "Failed to send upgrade request.",
+      });
+    }
   }
 
   return (
     <>
+      {/* --------------------- Delete Button and Confirmation --------------------- */}
       <ConfirmDeleteResourceDialog
         onDelete={handleDeleteAgents}
         onCancel={() => setDeleteConfirmOpen(false)}
         action={"delete"}
         open={deleteConfirmOpen}
-        title={`Delete ${selectedAgents.length} Agent${
-          selectedAgents.length > 1 ? "s" : ""
+        title={`Delete ${deletable.length} Disconnected Agent${
+          deletable.length > 1 ? "s" : ""
         }?`}
       >
         <>
@@ -68,15 +93,29 @@ export const AgentsPageContent: React.FC = () => {
           Install Agents
         </Button>
 
-        {selectedAgents.length > 0 && (
+        {deletable.length > 0 && (
           <Button
             variant="contained"
             color="error"
             classes={{ root: classes([mixins["float-right"], mixins["mr-3"]]) }}
             onClick={() => setDeleteConfirmOpen(true)}
           >
-            Delete {selectedAgents.length} Agent
-            {selectedAgents.length > 1 && "s"}
+            Delete {deletable.length} Disconnected Agent
+            {deletable.length > 1 && "s"}
+          </Button>
+        )}
+
+        {/* --------------------- Update Button and Confirmation ---------------------  */}
+
+        {updatable.length > 0 && (
+          <Button
+            variant="outlined"
+            color="primary"
+            classes={{ root: classes([mixins["float-right"], mixins["mr-3"]]) }}
+            onClick={handleUpgradeAgents}
+          >
+            Upgrade {updatable.length} Outdated Agent
+            {updatable.length > 1 && "s"}
           </Button>
         )}
 
@@ -85,8 +124,9 @@ export const AgentsPageContent: React.FC = () => {
         </Typography>
 
         <AgentsTable
-          onAgentsSelected={handleSelect}
-          isRowSelectable={isRowSelectable}
+          onDeletableAgentsSelected={handleSelectDeletable}
+          onUpdatableAgentsSelected={handleSelectUpdatable}
+          clearSelectionModelFnRef={clearSelectionModelFnRef}
         />
       </CardContainer>
     </>

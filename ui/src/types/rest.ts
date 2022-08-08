@@ -49,3 +49,7 @@ export interface CopyConfigPayload {
 }
 
 export type CopyConfigResponse = CopyConfigPayload;
+
+export interface UpgradeAgentResponse {
+  errors: string[];
+}

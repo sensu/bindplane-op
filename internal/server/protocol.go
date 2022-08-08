@@ -28,6 +28,9 @@ type AgentUpdates struct {
 
 	// Configuration changes are only supported by OpAMP
 	Configuration *model.Configuration
+
+	// Version instructs the agent to install a specific version
+	Version string
 }
 
 // Protocol represents a communication protocol for managing agents
@@ -53,5 +56,5 @@ type Protocol interface {
 
 // Empty returns true if the updates are empty because no changes need to be made to the agent
 func (u *AgentUpdates) Empty() bool {
-	return u.Labels == nil && u.Configuration == nil
+	return u.Labels == nil && u.Configuration == nil && u.Version == ""
 }

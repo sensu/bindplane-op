@@ -38,7 +38,6 @@ func TestAsConfigFileName(t *testing.T) {
 		{name: "tls-key", expect: "tlsKey"},
 		{name: "tls-ca", expect: "tlsCa"},
 		{name: "offline", expect: "offline"},
-		{name: "agents-service-url", expect: "agentsServiceURL"},
 		{name: "downloads-folder-path", expect: "downloadsFolderPath"},
 		{name: "disable-downloads-cache", expect: "disableDownloadsCache"},
 		{name: "log-file-path", expect: "logFilePath"},

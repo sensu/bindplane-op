@@ -50,6 +50,7 @@ const (
 	KindContext         Kind = "Context"
 	KindConfiguration   Kind = "Configuration"
 	KindAgent           Kind = "Agent"
+	KindAgentVersion    Kind = "AgentVersion"
 	KindSource          Kind = "Source"
 	KindProcessor       Kind = "Processor"
 	KindDestination     Kind = "Destination"
@@ -68,6 +69,7 @@ func createKindLookup() map[string]Kind {
 		KindContext,
 		KindConfiguration,
 		KindAgent,
+		KindAgentVersion,
 		KindSource,
 		KindProcessor,
 		KindDestination,
@@ -261,6 +263,8 @@ func ParseResource(r *AnyResource) (Resource, error) {
 		return parseResource(r, &Destination{})
 	case KindDestinationType:
 		return parseResource(r, &DestinationType{})
+	case KindAgentVersion:
+		return parseResource(r, &AgentVersion{})
 	}
 
 	return nil, fmt.Errorf("unknown resource kind: %s", r.Kind)
@@ -398,6 +402,8 @@ func (m *Metadata) indexLabels(index search.Indexer) {
 // NewEmptyResource will return a zero value struct for the given resource kind.
 func NewEmptyResource(kind Kind) (Resource, error) {
 	switch kind {
+	case KindAgentVersion:
+		return &AgentVersion{}, nil
 	case KindConfiguration:
 		return &Configuration{}, nil
 	case KindSource:

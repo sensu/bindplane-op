@@ -44,7 +44,14 @@ func AddRestRoutes(router gin.IRouter, bindplane server.BindPlane) {
 	router.PATCH("/agents/:id/labels", func(c *gin.Context) { patchAgentLabels(c, bindplane) })
 	router.PUT("/agents/:id/restart", func(c *gin.Context) { restartAgent(c, bindplane) })
 	router.POST("/agents/:id/version", func(c *gin.Context) { updateAgent(c, bindplane) })
+	router.PATCH("/agents/version", func(c *gin.Context) { upgradeAgents(c, bindplane) })
 	router.GET("/agents/:id/configuration", func(c *gin.Context) { getAgentConfiguration(c, bindplane) })
+
+	router.GET("/agent-versions", func(c *gin.Context) { agentVersions(c, bindplane) })
+	router.GET("/agent-versions/:name", func(c *gin.Context) { agentVersion(c, bindplane) })
+	router.DELETE("/agent-versions/:name", func(c *gin.Context) { deleteAgentVersion(c, bindplane) })
+	router.GET("/agent-versions/:name/install-command", func(c *gin.Context) { getInstallCommand(c, bindplane) })
+	router.POST("/agent-versions/:name/sync", func(c *gin.Context) { syncAgentVersion(c, bindplane) })
 
 	router.GET("/configurations", func(c *gin.Context) { configurations(c, bindplane) })
 	router.GET("/configurations/:name", func(c *gin.Context) { configuration(c, bindplane) })
@@ -79,7 +86,6 @@ func AddRestRoutes(router gin.IRouter, bindplane server.BindPlane) {
 	router.POST("/delete", func(c *gin.Context) { deleteResources(c, bindplane) })
 
 	router.GET("/version", func(c *gin.Context) { bindplaneVersion(c) })
-	router.GET("/agent-versions/:version/install-command", func(c *gin.Context) { getInstallCommand(c, bindplane) })
 }
 
 // @Summary List agents
@@ -398,12 +404,58 @@ func restartAgent(c *gin.Context, bindplane server.BindPlane) {
 	c.Status(http.StatusAccepted)
 }
 
-// @Summary TODO update agent
+// @Summary Update multiple agents
+// @Router /agents/version [patch]
+// @Param body body model.PatchAgentVersionsRequest true "request body containing ids and version"
+func upgradeAgents(c *gin.Context, bindplane server.BindPlane) {
+	ctx, span := tracer.Start(c.Request.Context(), "rest/upgradeAgents")
+	defer span.End()
+
+	req := &struct {
+		IDs     []string
+		Version string
+	}{}
+
+	if err := c.BindJSON(req); err != nil {
+		handleErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
+	var version string
+	if req.Version == "" {
+		version = bindplane.Versions().LatestVersionString()
+	} else {
+		version = req.Version
+	}
+
+	for _, id := range req.IDs {
+		// just ignore agents that don't exist
+		agent, err := bindplane.Store().Agent(id)
+		if err != nil || agent == nil {
+			continue
+		}
+
+		_, err = bindplane.Store().UpsertAgent(ctx, id, func(current *model.Agent) {
+			current.UpgradeTo(version)
+		})
+		if err != nil {
+			handleErrorResponse(c, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// @Summary Update agent
 // @Produce json
-// TODO (dsvanlani): document body params
 // @Router /agents/{id}/version [post]
 // @Param 	name	path	string	true "the id of the agent"
+// @Param body body model.PostAgentVersionRequest true "request body containing version"
 func updateAgent(c *gin.Context, bindplane server.BindPlane) {
+	ctx, span := tracer.Start(c.Request.Context(), "rest/updateAgent")
+	defer span.End()
+
 	id := c.Param("id")
 	var req model.PostAgentVersionRequest
 
@@ -412,11 +464,78 @@ func updateAgent(c *gin.Context, bindplane server.BindPlane) {
 		return
 	}
 
-	// TODO(andy): Update the version
-	bindplane.Logger().Info("TODO Update agent", zap.String("id", id), zap.String("version", req.Version))
+	agent, err := bindplane.Store().Agent(id)
+	switch {
+	case err != nil:
+		handleErrorResponse(c, http.StatusInternalServerError, err)
+		return
+
+	case agent == nil:
+		handleErrorResponse(c, http.StatusNotFound, store.ErrResourceMissing)
+		return
+	}
+
+	// start an upgrade process
+	_, err = bindplane.Store().UpsertAgent(ctx, id, func(current *model.Agent) {
+		current.UpgradeTo(req.Version)
+	})
+	if err != nil {
+		handleErrorResponse(c, http.StatusInternalServerError, err)
+		return
+	}
 
 	c.Status(http.StatusNoContent)
 }
+
+// ----------------------------------------------------------------------
+
+// @Summary List agent versions
+// @Produce json
+// @Router /agent-versions [get]
+// @Success 200 {object} model.AgentVersionsResponse
+// @Failure 500 {object} ErrorResponse
+func agentVersions(c *gin.Context, bindplane server.BindPlane) {
+	agentVersions, err := bindplane.Store().AgentVersions()
+	if okResponse(c, err) {
+		c.JSON(http.StatusOK, model.AgentVersionsResponse{
+			AgentVersions: agentVersions,
+		})
+	}
+}
+
+// @Summary Get agent version by name
+// @Produce json
+// @Router /agent-versions/{name} [get]
+// @Param 	name	path	string	true "the name of the agent version"
+// @Success 200 {object} model.AgentVersionResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+func agentVersion(c *gin.Context, bindplane server.BindPlane) {
+	name := c.Param("name")
+	agentVersion, err := bindplane.Store().AgentVersion(name)
+	if okResource(c, agentVersion == nil, err) {
+		c.JSON(http.StatusOK, model.AgentVersionResponse{
+			AgentVersion: agentVersion,
+		})
+	}
+}
+
+// @Summary Delete agent version by name
+// @Produce json
+// @Router /agent-versions/{name} [delete]
+// @Param 	name	path	string	true "the name of the agent version to delete"
+// @Success 204	"Successful Delete, no content"
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+func deleteAgentVersion(c *gin.Context, bindplane server.BindPlane) {
+	name := c.Param("name")
+	agentVersion, err := bindplane.Store().DeleteAgentVersion(name)
+	if okResource(c, agentVersion == nil, err) {
+		c.Status(http.StatusNoContent)
+	}
+}
+
+// ----------------------------------------------------------------------
 
 // @Summary List Configurations
 // @Produce json
@@ -966,18 +1085,18 @@ func getInstallCommand(c *gin.Context, bindplane server.BindPlane) {
 	serverURL := bindplane.Config().BindPlaneURL()
 
 	// if version is empty or "latest", find the latest version
-	version := c.Param("version")
-	// if version == "" || version == "latest" {
-	// 	v, err := bindplane.Versions().LatestVersion()
-	// 	if err != nil {
-	// 		handleErrorResponse(c, http.StatusInternalServerError,
-	// 			fmt.Errorf("unable to get the latest version of the agent: %w", err),
-	// 		)
-	// 		c.Status(http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	version = v.Version
-	// }
+	version := c.Param("name")
+	if version == "" || version == "latest" {
+		v, err := bindplane.Versions().LatestVersion()
+		if err != nil {
+			handleErrorResponse(c, http.StatusInternalServerError,
+				fmt.Errorf("unable to get the latest version of the agent: %w", err),
+			)
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+		version = v.Version()
+	}
 
 	platform, ok := normalizePlatform(c.Query("platform"))
 	if !ok {
@@ -998,6 +1117,50 @@ func getInstallCommand(c *gin.Context, bindplane server.BindPlane) {
 		Command: params.installCommand(),
 	}
 	c.JSON(http.StatusOK, response)
+}
+
+// @Summary Sync Agent Version
+// @Description Create an agent-version from the contents of a github release.
+// @Produce json
+// @Router /agent-versions/{version}/sync [post]
+// @Param version 	path	string	true "2.1.1"
+// @Success 200 {object} model.ApplyResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+func syncAgentVersion(c *gin.Context, bindplane server.BindPlane) {
+	var resources []model.Resource
+
+	// create an agent-version resource from the contents of the github release
+
+	// if version is empty or "latest", find the latest version
+	version := c.Param("name")
+	if version == "" {
+		agentVersions, err := bindplane.Versions().SyncVersions()
+		if err != nil {
+			handleErrorResponse(c, http.StatusInternalServerError, err)
+			return
+		}
+		for _, agentVersion := range agentVersions {
+			resources = append(resources, agentVersion)
+		}
+	} else {
+		agentVersion, err := bindplane.Versions().SyncVersion(version)
+		if err != nil {
+			handleErrorResponse(c, http.StatusInternalServerError, err)
+			return
+		}
+		resources = append(resources, agentVersion)
+	}
+
+	resourceStatuses, err := bindplane.Store().ApplyResources(resources)
+	if err != nil {
+		handleErrorResponse(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusAccepted, &model.ApplyResponse{
+		Updates: resourceStatuses,
+	})
 }
 
 // ----------------------------------------------------------------------

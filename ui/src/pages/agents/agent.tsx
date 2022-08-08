@@ -51,6 +51,12 @@ gql`
           name
         }
       }
+      upgrade {
+        status
+        version
+        error
+      }
+      upgradeAvailable
     }
     configurations {
       configurations {

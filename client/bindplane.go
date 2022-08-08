@@ -121,6 +121,14 @@ type BindPlane interface {
 	Agent(ctx context.Context, id string) (*model.Agent, error)
 	DeleteAgents(ctx context.Context, agentIDs []string) ([]*model.Agent, error)
 
+	AgentVersions(ctx context.Context) ([]*model.AgentVersion, error)
+	AgentVersion(ctx context.Context, name string) (*model.AgentVersion, error)
+	DeleteAgentVersion(ctx context.Context, name string) error
+
+	// SyncAgentVersions builds agent-version from the release data in GitHub. If version is empty, it syncs the last 10
+	// releases.
+	SyncAgentVersions(ctx context.Context, version string) ([]*model.AnyResourceStatus, error)
+
 	// Configurations TODO(doc)
 	Configurations(ctx context.Context) ([]*model.Configuration, error)
 	// Configuration TODO(doc)
@@ -251,6 +259,41 @@ func (c *bindplaneClient) DeleteAgents(ctx context.Context, ids []string) ([]*mo
 	return result.Agents, c.statusError(resp, err, "unable to delete agents")
 }
 
+// ----------------------------------------------------------------------
+
+func (c *bindplaneClient) AgentVersions(ctx context.Context) ([]*model.AgentVersion, error) {
+	result := model.AgentVersionsResponse{}
+	err := c.resources(ctx, "/agent-versions", &result)
+	return result.AgentVersions, err
+}
+
+func (c *bindplaneClient) AgentVersion(ctx context.Context, name string) (*model.AgentVersion, error) {
+	result := model.AgentVersionResponse{}
+	err := c.resource(ctx, "/agent-versions", name, &result)
+	return result.AgentVersion, err
+}
+
+func (c *bindplaneClient) DeleteAgentVersion(ctx context.Context, name string) error {
+	return c.deleteResource(ctx, "/agent-versions", name)
+}
+
+// SyncAgentVersions builds agent-version from the release data in GitHub. If version is empty, it syncs the last 10
+// releases.
+func (c *bindplaneClient) SyncAgentVersions(ctx context.Context, version string) ([]*model.AnyResourceStatus, error) {
+	ar := &model.ApplyResponseClientSide{}
+	resp, err := c.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetResult(ar).
+		Post(fmt.Sprintf("/agent-versions/%s/sync", version))
+	if err != nil {
+		logRequestError(c.Logger, err, "/agent-versions/:name/sync")
+		return nil, err
+	}
+	return ar.Updates, c.statusError(resp, err, "unable to sync agent-versions")
+}
+
+// ----------------------------------------------------------------------
+
 // Configurations TODO(doc)
 func (c *bindplaneClient) Configurations(ctx context.Context) ([]*model.Configuration, error) {
 	c.Debug("Configurations called")
@@ -259,8 +302,6 @@ func (c *bindplaneClient) Configurations(ctx context.Context) ([]*model.Configur
 	resp, err := c.client.R().SetResult(pr).Get("/configurations")
 	return pr.Configurations, c.statusError(resp, err, "unable to get configurations")
 }
-
-// ----------------------------------------------------------------------
 
 // Configuration TODO(doc)
 func (c *bindplaneClient) Configuration(ctx context.Context, name string) (*model.Configuration, error) {

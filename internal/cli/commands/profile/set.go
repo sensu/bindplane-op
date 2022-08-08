@@ -72,16 +72,6 @@ func SetCommand(h Helper) *cobra.Command {
 							remoteURL = u.String()
 						}
 						profile.Spec.Server.RemoteURL = remoteURL
-					case "agents-service-url":
-						agentsURL := f.Value.String()
-						u, err := url.Parse(agentsURL)
-						if err == nil {
-							if u.Scheme == "" {
-								u.Scheme = "http"
-							}
-							agentsURL = u.String()
-						}
-						profile.Spec.Server.AgentsServiceURL = agentsURL
 					case "secret-key":
 						profile.Spec.Server.SecretKey = f.Value.String()
 					case "username":
@@ -100,10 +90,6 @@ func SetCommand(h Helper) *cobra.Command {
 						profile.Spec.Common.CertificateAuthority = value
 					case "log-file-path":
 						profile.Spec.Common.LogFilePath = f.Value.String()
-					case "downloads-folder-path":
-						profile.Spec.Server.DownloadsFolderPath = f.Value.String()
-					case "disable-downloads-cache":
-						profile.Spec.Server.DisableDownloadsCache = f.Value.String() == "true"
 					case "output":
 						profile.Spec.Command.Output = f.Value.String()
 					case "offline":

@@ -43,6 +43,7 @@ type Config struct {
 type ResolverRoot interface {
 	Agent() AgentResolver
 	AgentSelector() AgentSelectorResolver
+	AgentUpgrade() AgentUpgradeResolver
 	Configuration() ConfigurationResolver
 	Destination() DestinationResolver
 	DestinationType() DestinationTypeResolver
@@ -79,6 +80,8 @@ type ComplexityRoot struct {
 		RemoteAddress         func(childComplexity int) int
 		Status                func(childComplexity int) int
 		Type                  func(childComplexity int) int
+		Upgrade               func(childComplexity int) int
+		UpgradeAvailable      func(childComplexity int) int
 		Version               func(childComplexity int) int
 	}
 
@@ -97,10 +100,17 @@ type ComplexityRoot struct {
 		MatchLabels func(childComplexity int) int
 	}
 
+	AgentUpgrade struct {
+		Error   func(childComplexity int) int
+		Status  func(childComplexity int) int
+		Version func(childComplexity int) int
+	}
+
 	Agents struct {
-		Agents      func(childComplexity int) int
-		Query       func(childComplexity int) int
-		Suggestions func(childComplexity int) int
+		Agents        func(childComplexity int) int
+		LatestVersion func(childComplexity int) int
+		Query         func(childComplexity int) int
+		Suggestions   func(childComplexity int) int
 	}
 
 	Components struct {
@@ -276,9 +286,14 @@ type AgentResolver interface {
 
 	Configuration(ctx context.Context, obj *model.Agent) (*model1.AgentConfiguration, error)
 	ConfigurationResource(ctx context.Context, obj *model.Agent) (*model.Configuration, error)
+
+	UpgradeAvailable(ctx context.Context, obj *model.Agent) (*string, error)
 }
 type AgentSelectorResolver interface {
 	MatchLabels(ctx context.Context, obj *model.AgentSelector) (map[string]interface{}, error)
+}
+type AgentUpgradeResolver interface {
+	Status(ctx context.Context, obj *model.AgentUpgrade) (int, error)
 }
 type ConfigurationResolver interface {
 	Kind(ctx context.Context, obj *model.Configuration) (string, error)
@@ -469,6 +484,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Agent.Type(childComplexity), true
 
+	case "Agent.upgrade":
+		if e.complexity.Agent.Upgrade == nil {
+			break
+		}
+
+		return e.complexity.Agent.Upgrade(childComplexity), true
+
+	case "Agent.upgradeAvailable":
+		if e.complexity.Agent.UpgradeAvailable == nil {
+			break
+		}
+
+		return e.complexity.Agent.UpgradeAvailable(childComplexity), true
+
 	case "Agent.version":
 		if e.complexity.Agent.Version == nil {
 			break
@@ -518,12 +547,40 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AgentSelector.MatchLabels(childComplexity), true
 
+	case "AgentUpgrade.error":
+		if e.complexity.AgentUpgrade.Error == nil {
+			break
+		}
+
+		return e.complexity.AgentUpgrade.Error(childComplexity), true
+
+	case "AgentUpgrade.status":
+		if e.complexity.AgentUpgrade.Status == nil {
+			break
+		}
+
+		return e.complexity.AgentUpgrade.Status(childComplexity), true
+
+	case "AgentUpgrade.version":
+		if e.complexity.AgentUpgrade.Version == nil {
+			break
+		}
+
+		return e.complexity.AgentUpgrade.Version(childComplexity), true
+
 	case "Agents.agents":
 		if e.complexity.Agents.Agents == nil {
 			break
 		}
 
 		return e.complexity.Agents.Agents(childComplexity), true
+
+	case "Agents.latestVersion":
+		if e.complexity.Agents.LatestVersion == nil {
+			break
+		}
+
+		return e.complexity.Agents.LatestVersion(childComplexity), true
 
 	case "Agents.query":
 		if e.complexity.Agents.Query == nil {
@@ -1357,6 +1414,12 @@ scalar Any
 # ----------------------------------------------------------------------
 # agent model
 
+type AgentUpgrade {
+  status: Int!
+  version: String!
+  error: String
+}
+
 type Agent {
   id: ID!
   architecture: String
@@ -1383,6 +1446,11 @@ type Agent {
 
   # resource of the configuration in use by this agent
   configurationResource: Configuration
+
+  upgrade: AgentUpgrade
+
+  # latest version of the agent if an upgrade is available
+  upgradeAvailable: String
 }
 
 type AgentConfiguration {
@@ -1453,6 +1521,7 @@ type Agents {
   query: String
   agents: [Agent!]!
   suggestions: [Suggestion!]
+  latestVersion: String!
 }
 
 type Suggestion {
@@ -2705,6 +2774,96 @@ func (ec *executionContext) fieldContext_Agent_configurationResource(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Agent_upgrade(ctx context.Context, field graphql.CollectedField, obj *model.Agent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Agent_upgrade(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Upgrade, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.AgentUpgrade)
+	fc.Result = res
+	return ec.marshalOAgentUpgrade2ᚖgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐAgentUpgrade(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Agent_upgrade(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Agent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_AgentUpgrade_status(ctx, field)
+			case "version":
+				return ec.fieldContext_AgentUpgrade_version(ctx, field)
+			case "error":
+				return ec.fieldContext_AgentUpgrade_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AgentUpgrade", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Agent_upgradeAvailable(ctx context.Context, field graphql.CollectedField, obj *model.Agent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Agent_upgradeAvailable(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Agent().UpgradeAvailable(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Agent_upgradeAvailable(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Agent",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AgentChange_agent(ctx context.Context, field graphql.CollectedField, obj *model1.AgentChange) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AgentChange_agent(ctx, field)
 	if err != nil {
@@ -2780,6 +2939,10 @@ func (ec *executionContext) fieldContext_AgentChange_agent(ctx context.Context, 
 				return ec.fieldContext_Agent_configuration(ctx, field)
 			case "configurationResource":
 				return ec.fieldContext_Agent_configurationResource(ctx, field)
+			case "upgrade":
+				return ec.fieldContext_Agent_upgrade(ctx, field)
+			case "upgradeAvailable":
+				return ec.fieldContext_Agent_upgradeAvailable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Agent", field.Name)
 		},
@@ -2995,6 +3158,135 @@ func (ec *executionContext) fieldContext_AgentSelector_matchLabels(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _AgentUpgrade_status(ctx context.Context, field graphql.CollectedField, obj *model.AgentUpgrade) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AgentUpgrade_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AgentUpgrade().Status(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AgentUpgrade_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AgentUpgrade",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AgentUpgrade_version(ctx context.Context, field graphql.CollectedField, obj *model.AgentUpgrade) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AgentUpgrade_version(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Version, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AgentUpgrade_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AgentUpgrade",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AgentUpgrade_error(ctx context.Context, field graphql.CollectedField, obj *model.AgentUpgrade) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AgentUpgrade_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AgentUpgrade_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AgentUpgrade",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Agents_query(ctx context.Context, field graphql.CollectedField, obj *model1.Agents) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Agents_query(ctx, field)
 	if err != nil {
@@ -3111,6 +3403,10 @@ func (ec *executionContext) fieldContext_Agents_agents(ctx context.Context, fiel
 				return ec.fieldContext_Agent_configuration(ctx, field)
 			case "configurationResource":
 				return ec.fieldContext_Agent_configurationResource(ctx, field)
+			case "upgrade":
+				return ec.fieldContext_Agent_upgrade(ctx, field)
+			case "upgradeAvailable":
+				return ec.fieldContext_Agent_upgradeAvailable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Agent", field.Name)
 		},
@@ -3160,6 +3456,50 @@ func (ec *executionContext) fieldContext_Agents_suggestions(ctx context.Context,
 				return ec.fieldContext_Suggestion_query(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Suggestion", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Agents_latestVersion(ctx context.Context, field graphql.CollectedField, obj *model1.Agents) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Agents_latestVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LatestVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Agents_latestVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Agents",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5797,6 +6137,8 @@ func (ec *executionContext) fieldContext_Query_agents(ctx context.Context, field
 				return ec.fieldContext_Agents_agents(ctx, field)
 			case "suggestions":
 				return ec.fieldContext_Agents_suggestions(ctx, field)
+			case "latestVersion":
+				return ec.fieldContext_Agents_latestVersion(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Agents", field.Name)
 		},
@@ -5887,6 +6229,10 @@ func (ec *executionContext) fieldContext_Query_agent(ctx context.Context, field 
 				return ec.fieldContext_Agent_configuration(ctx, field)
 			case "configurationResource":
 				return ec.fieldContext_Agent_configurationResource(ctx, field)
+			case "upgrade":
+				return ec.fieldContext_Agent_upgrade(ctx, field)
+			case "upgradeAvailable":
+				return ec.fieldContext_Agent_upgradeAvailable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Agent", field.Name)
 		},
@@ -10032,6 +10378,27 @@ func (ec *executionContext) _Agent(ctx context.Context, sel ast.SelectionSet, ob
 				return innerFunc(ctx)
 
 			})
+		case "upgrade":
+
+			out.Values[i] = ec._Agent_upgrade(ctx, field, obj)
+
+		case "upgradeAvailable":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Agent_upgradeAvailable(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10149,6 +10516,58 @@ func (ec *executionContext) _AgentSelector(ctx context.Context, sel ast.Selectio
 	return out
 }
 
+var agentUpgradeImplementors = []string{"AgentUpgrade"}
+
+func (ec *executionContext) _AgentUpgrade(ctx context.Context, sel ast.SelectionSet, obj *model.AgentUpgrade) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, agentUpgradeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AgentUpgrade")
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AgentUpgrade_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "version":
+
+			out.Values[i] = ec._AgentUpgrade_version(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "error":
+
+			out.Values[i] = ec._AgentUpgrade_error(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var agentsImplementors = []string{"Agents"}
 
 func (ec *executionContext) _Agents(ctx context.Context, sel ast.SelectionSet, obj *model1.Agents) graphql.Marshaler {
@@ -10174,6 +10593,13 @@ func (ec *executionContext) _Agents(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Agents_suggestions(ctx, field, obj)
 
+		case "latestVersion":
+
+			out.Values[i] = ec._Agents_latestVersion(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13176,6 +13602,13 @@ func (ec *executionContext) marshalOAgentConfiguration2ᚖgithubᚗcomᚋobservi
 
 func (ec *executionContext) marshalOAgentSelector2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐAgentSelector(ctx context.Context, sel ast.SelectionSet, v model.AgentSelector) graphql.Marshaler {
 	return ec._AgentSelector(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOAgentUpgrade2ᚖgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐAgentUpgrade(ctx context.Context, sel ast.SelectionSet, v *model.AgentUpgrade) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AgentUpgrade(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v interface{}) (interface{}, error) {

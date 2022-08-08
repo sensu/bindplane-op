@@ -23,9 +23,10 @@ type AgentConfiguration struct {
 }
 
 type Agents struct {
-	Query       *string              `json:"query"`
-	Agents      []*model.Agent       `json:"agents"`
-	Suggestions []*search.Suggestion `json:"suggestions"`
+	Query         *string              `json:"query"`
+	Agents        []*model.Agent       `json:"agents"`
+	Suggestions   []*search.Suggestion `json:"suggestions"`
+	LatestVersion string               `json:"latestVersion"`
 }
 
 type Components struct {

@@ -424,7 +424,7 @@ func (s *boltstore) DeleteAgents(ctx context.Context, agentIDs []string) ([]*mod
 					return err
 				}
 
-				agent.Status = 5
+				agent.Status = model.Deleted
 				deleted = append(deleted, agent)
 
 				// delete it
@@ -503,6 +503,28 @@ func (s *boltstore) Agent(id string) (*model.Agent, error) {
 	})
 
 	return agent, err
+}
+
+func (s *boltstore) AgentVersion(name string) (*model.AgentVersion, error) {
+	item, exists, err := resource[*model.AgentVersion](s, model.KindAgentVersion, name)
+	if !exists {
+		item = nil
+	}
+	return item, err
+}
+func (s *boltstore) AgentVersions() ([]*model.AgentVersion, error) {
+	result, err := resources[*model.AgentVersion](s, model.KindAgentVersion)
+	if err == nil {
+		model.SortAgentVersionsLatestFirst(result)
+	}
+	return result, err
+}
+func (s *boltstore) DeleteAgentVersion(name string) (*model.AgentVersion, error) {
+	item, exists, err := deleteResourceAndNotify(s, model.KindAgentVersion, name, &model.AgentVersion{})
+	if !exists {
+		return nil, err
+	}
+	return item, err
 }
 
 func (s *boltstore) Configurations(options ...QueryOption) ([]*model.Configuration, error) {

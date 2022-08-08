@@ -15,7 +15,6 @@
 package flags
 
 import (
-	"github.com/observiq/bindplane-op/internal/agent"
 	"github.com/spf13/cobra"
 )
 
@@ -47,6 +46,5 @@ func Serve(cmd *cobra.Command) {
 	f.String("sessions-secret", "", "secret key used to sign cookies for session authentication, must be a UUID")
 	f.String("storage-file-path", "", "full path to the desired storage file, defaults to the $HOME/.bindplane/storage")
 	f.String("downloads-folder-path", "", "full path to the downloads folder where agents are cached, defaults to $HOME/.bindplane/downloads")
-	f.String("agents-service-url", agent.DefaultAgentVersionsURL, "url of the service that provides agent release information")
 	f.Bool("disable-downloads-cache", false, "true if agent distributions should be cached")
 }

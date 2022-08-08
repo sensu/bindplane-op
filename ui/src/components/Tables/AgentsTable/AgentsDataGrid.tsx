@@ -8,7 +8,7 @@ import {
   GridSelectionModel,
   GridValueGetterParams,
 } from "@mui/x-data-grid";
-import React, { memo } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { renderAgentLabels, renderAgentStatus } from "../utils";
 import { Agent } from "../../../graphql/generated";
 import { Link } from "react-router-dom";
@@ -27,6 +27,7 @@ export enum AgentsTableField {
 interface AgentsDataGridProps {
   onAgentsSelected?: (agentIds: GridSelectionModel) => void;
   isRowSelectable?: (params: GridRowParams<Agent>) => boolean;
+  clearSelectionModelFnRef?: React.MutableRefObject<(() => void) | null>;
   density?: GridDensityTypes;
   loading: boolean;
   minHeight?: string;
@@ -35,6 +36,7 @@ interface AgentsDataGridProps {
 }
 
 const AgentsDataGridComponent: React.FC<AgentsDataGridProps> = ({
+  clearSelectionModelFnRef,
   onAgentsSelected,
   isRowSelectable,
   minHeight,
@@ -43,6 +45,17 @@ const AgentsDataGridComponent: React.FC<AgentsDataGridProps> = ({
   columnFields,
   density,
 }) => {
+  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
+
+  useEffect(() => {
+    if (clearSelectionModelFnRef == null) {
+      return;
+    }
+    clearSelectionModelFnRef.current = function () {
+      setSelectionModel([]);
+    };
+  }, [setSelectionModel, clearSelectionModelFnRef]);
+
   const columns: GridColumns = (columnFields || []).map((field) => {
     switch (field) {
       case AgentsTableField.STATUS:
@@ -100,11 +113,9 @@ const AgentsDataGridComponent: React.FC<AgentsDataGridProps> = ({
   });
 
   function handleSelect(s: GridSelectionModel) {
-    if (!isFunction(onAgentsSelected)) {
-      return;
-    }
+    setSelectionModel(s);
 
-    onAgentsSelected(s);
+    isFunction(onAgentsSelected) && onAgentsSelected(s);
   }
 
   return (
@@ -112,6 +123,7 @@ const AgentsDataGridComponent: React.FC<AgentsDataGridProps> = ({
       checkboxSelection={isFunction(onAgentsSelected)}
       isRowSelectable={isRowSelectable}
       onSelectionModelChange={handleSelect}
+      selectionModel={selectionModel}
       density={density}
       components={{
         NoRowsOverlay: () => (

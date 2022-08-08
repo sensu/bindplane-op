@@ -12,12 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package agent
+package sync
 
-type nopClient struct{}
+import (
+	"github.com/spf13/cobra"
 
-var _ Client = (*nopClient)(nil)
+	"github.com/observiq/bindplane-op/internal/cli"
+)
 
-func (n *nopClient) Version(version string) (*Version, error)                            { return nil, nil }
-func (n *nopClient) LatestVersion() (*Version, error)                                    { return nil, nil }
-func (n *nopClient) Artifact(t ArtifactType, version *Version, platform string) Artifact { return nil }
+// Command returns the iris sync cobra command
+func Command(bindplane *cli.BindPlane) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "sync",
+		Short: "Sync an agent-version from github",
+	}
+
+	cmd.AddCommand(
+		AgentVersionCommand(bindplane),
+	)
+
+	return cmd
+}

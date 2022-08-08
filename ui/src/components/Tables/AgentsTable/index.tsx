@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { debounce } from "lodash";
+import { debounce, isFunction } from "lodash";
 import { memo, useEffect, useMemo, useState } from "react";
 import {
   Agent,
@@ -16,6 +16,7 @@ import {
   GridSelectionModel,
 } from "@mui/x-data-grid";
 import { mergeAgents } from "./merge-agents";
+import { AgentStatus } from "../../../types/agents";
 
 gql`
   query AgentsTable($selector: String, $query: String) {
@@ -58,13 +59,17 @@ gql`
         query
         label
       }
+      latestVersion
     }
   }
 `;
 
 interface Props {
   onAgentsSelected?: (agentIds: GridSelectionModel) => void;
+  onDeletableAgentsSelected?: (agentIds: GridSelectionModel) => void;
+  onUpdatableAgentsSelected?: (agentIds: GridSelectionModel) => void;
   isRowSelectable?: (params: GridRowParams<Agent>) => boolean;
+  clearSelectionModelFnRef?: React.MutableRefObject<(() => void) | null>;
   selector?: string;
   minHeight?: string;
   columnFields?: AgentsTableField[];
@@ -74,7 +79,10 @@ interface Props {
 
 const AgentsTableComponent: React.FC<Props> = ({
   onAgentsSelected,
+  onDeletableAgentsSelected,
+  onUpdatableAgentsSelected,
   isRowSelectable,
+  clearSelectionModelFnRef,
   selector,
   minHeight,
   columnFields,
@@ -126,6 +134,7 @@ const AgentsTableComponent: React.FC<Props> = ({
             __typename: "Agents",
             suggestions: prev.agents.suggestions,
             query: prev.agents.query,
+            latestVersion: prev.agents.latestVersion,
             agents: mergeAgents(prev.agents.agents, data.agentChanges),
           },
         };
@@ -133,10 +142,35 @@ const AgentsTableComponent: React.FC<Props> = ({
     });
   }, [selector, subQuery, subscribeToMore]);
 
+  function handleAgentSelected(agentIds: GridSelectionModel) {
+    if (isFunction(onAgentsSelected)) {
+      onAgentsSelected(agentIds);
+    }
+
+    if (isFunction(onDeletableAgentsSelected)) {
+      const deletable = agentIds.filter((id) =>
+        isDeletable(agents, id as string)
+      );
+      onDeletableAgentsSelected(deletable);
+    }
+
+    if (isFunction(onUpdatableAgentsSelected)) {
+      const updatable = agentIds.filter((id) =>
+        isUpdatable(agents, id as string, data?.agents.latestVersion)
+      );
+      onUpdatableAgentsSelected(updatable);
+    }
+  }
+
   function onQueryChange(query: string) {
     debouncedRefetch({ selector, query });
     setSubQuery(query);
   }
+
+  const allowSelection =
+    isFunction(onAgentsSelected) ||
+    isFunction(onDeletableAgentsSelected) ||
+    isFunction(onUpdatableAgentsSelected);
 
   return (
     <>
@@ -149,8 +183,9 @@ const AgentsTableComponent: React.FC<Props> = ({
       />
 
       <AgentsDataGrid
+        clearSelectionModelFnRef={clearSelectionModelFnRef}
         isRowSelectable={isRowSelectable}
-        onAgentsSelected={onAgentsSelected}
+        onAgentsSelected={allowSelection ? handleAgentSelected : undefined}
         density={density}
         minHeight={minHeight}
         loading={loading}
@@ -160,5 +195,23 @@ const AgentsTableComponent: React.FC<Props> = ({
     </>
   );
 };
+
+function isDeletable(agents: Agent[], id: string): boolean {
+  return agents.some(
+    (a) => a.id === id && a.status === AgentStatus.DISCONNECTED
+  );
+}
+function isUpdatable(
+  agents: Agent[],
+  id: string,
+  latestVersion?: string
+): boolean {
+  return agents.some(
+    (a) =>
+      a.id === id &&
+      a.status === AgentStatus.CONNECTED &&
+      a.version !== latestVersion
+  );
+}
 
 export const AgentsTable = memo(AgentsTableComponent);

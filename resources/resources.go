@@ -16,6 +16,14 @@ package resources
 
 import "embed"
 
-//go:embed destination-types/* source-types/* processor-types/*
-// Files contains the files embedded in resources/destination-types/*, resources/source-types/*, and resources/processor-types/*
+//go:embed destination-types/* source-types/* processor-types/* agent-versions/*
+// Files contains the files embedded in resources/destination-types/*, resources/source-types/*, resources/processor-types/*, and resources/agent-versions/*
 var Files embed.FS
+
+// SeedFolders is the list of folders that we seed on startup
+var SeedFolders = []string{
+	"destination-types",
+	"source-types",
+	"processor-types",
+	"agent-versions",
+}

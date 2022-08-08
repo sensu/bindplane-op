@@ -83,3 +83,14 @@ func TestValidateDestinationTypes(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateAgentVersions(t *testing.T) {
+	paths := resourcePaths(t, "agent-versions")
+	for _, path := range paths {
+		t.Run(path, func(t *testing.T) {
+			resource := fileResource[*model.AgentVersion](t, path)
+			err := resource.Validate()
+			require.NoError(t, err)
+		})
+	}
+}

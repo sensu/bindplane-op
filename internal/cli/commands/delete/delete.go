@@ -61,6 +61,7 @@ func Command(bindplane *cli.BindPlane) *cobra.Command {
 
 	cmd.AddCommand(
 		deleteResourceCommand(bindplane, "agent", []string{"agents"}),
+		deleteResourceCommand(bindplane, "agent-version", []string{"agent-versions"}),
 		deleteResourceCommand(bindplane, "configuration", []string{"configurations", "configs", "config"}),
 		deleteResourceCommand(bindplane, "source", []string{"sources"}),
 		deleteResourceCommand(bindplane, "source-type", []string{"source-types", "sourceType", "sourceTypes"}),
@@ -93,6 +94,8 @@ func deleteResourceCommand(bindplane *cli.BindPlane, resourceType string, aliase
 			case "agent":
 				_, err = c.DeleteAgents(ctx, args)
 				batch = true
+			case "agent-version":
+				err = c.DeleteAgentVersion(ctx, name)
 			case "configuration":
 				err = c.DeleteConfiguration(ctx, name)
 			case "source":

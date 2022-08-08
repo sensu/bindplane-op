@@ -169,16 +169,6 @@ type Server struct {
 	// any other services. It will still allow agents to connect and serve api requests.
 	Offline bool `mapstructure:"offline,omitempty" yaml:"offline,omitempty"`
 
-	// AgentsServiceURL is the url of the Agent Versions server which manages the release of the agent. This service will
-	// be contacted to determine the most recent agent version and to identify the location of artifacts for each version
-	// of the agent.
-	AgentsServiceURL string `mapstructure:"agentsServiceURL,omitempty" yaml:"agentsServiceURL,omitempty"`
-
-	// DownloadsFolderPath is the path to the folder where agent versions are stored for upgrading agents
-	DownloadsFolderPath string `mapstructure:"downloadsFolderPath,omitempty" yaml:"downloadsFolderPath,omitempty"`
-	// DisableDownloadsCache TODO(doc)
-	DisableDownloadsCache bool `mapstructure:"disableDownloadsCache,omitempty" yaml:"disableDownloadsCache,omitempty"`
-
 	// SessionSecret is used to encode the user sessions cookies.  It should be a uuid.
 	SessionsSecret string `mapstructure:"sessionsSecret,omitempty" yaml:"sessionsSecret,omitempty"`
 
@@ -261,14 +251,6 @@ func (c *Server) BoltDatabasePath() string {
 		return c.StorageFilePath
 	}
 	return path.Join(c.BindPlaneHomePath(), BoldDatabaseName)
-}
-
-// BindPlaneDownloadsPath returns the path to the directory where downloads are cached
-func (c *Server) BindPlaneDownloadsPath() string {
-	if c.DownloadsFolderPath != "" {
-		return c.DownloadsFolderPath
-	}
-	return path.Join(c.BindPlaneHomePath(), DownloadsDirectoryName)
 }
 
 // ----------------------------------------------------------------------

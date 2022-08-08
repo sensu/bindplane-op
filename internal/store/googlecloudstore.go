@@ -237,6 +237,24 @@ func (s *googleCloudStore) DeleteAgents(ctx context.Context, agentIDs []string) 
 	return deleteDatastoreAgents(ctx, s, agentIDs)
 }
 
+func (s *googleCloudStore) AgentVersion(name string) (*model.AgentVersion, error) {
+	item, exists, err := getDatastoreResource[*model.AgentVersion](s, model.KindAgentVersion, name)
+	if !exists {
+		item = nil
+	}
+	return item, err
+}
+func (s *googleCloudStore) AgentVersions() ([]*model.AgentVersion, error) {
+	return getDatastoreResources[*model.AgentVersion](s, model.KindAgentVersion, nil)
+}
+func (s *googleCloudStore) DeleteAgentVersion(name string) (*model.AgentVersion, error) {
+	item, exists, err := deleteDatastoreResourceAndNotify[*model.AgentVersion](s, model.KindAgentVersion, name)
+	if !exists {
+		return nil, err
+	}
+	return item, err
+}
+
 func (s *googleCloudStore) Configurations(options ...QueryOption) ([]*model.Configuration, error) {
 	opts := makeQueryOptions(options)
 	return getDatastoreResourcesWithQuery[*model.Configuration](context.TODO(), s, s.configurationIndex, model.KindConfiguration, &opts)
@@ -681,6 +699,8 @@ func decodeDatastoreResource[T any](dr *datastoreResource, resource *T) error {
 func upsertAnyDatastoreResource(s *googleCloudStore, r model.Resource) (model.UpdateStatus, error) {
 	// TODO if resource type and kind get out of sync, this will cause issues
 	switch r.GetKind() {
+	case model.KindAgentVersion:
+		return upsertDatastoreResource(s, r.(*model.AgentVersion))
 	case model.KindConfiguration:
 		return upsertDatastoreResource(s, r.(*model.Configuration))
 	case model.KindSource:
@@ -772,6 +792,8 @@ func deleteDatastoreResourceAndNotify[R model.Resource](s *googleCloudStore, kin
 func deleteAnyDatastoreResource(s *googleCloudStore, r model.Resource) (model.Resource, bool, error) {
 	// TODO if resource type and kind get out of sync, this will cause issues
 	switch r.GetKind() {
+	case model.KindAgentVersion:
+		return deleteDatastoreResource[*model.AgentVersion](s, r.GetKind(), r.Name())
 	case model.KindConfiguration:
 		return deleteDatastoreResource[*model.Configuration](s, r.GetKind(), r.Name())
 	case model.KindSource:

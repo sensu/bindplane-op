@@ -5,8 +5,9 @@ package mocks
 import (
 	context "context"
 
-	model "github.com/observiq/bindplane-op/model"
 	mock "github.com/stretchr/testify/mock"
+
+	model "github.com/observiq/bindplane-op/model"
 
 	server "github.com/observiq/bindplane-op/internal/server"
 
@@ -43,13 +44,13 @@ func (_m *Manager) Agent(ctx context.Context, agentID string) (*model.Agent, err
 	return r0, r1
 }
 
-// AgentUpdates provides a mock function with given fields: ctx, agent
-func (_m *Manager) AgentUpdates(ctx context.Context, agent *model.Agent) (*server.AgentUpdates, error) {
-	ret := _m.Called(ctx, agent)
+// AgentUpdates provides a mock function with given fields: ctx, _a1
+func (_m *Manager) AgentUpdates(ctx context.Context, _a1 *model.Agent) (*server.AgentUpdates, error) {
+	ret := _m.Called(ctx, _a1)
 
 	var r0 *server.AgentUpdates
 	if rf, ok := ret.Get(0).(func(context.Context, *model.Agent) *server.AgentUpdates); ok {
-		r0 = rf(ctx, agent)
+		r0 = rf(ctx, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*server.AgentUpdates)
@@ -58,7 +59,30 @@ func (_m *Manager) AgentUpdates(ctx context.Context, agent *model.Agent) (*serve
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, *model.Agent) error); ok {
-		r1 = rf(ctx, agent)
+		r1 = rf(ctx, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AgentVersion provides a mock function with given fields: ctx, version
+func (_m *Manager) AgentVersion(ctx context.Context, version string) (*model.AgentVersion, error) {
+	ret := _m.Called(ctx, version)
+
+	var r0 *model.AgentVersion
+	if rf, ok := ret.Get(0).(func(context.Context, string) *model.AgentVersion); ok {
+		r0 = rf(ctx, version)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.AgentVersion)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, version)
 	} else {
 		r1 = ret.Error(1)
 	}
