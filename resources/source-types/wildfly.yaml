@@ -4,89 +4,25 @@ metadata:
   name: wildfly
   displayName: WildFly
   icon: /icons/sources/wildfly.svg
-  description: Collect metrics and logs from Wildfly.
+  description: Collect logs from Wildfly.
 spec:
   version: 0.0.1
   supported_platforms:
-    - macos
     - linux
     - windows
   parameters:
-    # Metric
-    - name: enable_metrics
-      label: Enable Metrics
-      description: Enable to send metrics.
-      type: bool
-      default: true
-
-    - name: collection_interval
-      label: Collection Interval
-      description: How often (seconds) to scrape for metrics.
-      type: int
-      default: 60
-      relevantIf:
-        - name: enable_metrics
-          operator: equals
-          value: true
-
-    - name: address
-      label: Address
-      description: IP address or hostname to scrape for JMX metrics.
-      type: string
-      default: localhost
-      relevantIf:
-        - name: enable_metrics
-          operator: equals
-          value: true
-
-    - name: port
-      label: Port
-      description: Port to scrape for JMX metrics.
-      type: int
-      default: 9012
-      relevantIf:
-        - name: enable_metrics
-          operator: equals
-          value: true
-
-    - name: jar_path
-      label: JMX Metrics Collection Jar Path
-      description: Full path to the JMX metrics jar.
-      type: string
-      default: "/opt/opentelemetry-java-contrib-jmx-metrics.jar"
-      advancedConfig: true
-      relevantIf:
-        - name: enable_metrics
-          operator: equals
-          value: true
-
-    # Logs
-    - name: enable_logs
-      label: Enable Logs
-      description: Enable to send logs.
-      type: bool
-      default: true
-
     - name: standalone_file_path
       label: Standalone Server File Path(s)
       description: File paths to tail for standalone server logs.
       type: strings
       default:
         - /opt/wildfly/standalone/log/server.log
-      relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
 
     - name: enable_domain_server
       label: Domain Server Logs
       description: Enable to read domain server logs.
       type: bool
       default: true
-      relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
 
     - name: domain_server_path
       label: Domain Server File Path(s)
@@ -95,9 +31,6 @@ spec:
       default:
         - /opt/wildfly/standalone/log/server.log
       relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
         - name: enable_domain_server
           operator: equals
           value: true
@@ -107,10 +40,6 @@ spec:
       description: Enable to read domain controller logs.
       type: bool
       default: true
-      relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
 
     - name: domain_controller_path
       label: Domain Controller File Path(s)
@@ -119,9 +48,6 @@ spec:
       default:
         - /opt/wildfly/standalone/log/server.log
       relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
         - name: enable_domain_controller
           operator: equals
           value: true
@@ -135,10 +61,6 @@ spec:
         - end
       default: end
       advancedConfig: true
-      relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
 
     - name: timezone
       label: Timezone
@@ -146,32 +68,9 @@ spec:
       type: timezone
       default: "UTC"
       advancedConfig: true
-      relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
-
-  metrics:
-    receivers: |
-      {{ if .enable_metrics }}
-      - jmx:
-          jar_path: {{ .jar_path }}
-          collection_interval: {{ .collection_interval }}s
-          endpoint: {{ .address }}:{{ .port }}
-          target_system: wildfly
-          resource_attributes:
-            wildfly.endpoint: {{ .address }}:{{ .port }}
-      {{ end }}
-
-    processors: |
-      - resourcedetection:
-          detectors: ["system"]
-          system:
-            hostname_sources: ["os"]
 
   logs:
     receivers: |
-      {{ if .enable_logs }}
       - plugin:
           path: $OIQ_OTEL_COLLECTOR_HOME/plugins/wildfly_logs.yaml
           parameters:
@@ -191,7 +90,6 @@ spec:
               {{ end }}
             start_at: {{ .start_at }}
             timezone: {{ .timezone }}
-      {{ end }}
 
     processors: |
       - resourcedetection:
