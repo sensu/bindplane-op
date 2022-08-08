@@ -71,10 +71,12 @@ spec:
               {{ range $fp := .file_path }}
               - '{{ $fp }}'
               {{ end }}
+            {{ if .exclude_file_path }}
             exclude_log_paths:
               {{ range $fp := .exclude_file_path }}
               - '{{ $fp }}'
               {{ end }}
+            {{ end }}
             log_type: {{ .log_type }}
             start_at: {{ .start_at }}
             header: {{ .header }}
