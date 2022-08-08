@@ -36,6 +36,7 @@ gql`
             creatable
           }
         }
+        telemetryTypes
       }
     }
   }
@@ -95,6 +96,7 @@ export const CreateProcessorSelectView: React.FC<CreateProcessorSelectViewProps>
                 onSelect={() => {
                   onSelect(p);
                 }}
+                telemetryTypes={p.spec.telemetryTypes}
               />
             ))}
         </ResourceTypeButtonContainer>
