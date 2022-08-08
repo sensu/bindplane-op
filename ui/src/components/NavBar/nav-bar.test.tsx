@@ -34,7 +34,10 @@ describe("NavBar", () => {
     );
 
     const supportLink = screen.getByTestId("support-link");
-    expect(supportLink).toHaveAttribute("href", "mailto:support@observiq.com");
+    expect(supportLink).toHaveAttribute(
+      "href",
+      "mailto:support.bindplaneop@observiq.com"
+    );
 
     const slackLink = screen.getByTestId("slack-link");
     expect(slackLink).toHaveAttribute(

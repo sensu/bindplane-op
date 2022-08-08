@@ -261,7 +261,7 @@ exports[`NavBar renders correctly 1`] = `
       <a
         className="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorInherit MuiIconButton-sizeMedium button css-zylse7-MuiButtonBase-root-MuiIconButton-root"
         data-testid="support-link"
-        href="mailto:support@observiq.com"
+        href="mailto:support.bindplaneop@observiq.com"
         onBlur={[Function]}
         onContextMenu={[Function]}
         onDragLeave={[Function]}

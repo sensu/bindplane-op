@@ -109,7 +109,7 @@ export const NavBar: React.FC = () => {
               target="_blank"
               color="inherit"
               data-testid="support-link"
-              href="mailto:support@observiq.com"
+              href="mailto:support.bindplaneop@observiq.com"
             >
               <EmailIcon className={styles.icon} />
             </IconButton>
