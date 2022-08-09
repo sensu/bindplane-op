@@ -47,7 +47,7 @@ func NewProfile(name string, spec ProfileSpec) *Profile {
 func NewProfileWithMetadata(metadata Metadata, spec ProfileSpec) *Profile {
 	return &Profile{
 		ResourceMeta: ResourceMeta{
-			APIVersion: "bindplane.observiq.com/v1beta",
+			APIVersion: "bindplane.observiq.com/v1",
 			Kind:       KindProfile,
 			Metadata:   metadata,
 		},
@@ -80,7 +80,7 @@ func NewContext(name string, spec ContextSpec) *Context {
 func NewContextWithMetadata(metadata Metadata, spec ContextSpec) *Context {
 	return &Context{
 		ResourceMeta: ResourceMeta{
-			APIVersion: "bindplane.observiq.com/v1beta",
+			APIVersion: "bindplane.observiq.com/v1",
 			Kind:       KindContext,
 			Metadata:   metadata,
 		},

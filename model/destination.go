@@ -72,7 +72,7 @@ func NewDestination(name string, typeValue string, parameters []Parameter) *Dest
 func NewDestinationWithSpec(name string, spec ParameterizedSpec) *Destination {
 	return &Destination{
 		ResourceMeta: ResourceMeta{
-			APIVersion: "bindplane.observiq.com/v1beta",
+			APIVersion: "bindplane.observiq.com/v1",
 			Kind:       KindDestination,
 			Metadata: Metadata{
 				Name:   name,

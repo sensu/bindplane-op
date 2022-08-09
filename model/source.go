@@ -72,7 +72,7 @@ func NewSource(name string, sourceTypeName string, parameters []Parameter) *Sour
 func NewSourceWithSpec(name string, spec ParameterizedSpec) *Source {
 	return &Source{
 		ResourceMeta: ResourceMeta{
-			APIVersion: "bindplane.observiq.com/v1beta",
+			APIVersion: "bindplane.observiq.com/v1",
 			Kind:       KindSource,
 			Metadata: Metadata{
 				Name:   name,

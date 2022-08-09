@@ -18,7 +18,7 @@ export class BPConfiguration implements Configuration {
   spec: ConfigurationSpec;
   metadata: Metadata;
   constructor(configuration: Partial<Configuration>) {
-    this.apiVersion = APIVersion.V1_BETA;
+    this.apiVersion = APIVersion.V1;
     this.kind = ResourceKind.CONFIGURATION;
     this.spec = configuration.spec ?? {
       raw: "",

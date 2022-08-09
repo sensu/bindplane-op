@@ -11,7 +11,7 @@ export interface ResourceStatus {
 }
 
 export enum APIVersion {
-  V1_BETA = "bindplane.observiq.com/v1beta",
+  V1 = "bindplane.observiq.com/v1",
 }
 
 export enum ResourceKind {

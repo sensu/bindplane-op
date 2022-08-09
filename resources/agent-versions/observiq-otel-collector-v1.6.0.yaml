@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: AgentVersion
 metadata:
     id: d46d3261-493e-4922-950b-faae8a3f4ae3

@@ -13,7 +13,7 @@ export function newConfiguration({
   labels?: { [key: string]: string };
 }): Configuration {
   return {
-    apiVersion: APIVersion.V1_BETA,
+    apiVersion: APIVersion.V1,
     kind: ResourceKind.CONFIGURATION,
     metadata: { name, description, labels, id: "" },
     spec,

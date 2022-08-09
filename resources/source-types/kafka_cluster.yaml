@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: kafka_cluster
@@ -36,7 +36,7 @@ spec:
       label: Brokers
       description: List of brokers to scrape for metrics.
       type: strings
-      default: 
+      default:
         - localhost:9092
       required: true
 
@@ -72,59 +72,59 @@ spec:
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true    
+          value: true
 
     - name: basic_username
       label: Username
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: basic    
+          value: basic
 
     - name: basic_password
       label: Password
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: basic    
+          value: basic
 
     - name: sasl_username
       label: Username
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: sasl    
+          value: sasl
 
     - name: sasl_password
       label: Password
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: sasl    
+          value: sasl
 
     - name: sasl_mechanism
       label: Mechanism
@@ -137,46 +137,46 @@ spec:
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: sasl    
+          value: sasl
 
     - name: kerberos_service_name
       label: Service Name
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: kerberos    
+          value: kerberos
 
     - name: kerberos_realm
       label: Realm
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: kerberos    
+          value: kerberos
 
     - name: kerberos_config_file
       label: Config File
       type: string
       default: /etc/krb5.conf
-      required: true 
+      required: true
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
           value: kerberos
@@ -191,55 +191,55 @@ spec:
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: kerberos    
+          value: kerberos
 
     - name: kerberos_keytab_file
       label: Keytab File
       type: string
-      required: true 
+      required: true
       default: /etc/security/kafka.keytab
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
           value: kerberos
         - name: kerberos_auth_type
           operator: equals
-          value: keytab    
+          value: keytab
 
     - name: kerberos_username
       label: Username
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: kerberos    
+          value: kerberos
         - name: kerberos_auth_type
           operator: equals
-          value: basic    
+          value: basic
 
     - name: kerberos_password
       label: Password
       type: string
-      required: true 
+      required: true
       default: ""
       relevantIf:
         - name: enable_auth
           operator: equals
-          value: true      
+          value: true
         - name: auth_type
           operator: equals
-          value: kerberos    
+          value: kerberos
         - name: kerberos_auth_type
           operator: equals
           value: basic

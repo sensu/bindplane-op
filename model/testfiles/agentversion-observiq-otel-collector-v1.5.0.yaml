@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: AgentVersion
 metadata:
   name: observiq-otel-collector-v1.5.0

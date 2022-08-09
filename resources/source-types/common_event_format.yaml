@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: common_event_format
@@ -53,13 +53,13 @@ spec:
         - beginning
         - end
       default: "end"
-  
+
   logs:
     receivers: |
       - plugin/common_event_format:
           path: $OIQ_OTEL_COLLECTOR_HOME/plugins/common_event_format_logs.yaml
           parameters:
-            file_log_path: 
+            file_log_path:
               {{ range $fp := .file_log_path }}
               - '{{ $fp }}'
               {{ end }}

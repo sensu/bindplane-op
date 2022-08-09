@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: couchbase
@@ -120,7 +120,7 @@ spec:
       label: Info Log Path(s)
       description: Log File paths to tail for info logs.
       type: strings
-      default: 
+      default:
         - "/opt/couchbase/var/lib/couchbase/logs/info.log"
       relevantIf:
         - name: enable_logs
@@ -144,7 +144,7 @@ spec:
       type: strings
       label: Debug Log Path(s)
       description: Log File paths to tail for debug logs.
-      default: 
+      default:
         - "/opt/couchbase/var/lib/couchbase/logs/debug.log"
       relevantIf:
         - name: enable_logs
@@ -168,7 +168,7 @@ spec:
       label: HTTP Access Log Path(s)
       description: Log File paths to tail for http access logs.
       type: strings
-      default: 
+      default:
         - "/opt/couchbase/var/lib/couchbase/logs/http_access.log"
       relevantIf:
         - name: enable_logs
@@ -192,7 +192,7 @@ spec:
       label: Internal Access Log Path(s)
       description: Log File paths to tail for internal access logs.
       type: strings
-      default: 
+      default:
         - "/opt/couchbase/var/lib/couchbase/logs/http_access_internal.log"
       relevantIf:
         - name: enable_logs
@@ -216,7 +216,7 @@ spec:
       label: Baby Sitter Log Path(s)
       description: Log File paths to tail for baby sitter logs.
       type: strings
-      default: 
+      default:
         - "/opt/couchbase/var/lib/couchbase/logs/babysitter.log"
       relevantIf:
         - name: enable_logs
@@ -240,7 +240,7 @@ spec:
       label: XDCR Log Path(s)
       description: Log File paths to tail for xdcr logs.
       type: strings
-      default: 
+      default:
         - "/opt/couchbase/var/lib/couchbase/logs/goxdcr.log"
       relevantIf:
         - name: enable_logs

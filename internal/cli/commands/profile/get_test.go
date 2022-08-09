@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var profileYaml = `apiVersion: bindplane.observiq.com/v1beta
+var profileYaml = `apiVersion: bindplane.observiq.com/v1
 kind: Profile
 metadata:
   name: local

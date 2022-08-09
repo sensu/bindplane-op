@@ -37,8 +37,8 @@ const (
 )
 
 const (
-	// V1Alpha is the version for the initial resources defined for BindPlane
-	V1Alpha = "bindplane.observiq.com/v1beta"
+	// V1 is the version for the initial resources defined for BindPlane
+	V1 = "bindplane.observiq.com/v1"
 )
 
 // Kind indicates the kind of resource, e.g. Configuration

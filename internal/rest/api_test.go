@@ -962,7 +962,7 @@ func TestRESTMock(t *testing.T) {
 						Status: model.StatusCreated,
 						Resource: &model.AnyResource{
 							ResourceMeta: model.ResourceMeta{
-								APIVersion: "bindplane.observiq.com/v1beta",
+								APIVersion: "bindplane.observiq.com/v1",
 								Kind:       model.KindDestination,
 								Metadata: model.Metadata{
 									ID:   "1",

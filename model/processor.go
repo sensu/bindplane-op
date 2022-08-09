@@ -72,7 +72,7 @@ func NewProcessor(name string, processorTypeName string, parameters []Parameter)
 func NewProcessorWithSpec(name string, spec ParameterizedSpec) *Processor {
 	return &Processor{
 		ResourceMeta: ResourceMeta{
-			APIVersion: "bindplane.observiq.com/v1beta",
+			APIVersion: "bindplane.observiq.com/v1",
 			Kind:       KindProcessor,
 			Metadata: Metadata{
 				Name:   name,

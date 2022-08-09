@@ -1,5 +1,5 @@
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Profile
 metadata:
   name: local
@@ -18,7 +18,7 @@ spec:
     - tls/bindplane-authority
     - tls/bindplane-authority2
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Context
 spec:
   currentContext: local

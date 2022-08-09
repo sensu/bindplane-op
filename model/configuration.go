@@ -68,7 +68,7 @@ func NewRawConfiguration(name string, raw string) *Configuration {
 func NewConfigurationWithSpec(name string, spec ConfigurationSpec) *Configuration {
 	return &Configuration{
 		ResourceMeta: ResourceMeta{
-			APIVersion: V1Alpha,
+			APIVersion: V1,
 			Kind:       KindConfiguration,
 			Metadata: Metadata{
 				Name:   name,

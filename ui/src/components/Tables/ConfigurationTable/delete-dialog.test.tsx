@@ -12,7 +12,7 @@ const DELETE_RESPONSE: DeleteResponse = {
         metadata: { name: "config-1", id: "uuid" },
         kind: ResourceKind.CONFIGURATION,
         spec: {},
-        apiVersion: APIVersion.V1_BETA,
+        apiVersion: APIVersion.V1,
       },
     },
   ],

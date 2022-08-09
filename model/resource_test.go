@@ -140,7 +140,7 @@ func TestParseSourceType(t *testing.T) {
 	expect := &SourceType{
 		ResourceType: ResourceType{
 			ResourceMeta: ResourceMeta{
-				APIVersion: "bindplane.observiq.com/v1beta",
+				APIVersion: "bindplane.observiq.com/v1",
 				Kind:       "SourceType",
 				Metadata: Metadata{
 					Name:        "MacOS",

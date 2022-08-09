@@ -31,7 +31,7 @@ func NewDestinationTypeWithSpec(name string, spec ResourceTypeSpec) *Destination
 	return &DestinationType{
 		ResourceType: ResourceType{
 			ResourceMeta: ResourceMeta{
-				APIVersion: V1Alpha,
+				APIVersion: V1,
 				Kind:       KindDestinationType,
 				Metadata: Metadata{
 					Name: name,

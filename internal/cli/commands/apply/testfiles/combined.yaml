@@ -1,5 +1,5 @@
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Exporter
 metadata:
   name: cabin-production-logs
@@ -23,7 +23,7 @@ spec:
     - name: timeout
       value: 10s
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Receiver
 metadata:
   name: macOS
@@ -42,7 +42,7 @@ spec:
     - name: enable_install_log
       value: true
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Receiver
 metadata:
   name: production-nginx-ingress
@@ -67,7 +67,7 @@ spec:
     - name: start_at
       value: end
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Pipeline
 metadata:
   name: cabin-production-pipeline

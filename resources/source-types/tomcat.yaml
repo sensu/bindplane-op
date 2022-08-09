@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: tomcat
@@ -170,7 +170,7 @@ spec:
             access_log_path:
               {{ range $fp := .access_log_path }}
               - '{{ $fp }}'
-              {{ end }}            
+              {{ end }}
             {{ end }}
 
             enable_catalina_log: {{ .enable_catalina_log }}
@@ -178,7 +178,7 @@ spec:
             catalina_log_path:
               {{ range $fp := .catalina_log_path }}
               - '{{ $fp }}'
-              {{ end }}            
+              {{ end }}
             {{ end }}
       {{ end }}
 

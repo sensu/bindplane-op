@@ -17,7 +17,7 @@ export class BPDestination implements Destination {
   spec: ParameterizedSpec;
 
   constructor(d: MinimumDestination) {
-    this.apiVersion = APIVersion.V1_BETA;
+    this.apiVersion = APIVersion.V1;
     this.kind = "Destination";
     this.metadata = d.metadata;
     this.spec = d.spec;

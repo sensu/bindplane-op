@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: jboss
@@ -44,7 +44,7 @@ spec:
             file_path:
               {{ range $fp := .file_path }}
               - '{{ $fp }}'
-              {{ end }}            
+              {{ end }}
             start_at: {{ .start_at }}
             timezone: {{ .timezone }}
 

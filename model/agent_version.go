@@ -67,7 +67,7 @@ type AgentDownload struct {
 func NewAgentVersion(spec AgentVersionSpec) *AgentVersion {
 	return &AgentVersion{
 		ResourceMeta: ResourceMeta{
-			APIVersion: V1Alpha,
+			APIVersion: V1,
 			Kind:       KindAgentVersion,
 			Metadata: Metadata{
 				Name: fmt.Sprintf("%s-%s", spec.Type, spec.Version),

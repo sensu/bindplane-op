@@ -106,7 +106,7 @@ func newTestDestination(name string, destinationType string) *model.Destination 
 func newTestConfiguration(name string, sources []string, sourceTypes []string, destinations []string, destinationTypes []string) *model.Configuration {
 	c := &model.Configuration{
 		ResourceMeta: model.ResourceMeta{
-			APIVersion: model.V1Alpha,
+			APIVersion: model.V1,
 			Kind:       model.KindDestinationType,
 			Metadata: model.Metadata{
 				Name: name,

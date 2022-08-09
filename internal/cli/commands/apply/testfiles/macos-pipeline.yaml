@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Receiver
 metadata:
   name: macos
@@ -16,7 +16,7 @@ spec:
     value: true
 ---
 # i have a script that appends to this file
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Receiver
 metadata:
   name: tmpfile
@@ -33,7 +33,7 @@ spec:
   - name: start_at
     value: end
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Exporter
 metadata:
   name: bindplane-development
@@ -48,7 +48,7 @@ spec:
   - name: timeout
     value: 10s
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Pipeline
 metadata:
   name: local macos pipeline

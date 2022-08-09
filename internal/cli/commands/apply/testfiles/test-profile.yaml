@@ -1,5 +1,5 @@
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Profile
 metadata:
   name: local
@@ -13,7 +13,7 @@ spec:
   password: admin
   serverUrl: "https://remote-address.com"
 ---
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Context
 spec:
   currentContext: local

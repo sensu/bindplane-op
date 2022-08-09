@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: DestinationType
 metadata:
   id: 5c41d576-916b-4cd4-9fe0-3b55b5ae7019

@@ -118,7 +118,7 @@ export const relevantIfDef: ParameterDefinition = {
 /* ----------------------------- Resource Types ----------------------------- */
 
 export const ResourceType1: SourceType = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "ResourceType",
   metadata: {
     id: "resource-type-1",
@@ -144,7 +144,7 @@ export const ResourceType1: SourceType = {
 };
 
 export const ResourceType2: SourceType = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "ResourceType",
   metadata: {
     id: "resource-type-2",
@@ -163,7 +163,7 @@ export const ResourceType2: SourceType = {
 };
 
 export const SupportsLogs: SourceType = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "ResourceType",
   metadata: {
     id: "supports-logs",
@@ -182,7 +182,7 @@ export const SupportsLogs: SourceType = {
 };
 
 export const SupportsMetrics: SourceType = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "ResourceType",
   metadata: {
     id: "supports-metrics",
@@ -201,7 +201,7 @@ export const SupportsMetrics: SourceType = {
 };
 
 export const SupportsBoth: SourceType = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "ResourceType",
   metadata: {
     id: "supports-logs-and-metrics",
@@ -223,7 +223,7 @@ export const SupportsBoth: SourceType = {
 
 // This destination is type resource-type-1
 export const Destination1: Destination = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "Destination",
   metadata: {
     name: "destination-1-name",
@@ -237,7 +237,7 @@ export const Destination1: Destination = {
 
 // This destination is type resource-type-1
 export const Destination2: Destination = {
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "Destination",
   metadata: {
     name: "destination-2-name",

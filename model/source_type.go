@@ -31,7 +31,7 @@ func NewSourceTypeWithSpec(name string, spec ResourceTypeSpec) *SourceType {
 	return &SourceType{
 		ResourceType: ResourceType{
 			ResourceMeta: ResourceMeta{
-				APIVersion: V1Alpha,
+				APIVersion: V1,
 				Kind:       KindSourceType,
 				Metadata: Metadata{
 					Name: name,

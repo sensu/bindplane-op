@@ -31,7 +31,7 @@ func NewProcessorTypeWithSpec(name string, spec ResourceTypeSpec) *ProcessorType
 	return &ProcessorType{
 		ResourceType: ResourceType{
 			ResourceMeta: ResourceMeta{
-				APIVersion: V1Alpha,
+				APIVersion: V1,
 				Kind:       KindProcessorType,
 				Metadata: Metadata{
 					Name: name,

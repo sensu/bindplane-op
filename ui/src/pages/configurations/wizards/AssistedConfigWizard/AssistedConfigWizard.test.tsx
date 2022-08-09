@@ -19,7 +19,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 
 const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
   __typename: "SourceType",
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "SourceType",
   metadata: {
     __typename: "Metadata",
@@ -71,7 +71,7 @@ const dummySourceType: SourceTypesQuery["sourceTypes"][0] = {
 
 const dummyDestinationType: DestinationsAndTypesQuery["destinationTypes"][0] = {
   __typename: "DestinationType",
-  apiVersion: APIVersion.V1_BETA,
+  apiVersion: APIVersion.V1,
   kind: "SourceType",
   metadata: {
     __typename: "Metadata",
@@ -420,7 +420,7 @@ describe("AssistedConfigWizard", () => {
     );
 
     const expectDestination = {
-      apiVersion: "bindplane.observiq.com/v1beta",
+      apiVersion: "bindplane.observiq.com/v1",
       kind: "Destination",
       metadata: {
         id: "dest-name",

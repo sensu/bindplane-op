@@ -16,7 +16,7 @@ export function cloneIntoConfig(
   showPageConfig: NonNullable<ShowPageConfig>
 ): Configuration {
   const newConfig = cloneDeep(showPageConfig) as Configuration;
-  newConfig.apiVersion = APIVersion.V1_BETA;
+  newConfig.apiVersion = APIVersion.V1;
   newConfig.kind = ResourceKind.CONFIGURATION;
   return newConfig;
 }
@@ -25,7 +25,7 @@ export function cloneIntoDestination(
   destination: DestinationsAndTypesQuery["destinations"][0]
 ): Destination {
   const newDest = cloneDeep(destination) as Destination;
-  newDest.apiVersion = APIVersion.V1_BETA;
+  newDest.apiVersion = APIVersion.V1;
   newDest.kind = "Destination";
 
   return newDest;

@@ -1,6 +1,6 @@
 # bindplane configuration create --name "cabin production configuration" -f config.yaml --labels app=cabin,env=production --description ""
 # bindplane configuration get --name "cabin production configuration" --output otel
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: Configuration
 metadata:
   name: raw-malformed

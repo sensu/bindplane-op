@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: rabbitmq
@@ -215,7 +215,7 @@ spec:
               enabled: false
             {{ end }}
           {{ end }}
-          
+
       {{ end }}
 
     processors: |

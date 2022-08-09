@@ -119,7 +119,7 @@ export const StepThree: React.FC = () => {
     // Create the destination resource if present and not an existing destination.
     if (formValues.destination != null && formValues.destination.create) {
       const destinationResource: Destination = {
-        apiVersion: APIVersion.V1_BETA,
+        apiVersion: APIVersion.V1,
         kind: ResourceKind.DESTINATION,
         spec: {
           type: formValues.destination.resourceConfiguration.type!,

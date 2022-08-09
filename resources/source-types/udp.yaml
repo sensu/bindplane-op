@@ -1,4 +1,4 @@
-apiVersion: bindplane.observiq.com/v1beta
+apiVersion: bindplane.observiq.com/v1
 kind: SourceType
 metadata:
   name: udp
@@ -29,7 +29,7 @@ spec:
       label: Log Type
       description: Arbitrary for attribute 'log_type'. Useful for filtering between many udp sources.
       type: string
-      default: udp 
+      default: udp
 
   logs:
     receivers: |

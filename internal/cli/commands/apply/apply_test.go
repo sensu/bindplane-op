@@ -141,7 +141,7 @@ Configuration resource-3 unchanged
 		assert.Equal(t, want, string(out))
 	})
 
-	var macosYaml = `apiVersion: bindplane.observiq.com/v1beta
+	var macosYaml = `apiVersion: bindplane.observiq.com/v1
 kind: Source
 metadata:
     name: macOS
@@ -160,7 +160,7 @@ spec:
     - name: enable_install_log
       value: true
 `
-	var malformedYaml = `apiVersion: bindplane.observiq.com/v1beta
+	var malformedYaml = `apiVersion: bindplane.observiq.com/v1
 kind Destination
 metadata:
   name: cabin-production-logs
