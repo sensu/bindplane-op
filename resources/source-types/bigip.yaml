@@ -100,6 +100,52 @@ spec:
           value: true
       advancedConfig: true
 
+    - name: metric_filtering
+      label: Metric Filtering
+      type: bool
+      default: false
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - bigip.node.availability
+        - bigip.node.connection.count
+        - bigip.node.data.transmitted
+        - bigip.node.enabled
+        - bigip.node.packet.count
+        - bigip.node.request.count
+        - bigip.node.session.count
+        - bigip.pool.availability
+        - bigip.pool.connection.count
+        - bigip.pool.data.transmitted
+        - bigip.pool.enabled
+        - bigip.pool.member.count
+        - bigip.pool.packet.count
+        - bigip.pool.request.count
+        - bigip.pool_member.availability
+        - bigip.pool_member.connection.count
+        - bigip.pool_member.data.transmitted
+        - bigip.pool_member.enabled
+        - bigip.pool_member.packet.count
+        - bigip.pool_member.request.count
+        - bigip.pool_member.session.count
+        - bigip.virtual_server.availability
+        - bigip.virtual_server.connection.count
+        - bigip.virtual_server.data.transmitted
+        - bigip.virtual_server.enabled
+        - bigip.virtual_server.packet.count
+        - bigip.virtual_server.request.count
+      relevantIf:
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
   metrics:
     receivers: |
       - bigip:
@@ -116,6 +162,14 @@ spec:
             ca_file: "{{ .ca_file }}"
             cert_file: "{{ .cert_file }}"
             key_file: "{{ .key_file }}"
+
+          {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
+          {{ end }}
 
     processors: |
       - resourcedetection:
