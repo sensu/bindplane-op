@@ -10,16 +10,93 @@ spec:
   supported_platforms:
     - windows
   parameters:
+    # Metrics
+    - name: enable_metrics
+      label: Enable Metrics
+      type: bool
+      default: true
+
     - name: collection_interval
       label: Collection Interval
       description: How often (seconds) to scrape for metrics.
       type: int
       default: 60
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    # Logs
+    - name: enable_logs
+      label: Enable Logs
+      type: bool
+      default: true
+
+    - name: enable_dns_server
+      label: DNS Server Logs
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: enable_dfs_replication
+      label: DFS Replication Logs
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: enable_file_replication
+      label: File Replication Logs
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: start_at
+      label: Start At
+      description: Start reading logs from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      advancedConfig: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
 
   metrics:
     receivers: |
+      {{ if .enable_metrics }}
       - active_directory_ds:
           collection_interval: {{ .collection_interval }}s
+      {{ end }}
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+
+  logs:
+    receivers: |
+      {{ if .enable_logs }}
+      - plugin:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/active_directory_logs.yaml
+          parameters:
+            enable_dns_server: {{ .enable_dns_server }}
+            enable_dfs_replication: {{ .enable_dfs_replication }}
+            enable_file_replication: {{ .enable_file_replication }}
+            start_at: {{ .start_at }}
+      {{ end }}
 
     processors: |
       - resourcedetection:

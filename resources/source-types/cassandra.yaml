@@ -23,6 +23,10 @@ spec:
       description: How often (seconds) to scrape for metrics.
       type: int
       default: 60
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
 
     - name: address
       label: Address
