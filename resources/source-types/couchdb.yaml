@@ -176,6 +176,41 @@ spec:
           value: true
       advancedConfig: true
 
+      # Metric Filtering
+    - name: metric_filtering
+      label: Metric Filtering
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - couchdb.average_request_time
+        - couchdb.database.open
+        - couchdb.database.operations
+        - couchdb.file_descriptor.open
+        - couchdb.httpd.bulk_requests
+        - couchdb.httpd.requests
+        - couchdb.httpd.responses
+        - couchdb.httpd.views
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
     # Logging
     - name: enable_logs
       label: Enable Logs
@@ -241,6 +276,14 @@ spec:
           {{ else }}
           tls:
             insecure: true
+          {{ end }}
+
+          {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
           {{ end }}
       {{ end }}
 
