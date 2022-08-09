@@ -133,7 +133,7 @@ spec:
             protocol: {{ .protocol }}
             listen_address: {{ .listen_ip }}:{{ .listen_port }}
             # Used for RFC3164 Only
-            location: {{ .timezone }}
+            timezone: {{ .timezone }}
             tls_certificate_path: "{{ .cert_file }}"
             tls_private_key_path: "{{ .key_file }}"
             tls_ca_path: "{{ .ca_file }}"

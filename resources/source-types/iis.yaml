@@ -110,7 +110,7 @@ spec:
               {{ range $fp := .exclude_file_log_path }}
               - '{{ $fp }}'
               {{ end }}
-            location: {{ .timezone }}
+            timezone: {{ .timezone }}
             start_at: {{ .start_at }}
       {{ end }}
 
