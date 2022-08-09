@@ -65,7 +65,7 @@ sudo /usr/local/bin/bindplane init server --config /etc/bindplane/config.yaml
 
 ## Client
 
-See the [installation documentation](./doc/install.md#client) for client install instructions.
+See the [installation documentation](./docs/install.md#client) for client install instructions.
 
 ## Agent
 
