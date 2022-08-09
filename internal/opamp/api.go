@@ -426,6 +426,7 @@ func (s *opampServer) updateAgentConfig(ctx context.Context, agent *model.Agent,
 	agentRawConfiguration := state.Configuration()
 	if agentRawConfiguration == nil {
 		s.logger.Info("no configuration available to verify, requesting from agent")
+		response.Flags = protobufs.ServerToAgent_ReportFullState
 		return nil
 	}
 

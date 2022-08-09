@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/observiq/bindplane-op/internal/store/search"
+	"github.com/observiq/bindplane-op/internal/util/semver"
 )
 
 // AgentTypeName is the name of a type of agent
@@ -209,6 +210,16 @@ func durationDisplay(t *time.Time) string {
 
 // ----------------------------------------------------------------------
 // upgrading
+
+var supportedUpgradeMinVersion = semver.Parse("1.6.0")
+
+// SupportsUpgrade returns true if this agent supports upgrade
+func (a *Agent) SupportsUpgrade() bool {
+	// Ideally this would be based on the opamp flag AgentCapabilities_AcceptsPackages but agent capabilities aren't
+	// currently available on the Agent model. That should change but for now the version will be checked.
+	v := semver.Parse(a.Version)
+	return !v.IsOlder(supportedUpgradeMinVersion)
+}
 
 // UpgradeTo begins an upgrade by setting the status to Upgrading and setting the Upgrade field to the specified
 // version.

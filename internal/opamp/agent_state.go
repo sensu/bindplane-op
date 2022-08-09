@@ -182,7 +182,7 @@ func syncOne[T protoiface.MessageV1](ctx context.Context, logger *zap.Logger, ag
 			zap.Bool("initialSyncRequired", initialSyncRequired),
 		)
 		if hasCapability(agentToServer, syncer.agentCapabilitiesFlag()) {
-			response.Flags |= protobufs.ServerToAgent_ReportFullState
+			response.Flags = protobufs.ServerToAgent_ReportFullState
 		}
 		return false
 	}

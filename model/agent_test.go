@@ -114,6 +114,38 @@ func TestAgentMatchesSelector(t *testing.T) {
 	}
 }
 
+func TestAgentSupportsUpgrade(t *testing.T) {
+	tests := []struct {
+		version string
+		expect  bool
+	}{
+		{
+			version: "v1.5.0",
+			expect:  false,
+		},
+		{
+			version: "v1.6.0",
+			expect:  true,
+		},
+		{
+			version: "v1.6.1",
+			expect:  true,
+		},
+		{
+			version: "v2.0.0",
+			expect:  true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.version, func(t *testing.T) {
+			agent := &Agent{
+				Version: test.version,
+			}
+			require.Equal(t, test.expect, agent.SupportsUpgrade())
+		})
+	}
+}
+
 func TestAgentUpgradeComplete(t *testing.T) {
 	tests := []struct {
 		name          string

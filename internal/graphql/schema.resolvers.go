@@ -61,6 +61,9 @@ func (r *agentResolver) ConfigurationResource(ctx context.Context, obj *model.Ag
 
 // UpgradeAvailable is the resolver for the upgradeAvailable field.
 func (r *agentResolver) UpgradeAvailable(ctx context.Context, obj *model.Agent) (*string, error) {
+	if !obj.SupportsUpgrade() {
+		return nil, nil
+	}
 	latestVersion := r.bindplane.Versions().LatestVersionString()
 	if obj.Version != latestVersion {
 		return &latestVersion, nil
