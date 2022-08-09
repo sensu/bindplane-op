@@ -65,6 +65,8 @@ func Command(bindplane *cli.BindPlane) *cobra.Command {
 		deleteResourceCommand(bindplane, "configuration", []string{"configurations", "configs", "config"}),
 		deleteResourceCommand(bindplane, "source", []string{"sources"}),
 		deleteResourceCommand(bindplane, "source-type", []string{"source-types", "sourceType", "sourceTypes"}),
+		deleteResourceCommand(bindplane, "processor", []string{"processors"}),
+		deleteResourceCommand(bindplane, "processor-type", []string{"processor-types", "processorType", "processorTypes"}),
 		deleteResourceCommand(bindplane, "destination", []string{"destinations"}),
 		deleteResourceCommand(bindplane, "destination-type", []string{"destination-types", "destinationType", "destinationTypes"}),
 	)
@@ -102,6 +104,10 @@ func deleteResourceCommand(bindplane *cli.BindPlane, resourceType string, aliase
 				err = c.DeleteSource(ctx, name)
 			case "source-type":
 				err = c.DeleteSourceType(ctx, name)
+			case "processor":
+				err = c.DeleteProcessor(ctx, name)
+			case "processor-type":
+				err = c.DeleteProcessorType(ctx, name)
 			case "destination":
 				err = c.DeleteDestination(ctx, name)
 			case "destination-type":
