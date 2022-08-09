@@ -3,6 +3,7 @@ kind: ProcessorType
 metadata:
   name: custom
   displayName: Custom
+  description: Insert a custom OpenTelemetry processor configuration.
 spec:
   version: 0.0.1
   parameters:
@@ -12,6 +13,28 @@ spec:
       type: yaml
       required: true
 
-  logs+metrics+traces:
+    - name: telemetry_types
+      label: Enable Telemetry
+      type: enums
+      description: "Select which types of telemetry the processor should support."
+      validValues: ["Metrics", "Logs", "Traces"]
+      default: ["Metrics", "Logs", "Traces"]
+
+  logs:
     processors: |
+      {{ if has "Logs" .telemetry_types }}
       - {{ .configuration | nindent 2 }}
+      {{ end }}
+
+  metrics:
+    processors: |
+      {{ if has "Metrics" .telemetry_types }}
+      - {{ .configuration | nindent 2 }}
+      {{ end }}
+
+
+  traces:
+    processors: |
+      {{ if has "Traces" .telemetry_types }}
+      - {{ .configuration | nindent 2 }}
+      {{ end }}

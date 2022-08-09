@@ -3,7 +3,7 @@ kind: SourceType
 metadata:
   name: apache_common
   displayName: Apache Common
-  icon: /icons/sources/apache_common.svg
+  icon: /icons/sources/apache.svg
   description: Collect logs from Apache Common formatted log files.
 spec:
   version: 0.0.1

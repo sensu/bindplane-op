@@ -2,7 +2,7 @@ apiVersion: bindplane.observiq.com/v1beta
 kind: SourceType
 metadata:
   name: vmware_esxi
-  displayName: VMare ESXI
+  displayName: VMWare ESXI
   icon: /icons/sources/vmware_esxi.svg
   description: Receive Syslog from ESXI.
 spec:

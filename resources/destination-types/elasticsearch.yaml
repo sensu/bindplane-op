@@ -4,6 +4,7 @@ metadata:
   name: elasticsearch
   displayName: Elasticsearch
   icon: /icons/destinations/elasticsearch.svg
+  description: Send logs to Elasticsearch.
 spec:
   parameters:
     - name: endpoints

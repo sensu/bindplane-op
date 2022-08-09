@@ -4,7 +4,7 @@ metadata:
   name: haproxy
   displayName: HAProxy
   icon: /icons/sources/haproxy.svg
-  description: Collect logs from Haproxy.
+  description: Collect logs from HAProxy.
 spec:
   version: 0.0.1
   supported_platforms:
@@ -19,6 +19,13 @@ spec:
       default:
         - /var/log/haproxy/haproxy.log
 
+    - name: timezone
+      label: Timezone
+      description: The timezone to use when parsing timestamps.
+      type: timezone
+      default: "UTC"
+      advancedConfig: true
+
     - name: start_at
       label: Start At
       description: Start reading logs from 'beginning' or 'end'.
@@ -27,13 +34,6 @@ spec:
         - beginning
         - end
       default: end
-      advancedConfig: true
-
-    - name: timezone
-      label: Timezone
-      description: The timezone to use when parsing timestamps.
-      type: timezone
-      default: "UTC"
       advancedConfig: true
 
   logs:

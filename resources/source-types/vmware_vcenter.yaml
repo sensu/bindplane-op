@@ -4,7 +4,7 @@ metadata:
   name: vmware_vcenter
   displayName: VMare vCenter
   icon: /icons/sources/vmware_vcenter.svg
-  description: Receive Syslog from vCenter.
+  description: Collect metrics and receive Syslog from vCenter.
 spec:
   version: 0.0.1
   supported_platforms:

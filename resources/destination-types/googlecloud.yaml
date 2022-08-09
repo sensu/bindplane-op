@@ -4,6 +4,7 @@ metadata:
   name: googlecloud
   displayName: Google Cloud
   icon: /icons/destinations/google-cloud-logging.svg
+  description: Send metrics, traces, and logs to Google Cloud.
 spec:
   parameters:
     - name: project

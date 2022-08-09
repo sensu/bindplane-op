@@ -4,6 +4,7 @@ metadata:
   name: jaeger
   displayName: Jaeger
   icon: /icons/destinations/jaeger.svg
+  description: Send traces to Jaeger.
 spec:
   parameters:
     - name: hostname
@@ -47,6 +48,9 @@ spec:
         - name: enable_tls
           operator: equals
           value: true
+        - name: insecure_skip_verify
+          operator: equals
+          value: false
       advancedConfig: true
 
     - name: mutual_tls

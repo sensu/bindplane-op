@@ -2,7 +2,8 @@ apiVersion: bindplane.observiq.com/v1beta
 kind: ProcessorType
 metadata:
   name: add_resource
-  displayName: Add Resource
+  displayName: Add Resource Attribute
+  description: Insert, update, or upsert resource attributes to metrics, traces, and logs.
 spec:
   version: 0.0.1
   parameters:

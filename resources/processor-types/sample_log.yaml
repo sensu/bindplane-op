@@ -2,7 +2,8 @@ apiVersion: bindplane.observiq.com/v1beta
 kind: ProcessorType
 metadata:
   name: sampling
-  displayName: Sampling
+  displayName: Log Sampling
+  description: Sample logs with a configured ratio.
 spec:
   version: 0.0.1
   parameters:
@@ -34,6 +35,7 @@ spec:
         - "0.05"
         - "0.0"
       required: true
+
   logs:
     processors: |
       - logstransform:

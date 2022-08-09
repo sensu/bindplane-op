@@ -4,6 +4,7 @@ metadata:
   name: logzio
   displayName: Logz.io
   icon: /icons/destinations/logzio.svg
+  description: Send metrics, logs, and traces to Logz.io.
 spec:
   parameters:
     - name: enable_logs

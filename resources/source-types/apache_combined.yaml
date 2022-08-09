@@ -3,7 +3,7 @@ kind: SourceType
 metadata:
   name: apache_combined
   displayName: Apache Combined
-  icon: /icons/sources/apache_http.svg
+  icon: /icons/sources/apache.svg
   description: Collect logs from Apache Combined formatted log files.
 spec:
   version: 0.0.1
@@ -12,6 +12,12 @@ spec:
     - windows
     - macos
   parameters:
+    - name: file_path
+      label: Combined Log File Path(s)
+      description: Paths to Apache combined formatted log files
+      type: strings
+      default: ["/var/log/apache_combined.log"]
+
     - name: start_at
       label: Start At
       description: Start reading logs from 'beginning' or 'end'.
@@ -21,12 +27,6 @@ spec:
         - end
       default: end
       advancedConfig: true
-
-    - name: file_path
-      label: Combined Log File Path(s)
-      description: Paths to Apache combined formatted log files
-      type: strings
-      default: ["/var/log/apache_combined.log"]
 
   logs:
     receivers: |

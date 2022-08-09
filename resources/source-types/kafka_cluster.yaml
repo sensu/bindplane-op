@@ -28,6 +28,8 @@ spec:
         - "2.2.0"
         - "2.0.0"
         - "1.0.0"
+      options:
+        creatable: true
       default: "2.0.0"
 
     - name: brokers

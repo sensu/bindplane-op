@@ -4,6 +4,7 @@ metadata:
   name: prometheus
   displayName: Prometheus
   icon: /icons/destinations/prometheus.svg
+  description: Serve Prometheus compatible metrics, scrapable by a Prometheus server.
 spec:
   parameters:
     - name: listen_port

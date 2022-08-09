@@ -2,7 +2,8 @@ apiVersion: bindplane.observiq.com/v1beta
 kind: ProcessorType
 metadata:
   name: delete_resource
-  displayName: Delete Resource
+  displayName: Delete Resource Attribute
+  description: Delete resource attributes from metrics, traces, and logs.
 spec:
   version: 0.0.1
   parameters:

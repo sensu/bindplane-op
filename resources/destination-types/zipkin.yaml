@@ -4,6 +4,7 @@ metadata:
   name: zipkin
   displayName: Zipkin
   icon: /icons/destinations/zipkin.svg
+  description: Send traces to Zipkin.
 spec:
   parameters:
     - name: hostname

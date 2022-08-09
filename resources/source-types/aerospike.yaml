@@ -122,6 +122,10 @@ spec:
         - end
       default: end
       advancedConfig: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
 
   metrics:
     receivers: |

@@ -4,6 +4,7 @@ metadata:
   name: otlp_grpc
   displayName: OpenTelemetry (OTLP)
   icon: /icons/destinations/otlp.svg
+  description: Send metrics, logs, and traces to an OTLP endpoint.
 spec:
   parameters:
     - name: protocol

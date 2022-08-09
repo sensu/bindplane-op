@@ -4,6 +4,7 @@ metadata:
   name: newrelic_otlp
   displayName: New Relic
   icon: /icons/destinations/newrelic_otlp.svg
+  description: Send metrics, traces, and logs to New Relic.
 spec:
   parameters:
     - name: endpoint

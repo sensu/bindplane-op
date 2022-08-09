@@ -29,7 +29,7 @@ spec:
       description: File paths to tail for domain server logs.
       type: strings
       default:
-        - /opt/wildfly/standalone/log/server.log
+        - '/opt/wildfly/domain/servers/*/log/server.log'
       relevantIf:
         - name: enable_domain_server
           operator: equals
@@ -46,7 +46,7 @@ spec:
       description: File paths to tail for domain controller logs.
       type: strings
       default:
-        - /opt/wildfly/standalone/log/server.log
+        - '/opt/wildfly/domain/log/*.log'
       relevantIf:
         - name: enable_domain_controller
           operator: equals

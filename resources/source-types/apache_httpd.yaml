@@ -3,7 +3,7 @@ kind: SourceType
 metadata:
   name: apache_http
   displayName: Apache HTTP
-  icon: /icons/sources/apache_http.svg
+  icon: /icons/sources/apache.svg
   description: Collect metrics and logs from Apache HTTP server.
 spec:
   version: 0.0.1
@@ -34,7 +34,7 @@ spec:
       label: Port
       description: The TCP port of the Apache HTTP system.
       type: int
-      default: 3000
+      default: 80
       relevantIf:
         - name: enable_metrics
           operator: equals
@@ -160,20 +160,6 @@ spec:
       type: bool
       default: true
 
-    - name: start_at
-      label: Start At
-      description: Start reading logs from 'beginning' or 'end'.
-      type: enum
-      validValues:
-        - beginning
-        - end
-      default: end
-      advancedConfig: true
-      relevantIf:
-        - name: enable_logs
-          operator: equals
-          value: true
-
     - name: access_log_path
       label: Access Log File Path(s)
       description: Access Log File paths to tail for logs.
@@ -199,6 +185,20 @@ spec:
       description: The timezone to use when parsing timestamps.
       type: timezone
       default: "UTC"
+      advancedConfig: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: start_at
+      label: Start At
+      description: Start reading logs from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
       advancedConfig: true
       relevantIf:
         - name: enable_logs
