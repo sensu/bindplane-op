@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -94,6 +95,13 @@ func SetCommand(h Helper) *cobra.Command {
 						profile.Spec.Command.Output = f.Value.String()
 					case "offline":
 						profile.Spec.Server.Offline = f.Value.String() == "true"
+					case "sync-agent-versions-interval":
+						duration, err := time.ParseDuration(f.Value.String())
+						if err != nil {
+							fmt.Printf("failed to set sync-agent-versions-interval, must be a valid duration: %s\n", err.Error())
+							return
+						}
+						profile.Spec.Server.SyncAgentVersionsInterval = duration
 					case "sessions-secret":
 						// Try to enforce it as a UUID
 						_, err := uuid.Parse(f.Value.String())

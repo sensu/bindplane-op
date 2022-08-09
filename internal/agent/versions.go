@@ -15,9 +15,11 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"github.com/observiq/bindplane-op/internal/eventbus"
 	"github.com/observiq/bindplane-op/internal/store"
 	"github.com/observiq/bindplane-op/internal/util"
 	"github.com/observiq/bindplane-op/model"
@@ -43,12 +45,19 @@ type Versions interface {
 // VersionsSettings TODO(doc)
 type VersionsSettings struct {
 	Logger *zap.Logger
+
+	// SyncAgentVersionsInterval is the interval at which SyncVersions() will be called to ensure the agent-versions are
+	// in sync with GitHub and new releases are available.
+	SyncAgentVersionsInterval time.Duration
+
+	// Offline is true if the server is in offline mode and should not contact GitHub automatically. Sync methods called
+	// by 'bindplanectl sync' commands will still attempt to contact GitHub.
+	Offline bool
 }
 
-// The latest version cache is handled separately from the version cache because it just keeps the latest version in
-// memory whether it was read from the filesystem cache or the agents client.
+// The latest version cache keeps the latest version in memory to avoid hitting the store to get the latest version.
 const (
-	latestVersionCacheDuration = 1 * time.Minute
+	latestVersionCacheDuration = 15 * time.Minute
 )
 
 type versions struct {
@@ -62,13 +71,22 @@ var _ Versions = (*versions)(nil)
 
 // NewVersions creates an implementation of Versions using the specified client, cache, and settings. To disable
 // caching, pass nil for the Cache.
-func NewVersions(client Client, store store.Store, settings VersionsSettings) Versions {
-	return &versions{
+func NewVersions(ctx context.Context, client Client, store store.Store, settings VersionsSettings) Versions {
+	v := &versions{
 		client:        client,
 		store:         store,
 		latestVersion: util.NewRemember[model.AgentVersion](latestVersionCacheDuration),
 		logger:        settings.Logger,
 	}
+	if settings.SyncAgentVersionsInterval > 0 && !settings.Offline {
+		interval := settings.SyncAgentVersionsInterval
+		if interval < time.Hour {
+			interval = time.Hour
+		}
+		go v.syncAgentVersions(ctx, interval)
+	}
+	go v.watchAgentVersionUpdates(ctx)
+	return v
 }
 
 func (v *versions) LatestVersionString() string {
@@ -138,4 +156,67 @@ func (v *versions) SyncVersions() ([]*model.AgentVersion, error) {
 		return nil, fmt.Errorf("unable to sync versions: server is running in offline mode")
 	}
 	return v.client.Versions()
+}
+
+// ----------------------------------------------------------------------
+
+func (v *versions) syncAgentVersions(ctx context.Context, interval time.Duration) {
+	// sync once immediately
+	v.syncAgentVersionsOnce()
+
+	// sync at regular intervals
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			v.syncAgentVersionsOnce()
+		}
+	}
+}
+
+func (v *versions) syncAgentVersionsOnce() {
+	agentVersions, err := v.SyncVersions()
+	if err != nil {
+		v.logger.Error("error during syncAgentVersions SyncVersions", zap.Error(err))
+		return
+	}
+
+	// assemble the model.Resource array for Apply
+	var resources []model.Resource
+	for _, agentVersion := range agentVersions {
+		resources = append(resources, agentVersion)
+	}
+
+	resourceStatuses, err := v.store.ApplyResources(resources)
+	if err != nil {
+		v.logger.Error("error during syncAgentVersions ApplyResources", zap.Error(err))
+		return
+	}
+
+	var messages []string
+	for _, resourceStatus := range resourceStatuses {
+		messages = append(messages, resourceStatus.String())
+	}
+	v.logger.Debug("syncAgentVersions", zap.Strings("statuses", messages))
+}
+
+func (v *versions) watchAgentVersionUpdates(ctx context.Context) {
+	channel, unsubscribe := eventbus.SubscribeWithFilter(v.store.Updates(), func(u *store.Updates) (*store.Updates, bool) {
+		return u, len(u.AgentVersions) > 0
+	})
+	defer unsubscribe()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-channel:
+			// clear the latest version whenever we see any AgentVersion changes
+			v.latestVersion.Forget()
+		}
+	}
 }

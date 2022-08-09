@@ -59,4 +59,7 @@ func TestRemember(t *testing.T) {
 	advanceTime(time.Second)
 	require.NotNil(t, rem.Get())
 	require.Equal(t, 7, rem.Get().value)
+
+	rem.Forget()
+	require.Nil(t, rem.Get())
 }

@@ -248,8 +248,10 @@ func (s *Server) createVersions(config *common.Server, st store.Store) agent.Ver
 	if !config.Offline {
 		client = agent.NewClient()
 	}
-	return agent.NewVersions(client, st, agent.VersionsSettings{
-		Logger: s.logger.Named("versions"),
+	return agent.NewVersions(context.TODO(), client, st, agent.VersionsSettings{
+		Logger:                    s.logger.Named("versions"),
+		SyncAgentVersionsInterval: config.SyncAgentVersionsInterval,
+		Offline:                   config.Offline,
 	})
 }
 

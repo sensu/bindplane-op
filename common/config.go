@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 )
 
 const (
@@ -173,6 +174,10 @@ type Server struct {
 	SessionsSecret string `mapstructure:"sessionsSecret,omitempty" yaml:"sessionsSecret,omitempty"`
 
 	Common `yaml:",inline" mapstructure:",squash"`
+
+	// SyncAgentVersionsInterval is the interval at which agent-versions will be synchronized with GitHub. Set to 0 to
+	// turn off synchronization. Disabled if Offline is true.
+	SyncAgentVersionsInterval time.Duration `mapstructure:"syncAgentVersionsInterval,omitempty" yaml:"syncAgentVersionsInterval,omitempty"`
 }
 
 // GoogleCloudDatastore contains the configuration for google cloud datastore

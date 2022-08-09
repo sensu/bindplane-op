@@ -17,6 +17,7 @@ package flags
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -44,6 +45,10 @@ func (s *flags) StringSlice(name string, value []string, usage string, opts ...f
 
 func (s *flags) Bool(name string, value bool, usage string, opts ...flagOption) {
 	newflag(name, opts, withUsage(usage)).Bool(s.set, value)
+}
+
+func (s *flags) Duration(name string, value time.Duration, usage string, opts ...flagOption) {
+	newflag(name, opts, withUsage(usage)).Duration(s.set, value)
 }
 
 // ----------------------------------------------------------------------
@@ -82,6 +87,11 @@ func (f *flag) StringSlice(set *pflag.FlagSet, defaultValue []string) {
 
 func (f *flag) Bool(set *pflag.FlagSet, defaultValue bool) {
 	set.BoolP(f.name, f.shorthand, defaultValue, f.usage)
+	f.BindViper(set)
+}
+
+func (f *flag) Duration(set *pflag.FlagSet, defaultValue time.Duration) {
+	set.DurationP(f.name, f.shorthand, defaultValue, f.usage)
 	f.BindViper(set)
 }
 

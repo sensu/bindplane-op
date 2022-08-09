@@ -19,12 +19,14 @@ import (
 	"time"
 )
 
-// Remember stores an item for a period of time.  It is safe to share with multiple goroutines.
+// Remember stores an item for a period of time. It is safe to share with multiple goroutines.
 type Remember[T any] interface {
 	// Get returns nil if nothing is remembered or it has expired
 	Get() *T
 	// Update sets the thing to be remembered
 	Update(*T)
+	// Forget clears the thing that was remembered
+	Forget()
 }
 
 type remember[T any] struct {
@@ -46,7 +48,7 @@ func NewRemember[T any](duration time.Duration) Remember[T] {
 func (v *remember[T]) Get() *T {
 	v.mtx.RLock()
 	defer v.mtx.RUnlock()
-	if v.item != nil && now().Before(v.expiration) {
+	if now().Before(v.expiration) {
 		return v.item
 	}
 	return nil
@@ -57,6 +59,10 @@ func (v *remember[T]) Update(item *T) {
 	defer v.mtx.Unlock()
 	v.item = item
 	v.expiration = now().Add(v.duration)
+}
+
+func (v *remember[T]) Forget() {
+	v.Update(nil)
 }
 
 // override for testing

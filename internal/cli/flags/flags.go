@@ -15,6 +15,8 @@
 package flags
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 )
 
@@ -47,4 +49,5 @@ func Serve(cmd *cobra.Command) {
 	f.String("storage-file-path", "", "full path to the desired storage file, defaults to the $HOME/.bindplane/storage")
 	f.String("downloads-folder-path", "", "full path to the downloads folder where agents are cached, defaults to $HOME/.bindplane/downloads")
 	f.Bool("disable-downloads-cache", false, "true if agent distributions should be cached")
+	f.Duration("sync-agent-versions-interval", 1*time.Hour, "time interval to sync agent-version resources from GitHub releases, 0 to disable or minimum 1h")
 }
