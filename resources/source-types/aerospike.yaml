@@ -103,6 +103,41 @@ spec:
           value: true
       advancedConfig: true
 
+    - name: metric_filtering
+      label: Metric Filtering
+      description: Enable and disable Aerospike metrics.
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - aerospike.namespace.disk.available
+        - aerospike.namespace.memory.free
+        - aerospike.namespace.memory.usage
+        - aerospike.namespace.scan.count
+        - aerospike.namespace.transaction.count
+        - aerospike.node.connection.count
+        - aerospike.node.connection.open
+        - aerospike.node.memory.free
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
     # Logging
     #
     # Aerospike uses Journald, which has a journald_directory option. Generally the journald
@@ -138,6 +173,15 @@ spec:
           username: {{ .username }}
           password: {{ .password }}
           {{ end }}
+
+          {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
+          {{ end }}
+
       {{ end }}
 
   logs:
