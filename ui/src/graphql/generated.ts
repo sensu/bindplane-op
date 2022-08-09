@@ -139,6 +139,12 @@ export type DestinationWithType = {
   destinationType?: Maybe<DestinationType>;
 };
 
+export type DocumentationLink = {
+  __typename?: 'DocumentationLink';
+  text: Scalars['String'];
+  url: Scalars['String'];
+};
+
 export enum EventType {
   Insert = 'INSERT',
   Remove = 'REMOVE',
@@ -165,6 +171,7 @@ export type ParameterDefinition = {
   __typename?: 'ParameterDefinition';
   default?: Maybe<Scalars['Any']>;
   description: Scalars['String'];
+  documentation?: Maybe<Array<DocumentationLink>>;
   label: Scalars['String'];
   name: Scalars['String'];
   options: ParameterOptions;
@@ -369,14 +376,14 @@ export type Suggestion = {
 export type GetProcessorTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetProcessorTypesQuery = { __typename?: 'Query', processorTypes: Array<{ __typename?: 'ProcessorType', metadata: { __typename?: 'Metadata', displayName?: string | null, description?: string | null, name: string }, spec: { __typename?: 'ResourceTypeSpec', telemetryTypes: Array<PipelineType>, parameters: Array<{ __typename?: 'ParameterDefinition', label: string, name: string, description: string, required: boolean, type: ParameterType, default?: any | null, validValues?: Array<string> | null, relevantIf?: Array<{ __typename?: 'RelevantIfCondition', name: string, operator: RelevantIfOperatorType, value: any }> | null, options: { __typename?: 'ParameterOptions', creatable?: boolean | null, trackUnchecked?: boolean | null } }> } }> };
+export type GetProcessorTypesQuery = { __typename?: 'Query', processorTypes: Array<{ __typename?: 'ProcessorType', metadata: { __typename?: 'Metadata', displayName?: string | null, description?: string | null, name: string }, spec: { __typename?: 'ResourceTypeSpec', telemetryTypes: Array<PipelineType>, parameters: Array<{ __typename?: 'ParameterDefinition', label: string, name: string, description: string, required: boolean, type: ParameterType, default?: any | null, validValues?: Array<string> | null, relevantIf?: Array<{ __typename?: 'RelevantIfCondition', name: string, operator: RelevantIfOperatorType, value: any }> | null, options: { __typename?: 'ParameterOptions', creatable?: boolean | null, trackUnchecked?: boolean | null }, documentation?: Array<{ __typename?: 'DocumentationLink', text: string, url: string }> | null }> } }> };
 
 export type GetProcessorTypeQueryVariables = Exact<{
   type: Scalars['String'];
 }>;
 
 
-export type GetProcessorTypeQuery = { __typename?: 'Query', processorType?: { __typename?: 'ProcessorType', metadata: { __typename?: 'Metadata', displayName?: string | null, name: string, description?: string | null }, spec: { __typename?: 'ResourceTypeSpec', parameters: Array<{ __typename?: 'ParameterDefinition', label: string, name: string, description: string, required: boolean, type: ParameterType, default?: any | null, validValues?: Array<string> | null, relevantIf?: Array<{ __typename?: 'RelevantIfCondition', name: string, operator: RelevantIfOperatorType, value: any }> | null, options: { __typename?: 'ParameterOptions', creatable?: boolean | null, trackUnchecked?: boolean | null } }> } } | null };
+export type GetProcessorTypeQuery = { __typename?: 'Query', processorType?: { __typename?: 'ProcessorType', metadata: { __typename?: 'Metadata', displayName?: string | null, name: string, description?: string | null }, spec: { __typename?: 'ResourceTypeSpec', parameters: Array<{ __typename?: 'ParameterDefinition', label: string, name: string, description: string, required: boolean, type: ParameterType, default?: any | null, validValues?: Array<string> | null, relevantIf?: Array<{ __typename?: 'RelevantIfCondition', name: string, operator: RelevantIfOperatorType, value: any }> | null, options: { __typename?: 'ParameterOptions', creatable?: boolean | null, trackUnchecked?: boolean | null }, documentation?: Array<{ __typename?: 'DocumentationLink', text: string, url: string }> | null }> } } | null };
 
 export type AgentsTableQueryVariables = Exact<{
   selector?: InputMaybe<Scalars['String']>;
@@ -511,6 +518,10 @@ export const GetProcessorTypesDocument = gql`
           creatable
           trackUnchecked
         }
+        documentation {
+          text
+          url
+        }
       }
       telemetryTypes
     }
@@ -568,6 +579,10 @@ export const GetProcessorTypeDocument = gql`
         options {
           creatable
           trackUnchecked
+        }
+        documentation {
+          text
+          url
         }
         validValues
       }

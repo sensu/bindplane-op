@@ -36,6 +36,10 @@ gql`
             creatable
             trackUnchecked
           }
+          documentation {
+            text
+            url
+          }
         }
         telemetryTypes
       }

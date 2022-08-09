@@ -59,6 +59,14 @@ type ParameterDefinition struct {
 	AdvancedConfig bool                  `json:"advancedConfig" yaml:"advancedConfig" mapstructure:"advancedConfig"`
 
 	Options ParameterOptions `json:"options" yaml:"options"`
+
+	Documentation []DocumentationLink `json:"documentation,omitempty" yaml:"documentation,omitempty"`
+}
+
+// DocumentationLink contains the text and url for documentation of a ParameterDefinition
+type DocumentationLink struct {
+	Text string `json:"text" yaml:"text"`
+	URL  string `json:"url" yaml:"url"`
 }
 
 // ParameterOptions specify further customization for input parameters

@@ -218,6 +218,13 @@ type ParameterDefinition {
   relevantIf: [RelevantIfCondition!]
 
   options: ParameterOptions!
+
+  documentation: [DocumentationLink!]
+}
+
+type DocumentationLink {
+  text: String!
+  url: String!
 }
 
 type ParameterOptions {

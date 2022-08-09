@@ -4,14 +4,18 @@ metadata:
   name: custom
   displayName: Custom
   description: Insert a custom OpenTelemetry processor configuration.
+
 spec:
   version: 0.0.1
   parameters:
     - name: configuration
       label: Configuration
-      description: Enter any OpenTelemetry Processor and the YAML will be inserted into the configuration. Processor configuration documentation can be found here https://github.com/observIQ/observiq-otel-collector/blob/main/docs/processors.md.
+      description: Enter any supported Processor and the YAML will be inserted into the configuration.
       type: yaml
       required: true
+      documentation:
+        - text: Processor Syntax
+          url: https://github.com/observIQ/observiq-otel-collector/blob/main/docs/processors.md
 
     - name: telemetry_types
       label: Enable Telemetry

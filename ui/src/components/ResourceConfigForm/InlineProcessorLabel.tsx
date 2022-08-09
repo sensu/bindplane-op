@@ -48,6 +48,10 @@ gql`
             creatable
             trackUnchecked
           }
+          documentation {
+            text
+            url
+          }
           validValues
         }
       }

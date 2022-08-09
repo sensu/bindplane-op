@@ -46,6 +46,15 @@ export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
         minHeight={200}
       />
       <FormHelperText>{definition.description}</FormHelperText>
+      {(definition.documentation ?? []).map((d) => {
+        return (
+          <FormHelperText key={d.text}>
+            <a href={d.url} rel="noreferrer" target="_blank">
+              {d.text}
+            </a>
+          </FormHelperText>
+        );
+      })}
     </FormControl>
   );
 };

@@ -163,6 +163,11 @@ type ComplexityRoot struct {
 		DestinationType func(childComplexity int) int
 	}
 
+	DocumentationLink struct {
+		Text func(childComplexity int) int
+		URL  func(childComplexity int) int
+	}
+
 	Metadata struct {
 		Description func(childComplexity int) int
 		DisplayName func(childComplexity int) int
@@ -178,15 +183,16 @@ type ComplexityRoot struct {
 	}
 
 	ParameterDefinition struct {
-		Default     func(childComplexity int) int
-		Description func(childComplexity int) int
-		Label       func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Options     func(childComplexity int) int
-		RelevantIf  func(childComplexity int) int
-		Required    func(childComplexity int) int
-		Type        func(childComplexity int) int
-		ValidValues func(childComplexity int) int
+		Default       func(childComplexity int) int
+		Description   func(childComplexity int) int
+		Documentation func(childComplexity int) int
+		Label         func(childComplexity int) int
+		Name          func(childComplexity int) int
+		Options       func(childComplexity int) int
+		RelevantIf    func(childComplexity int) int
+		Required      func(childComplexity int) int
+		Type          func(childComplexity int) int
+		ValidValues   func(childComplexity int) int
 	}
 
 	ParameterOptions struct {
@@ -778,6 +784,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DestinationWithType.DestinationType(childComplexity), true
 
+	case "DocumentationLink.text":
+		if e.complexity.DocumentationLink.Text == nil {
+			break
+		}
+
+		return e.complexity.DocumentationLink.Text(childComplexity), true
+
+	case "DocumentationLink.url":
+		if e.complexity.DocumentationLink.URL == nil {
+			break
+		}
+
+		return e.complexity.DocumentationLink.URL(childComplexity), true
+
 	case "Metadata.description":
 		if e.complexity.Metadata.Description == nil {
 			break
@@ -847,6 +867,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ParameterDefinition.Description(childComplexity), true
+
+	case "ParameterDefinition.documentation":
+		if e.complexity.ParameterDefinition.Documentation == nil {
+			break
+		}
+
+		return e.complexity.ParameterDefinition.Documentation(childComplexity), true
 
 	case "ParameterDefinition.label":
 		if e.complexity.ParameterDefinition.Label == nil {
@@ -1622,6 +1649,13 @@ type ParameterDefinition {
   relevantIf: [RelevantIfCondition!]
 
   options: ParameterOptions!
+
+  documentation: [DocumentationLink!]
+}
+
+type DocumentationLink {
+  text: String!
+  url: String!
 }
 
 type ParameterOptions {
@@ -4782,6 +4816,94 @@ func (ec *executionContext) fieldContext_DestinationWithType_destinationType(ctx
 	return fc, nil
 }
 
+func (ec *executionContext) _DocumentationLink_text(ctx context.Context, field graphql.CollectedField, obj *model.DocumentationLink) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DocumentationLink_text(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DocumentationLink_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DocumentationLink",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DocumentationLink_url(ctx context.Context, field graphql.CollectedField, obj *model.DocumentationLink) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DocumentationLink_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DocumentationLink_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DocumentationLink",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Metadata_id(ctx context.Context, field graphql.CollectedField, obj *model.Metadata) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Metadata_id(ctx, field)
 	if err != nil {
@@ -5518,6 +5640,53 @@ func (ec *executionContext) fieldContext_ParameterDefinition_options(ctx context
 				return ec.fieldContext_ParameterOptions_trackUnchecked(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ParameterOptions", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ParameterDefinition_documentation(ctx context.Context, field graphql.CollectedField, obj *model.ParameterDefinition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ParameterDefinition_documentation(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Documentation, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]model.DocumentationLink)
+	fc.Result = res
+	return ec.marshalODocumentationLink2ᚕgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐDocumentationLinkᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ParameterDefinition_documentation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ParameterDefinition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "text":
+				return ec.fieldContext_DocumentationLink_text(ctx, field)
+			case "url":
+				return ec.fieldContext_DocumentationLink_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DocumentationLink", field.Name)
 		},
 	}
 	return fc, nil
@@ -7725,6 +7894,8 @@ func (ec *executionContext) fieldContext_ResourceTypeSpec_parameters(ctx context
 				return ec.fieldContext_ParameterDefinition_relevantIf(ctx, field)
 			case "options":
 				return ec.fieldContext_ParameterDefinition_options(ctx, field)
+			case "documentation":
+				return ec.fieldContext_ParameterDefinition_documentation(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ParameterDefinition", field.Name)
 		},
@@ -10973,6 +11144,41 @@ func (ec *executionContext) _DestinationWithType(ctx context.Context, sel ast.Se
 	return out
 }
 
+var documentationLinkImplementors = []string{"DocumentationLink"}
+
+func (ec *executionContext) _DocumentationLink(ctx context.Context, sel ast.SelectionSet, obj *model.DocumentationLink) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, documentationLinkImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DocumentationLink")
+		case "text":
+
+			out.Values[i] = ec._DocumentationLink_text(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "url":
+
+			out.Values[i] = ec._DocumentationLink_url(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var metadataImplementors = []string{"Metadata"}
 
 func (ec *executionContext) _Metadata(ctx context.Context, sel ast.SelectionSet, obj *model.Metadata) graphql.Marshaler {
@@ -11149,6 +11355,10 @@ func (ec *executionContext) _ParameterDefinition(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "documentation":
+
+			out.Values[i] = ec._ParameterDefinition_documentation(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12847,6 +13057,10 @@ func (ec *executionContext) marshalNDestinationWithType2ᚖgithubᚗcomᚋobserv
 	return ec._DestinationWithType(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNDocumentationLink2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐDocumentationLink(ctx context.Context, sel ast.SelectionSet, v model.DocumentationLink) graphql.Marshaler {
+	return ec._DocumentationLink(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNEventType2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐEventType(ctx context.Context, v interface{}) (model1.EventType, error) {
 	var res model1.EventType
 	err := res.UnmarshalGQL(v)
@@ -13672,6 +13886,53 @@ func (ec *executionContext) marshalODestinationType2ᚖgithubᚗcomᚋobserviq�
 		return graphql.Null
 	}
 	return ec._DestinationType(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODocumentationLink2ᚕgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐDocumentationLinkᚄ(ctx context.Context, sel ast.SelectionSet, v []model.DocumentationLink) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDocumentationLink2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐDocumentationLink(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
