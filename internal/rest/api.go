@@ -43,7 +43,7 @@ func AddRestRoutes(router gin.IRouter, bindplane server.BindPlane) {
 	router.GET("/agents/:id/labels", func(c *gin.Context) { getAgentLabels(c, bindplane) })
 	router.PATCH("/agents/:id/labels", func(c *gin.Context) { patchAgentLabels(c, bindplane) })
 	router.PUT("/agents/:id/restart", func(c *gin.Context) { restartAgent(c, bindplane) })
-	router.POST("/agents/:id/version", func(c *gin.Context) { updateAgent(c, bindplane) })
+	router.POST("/agents/:id/version", func(c *gin.Context) { upgradeAgent(c, bindplane) })
 	router.PATCH("/agents/version", func(c *gin.Context) { upgradeAgents(c, bindplane) })
 	router.GET("/agents/:id/configuration", func(c *gin.Context) { getAgentConfiguration(c, bindplane) })
 
@@ -429,9 +429,9 @@ func upgradeAgents(c *gin.Context, bindplane server.BindPlane) {
 	}
 
 	for _, id := range req.IDs {
-		// just ignore agents that don't exist
+		// just ignore agents that don't exist or don't support upgrade
 		agent, err := bindplane.Store().Agent(id)
-		if err != nil || agent == nil {
+		if err != nil || agent == nil || !agent.SupportsUpgrade() {
 			continue
 		}
 
@@ -447,13 +447,15 @@ func upgradeAgents(c *gin.Context, bindplane server.BindPlane) {
 	c.Status(http.StatusNoContent)
 }
 
-// @Summary Update agent
+// @Summary Upgrade agent
 // @Produce json
 // @Router /agents/{id}/version [post]
 // @Param 	name	path	string	true "the id of the agent"
 // @Param body body model.PostAgentVersionRequest true "request body containing version"
-func updateAgent(c *gin.Context, bindplane server.BindPlane) {
-	ctx, span := tracer.Start(c.Request.Context(), "rest/updateAgent")
+// @Failure 409 {object} ErrorResponse If the agent does not support upgrade
+// @Failure 500 {object} ErrorResponse
+func upgradeAgent(c *gin.Context, bindplane server.BindPlane) {
+	ctx, span := tracer.Start(c.Request.Context(), "rest/upgradeAgent")
 	defer span.End()
 
 	id := c.Param("id")
@@ -472,6 +474,10 @@ func updateAgent(c *gin.Context, bindplane server.BindPlane) {
 
 	case agent == nil:
 		handleErrorResponse(c, http.StatusNotFound, store.ErrResourceMissing)
+		return
+
+	case !agent.SupportsUpgrade():
+		handleErrorResponse(c, http.StatusConflict, fmt.Errorf("agent %s with version %s does not support upgrade", agent.ID, agent.Version))
 		return
 	}
 

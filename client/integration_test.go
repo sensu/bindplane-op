@@ -944,15 +944,15 @@ func TestIntegrationHttpsMutualTLS(t *testing.T) {
 			"401 Unauthorized",
 		},
 		{
-			"AgentUpdate",
+			"AgentUpgrade",
 			func() error {
 				client, err := NewBindPlane(&defaultClientConfig, zap.NewNop())
 				if err != nil {
 					return err
 				}
-				return client.AgentUpdate(context.Background(), "id", "v1.3.0")
+				return client.AgentUpgrade(context.Background(), "id", "v1.3.0")
 			},
-			"",
+			"resource not found",
 		},
 		{
 			"AgentLabels",

@@ -44,7 +44,7 @@ func AgentCommand(bindplane *cli.BindPlane) *cobra.Command {
 			}
 
 			for _, id := range args {
-				err := c.AgentUpdate(cmd.Context(), id, versionFlag)
+				err := c.AgentUpgrade(cmd.Context(), id, versionFlag)
 				if err != nil {
 					return err
 				}

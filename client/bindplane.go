@@ -173,8 +173,8 @@ type BindPlane interface {
 
 	// AgentInstallCommand TODO(doc)
 	AgentInstallCommand(ctx context.Context, options AgentInstallOptions) (string, error)
-	// AgentUpdate TODO(doc)
-	AgentUpdate(ctx context.Context, id string, version string) error
+	// AgentUpgrade TODO(doc)
+	AgentUpgrade(ctx context.Context, id string, version string) error
 
 	// AgentLabels gets the labels for an agent
 	AgentLabels(ctx context.Context, id string) (*model.Labels, error)
@@ -525,13 +525,37 @@ func (c *bindplaneClient) AgentInstallCommand(ctx context.Context, options Agent
 	return command.Command, c.statusError(resp, err, "unable to get install command")
 }
 
-// AgentUpdate TODO(doc)
-func (c *bindplaneClient) AgentUpdate(ctx context.Context, id string, version string) error {
+// AgentUpgrade TODO(doc)
+func (c *bindplaneClient) AgentUpgrade(ctx context.Context, id string, version string) error {
 	endpoint := fmt.Sprintf("/agents/%s/version", id)
-	_, err := c.client.R().SetBody(model.PostAgentVersionRequest{
-		Version: version,
-	}).Post(endpoint)
-	return err
+	resp, err := c.client.R().
+		SetBody(model.PostAgentVersionRequest{
+			Version: version,
+		}).
+		Post(endpoint)
+
+	if err != nil {
+		return err
+	}
+
+	// look for errors
+	if resp.StatusCode() != http.StatusNoContent {
+		errResponse := &model.ErrorResponse{}
+		err = json.Unmarshal(resp.Body(), errResponse)
+		if err != nil {
+			return fmt.Errorf("unable to parse api response: %w", err)
+		}
+
+		if len(errResponse.Errors) > 0 {
+			var errs error
+			for _, e := range errResponse.Errors {
+				errs = multierror.Append(errs, errors.New(e))
+			}
+			return errs
+		}
+	}
+
+	return nil
 }
 
 func logRequestError(logger *zap.Logger, err error, endpoint string) {

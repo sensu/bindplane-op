@@ -131,6 +131,7 @@ definitions:
       prerelease:
         type: boolean
       releaseDate:
+        description: ReleaseDate is an RFC3339 encoded date in a string
         type: string
       releaseNotesURL:
         type: string
@@ -287,6 +288,13 @@ definitions:
           $ref: '#/definitions/model.Destination'
         type: array
     type: object
+  model.DocumentationLink:
+    properties:
+      text:
+        type: string
+      url:
+        type: string
+    type: object
   model.InstallCommandResponse:
     properties:
       command:
@@ -325,6 +333,10 @@ definitions:
         description: Must be valid according to Type & ValidValues
       description:
         type: string
+      documentation:
+        items:
+          $ref: '#/definitions/model.DocumentationLink'
+        type: array
       hidden:
         type: boolean
       label:
@@ -441,8 +453,7 @@ definitions:
         type: string
       operator:
         type: string
-      value:
-        type: any
+      value: {}
     type: object
   model.ResourceConfiguration:
     properties:
@@ -866,8 +877,16 @@ paths:
           $ref: '#/definitions/model.PostAgentVersionRequest'
       produces:
       - application/json
-      responses: {}
-      summary: Update agent
+      responses:
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Upgrade agent
   /agents/labels:
     patch:
       parameters:

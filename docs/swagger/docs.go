@@ -528,7 +528,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Update agent",
+                "summary": "Upgrade agent",
                 "parameters": [
                     {
                         "type": "string",
@@ -547,7 +547,20 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/apply": {
@@ -1528,6 +1541,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "releaseDate": {
+                    "description": "ReleaseDate is an RFC3339 encoded date in a string",
                     "type": "string"
                 },
                 "releaseNotesURL": {
@@ -1770,6 +1784,17 @@ const docTemplate = `{
                 }
             }
         },
+        "model.DocumentationLink": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "model.InstallCommandResponse": {
             "type": "object",
             "properties": {
@@ -1826,6 +1851,12 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "documentation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.DocumentationLink"
+                    }
                 },
                 "hidden": {
                     "type": "boolean"
@@ -1998,9 +2029,7 @@ const docTemplate = `{
                 "operator": {
                     "type": "string"
                 },
-                "value": {
-                    "type": "any"
-                }
+                "value": {}
             }
         },
         "model.ResourceConfiguration": {

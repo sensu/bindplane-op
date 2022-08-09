@@ -224,6 +224,9 @@ func (a *Agent) SupportsUpgrade() bool {
 // UpgradeTo begins an upgrade by setting the status to Upgrading and setting the Upgrade field to the specified
 // version.
 func (a *Agent) UpgradeTo(version string) {
+	if !a.SupportsUpgrade() {
+		return
+	}
 	a.Upgrade = &AgentUpgrade{
 		Version: version,
 		Status:  UpgradePending,
