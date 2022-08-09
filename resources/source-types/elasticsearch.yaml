@@ -165,6 +165,76 @@ spec:
           value: true
       advancedConfig: true
 
+    - name: metric_filtering
+      label: Metric Filtering
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - elasticsearch.breaker.memory.estimated
+        - elasticsearch.breaker.memory.limit
+        - elasticsearch.breaker.tripped
+        - elasticsearch.cluster.data_nodes
+        - elasticsearch.cluster.health
+        - elasticsearch.cluster.nodes
+        - elasticsearch.cluster.shards
+        - elasticsearch.node.cache.evictions
+        - elasticsearch.node.cache.memory.usage
+        - elasticsearch.node.cluster.connections
+        - elasticsearch.node.cluster.io
+        - elasticsearch.node.disk.io.read
+        - elasticsearch.node.disk.io.write
+        - elasticsearch.node.documents
+        - elasticsearch.node.fs.disk.available
+        - elasticsearch.node.http.connections
+        - elasticsearch.node.open_files
+        - elasticsearch.node.operations.completed
+        - elasticsearch.node.operations.time
+        - elasticsearch.node.shards.data_set.size
+        - elasticsearch.node.shards.reserved.size
+        - elasticsearch.node.shards.size
+        - elasticsearch.node.thread_pool.tasks.finished
+        - elasticsearch.node.thread_pool.tasks.queued
+        - elasticsearch.node.thread_pool.threads
+        - elasticsearch.node.translog.operations
+        - elasticsearch.node.translog.size
+        - elasticsearch.node.translog.uncommitted.size
+        - elasticsearch.os.cpu.load_avg.15m
+        - elasticsearch.os.cpu.load_avg.1m
+        - elasticsearch.os.cpu.load_avg.5m
+        - elasticsearch.os.cpu.usage
+        - elasticsearch.os.memory
+        - jvm.classes.loaded
+        - jvm.gc.collections.count
+        - jvm.gc.collections.elapsed
+        - jvm.memory.heap.committed
+        - jvm.memory.heap.max
+        - jvm.memory.heap.used
+        - jvm.memory.nonheap.committed
+        - jvm.memory.nonheap.used
+        - jvm.memory.pool.max
+        - jvm.memory.pool.used
+        - jvm.threads.count
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
     # Logging
     #
     - name: enable_logs
@@ -244,6 +314,15 @@ spec:
             key_file: "{{ .key_file }}"
             {{ end }}
           {{ end }}
+
+          {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
+          {{ end }}
+
       {{ end }}
 
     processors: |
