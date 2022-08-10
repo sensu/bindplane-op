@@ -28,6 +28,45 @@ spec:
           operator: equals
           value: true
 
+    - name: metric_filtering
+      label: Metric Filtering
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - iis.connection.active
+        - iis.connection.anonymous
+        - iis.connection.attempt.count
+        - iis.network.blocked
+        - iis.network.file.count
+        - iis.network.io
+        - iis.request.count
+        - iis.request.queue.age.max
+        - iis.request.queue.count
+        - iis.request.rejected
+        - iis.thread.active
+        - iis.uptime
+      default: []
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
     # Logs
 
     - name: enable_logs
@@ -86,6 +125,14 @@ spec:
       {{ if .enable_metrics }}
       - iis:
           collection_interval: {{ .collection_interval }}s
+
+          {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
+          {{ end }}
       {{ end }}
 
     processors: |
@@ -106,10 +153,12 @@ spec:
               {{ range $fp := .file_path }}
               - '{{ $fp }}'
               {{ end }}
+            {{ if .exclude_file_log_path }}
             exclude_file_log_path:
               {{ range $fp := .exclude_file_log_path }}
               - '{{ $fp }}'
               {{ end }}
+            {{ end }}
             timezone: {{ .timezone }}
             start_at: {{ .start_at }}
       {{ end }}
