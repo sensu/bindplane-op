@@ -150,6 +150,83 @@ spec:
           value: true
       advancedConfig: true
 
+    - name: metric_filtering
+      label: Metric Filtering
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - vcenter.cluster.cpu.effective
+        - vcenter.cluster.cpu.limit
+        - vcenter.cluster.host.count
+        - vcenter.cluster.memory.effective
+        - vcenter.cluster.memory.limit
+        - vcenter.cluster.memory.used
+        - vcenter.cluster.vm.count
+        - vcenter.datastore.disk.usage
+        - vcenter.datastore.disk.utilization
+        - vcenter.host.cpu.usage
+        - vcenter.host.cpu.utilization
+        - vcenter.host.disk.latency.avg
+        - vcenter.host.disk.latency.avg.read
+        - vcenter.host.disk.latency.avg.write
+        - vcenter.host.disk.latency.max
+        - vcenter.host.disk.throughput
+        - vcenter.host.disk.throughput.read
+        - vcenter.host.disk.throughput.write
+        - vcenter.host.memory.usage
+        - vcenter.host.memory.utilization
+        - vcenter.host.network.packet.count
+        - vcenter.host.network.packet.count.receive
+        - vcenter.host.network.packet.count.transmit
+        - vcenter.host.network.packet.errors
+        - vcenter.host.network.packet.errors.receive
+        - vcenter.host.network.packet.errors.transmit
+        - vcenter.host.network.throughput
+        - vcenter.host.network.throughput.receive
+        - vcenter.host.network.throughput.transmit
+        - vcenter.host.network.usage
+        - vcenter.resource_pool.cpu.shares
+        - vcenter.resource_pool.cpu.usage
+        - vcenter.resource_pool.memory.shares
+        - vcenter.resource_pool.memory.usage
+        - vcenter.vm.disk.latency.avg
+        - vcenter.vm.disk.latency.avg.read
+        - vcenter.vm.disk.latency.avg.write
+        - vcenter.vm.disk.latency.max
+        - vcenter.vm.disk.throughput
+        - vcenter.vm.disk.usage
+        - vcenter.vm.disk.utilization
+        - vcenter.vm.memory.ballooned
+        - vcenter.vm.memory.usage
+        - vcenter.vm.network.packet.count
+        - vcenter.vm.network.packet.count.receive
+        - vcenter.vm.network.packet.count.transmit
+        - vcenter.vm.network.throughput
+        - vcenter.vm.network.throughput.receive
+        - vcenter.vm.network.throughput.transmit
+        - vcenter.vm.network.usage
+      default: []
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
     # Logging
     - name: enable_logs
       label: Enable Logs
@@ -242,6 +319,15 @@ spec:
             cert_file: "{{ .cert_file }}"
             key_file: "{{ .key_file }}"
             {{ end }}
+
+        {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
+        {{ end }}
+        
       {{ end }}
 
     processors: |
