@@ -46,7 +46,7 @@ ci:
 
 # dev runs go serve, ui proxy server, and ui graphql generator
 .PHONY: dev
-dev:
+dev: install-ui prep
 	./ui/node_modules/.bin/concurrently -c blue,magenta,cyan -n sv,ui,gq "go run ./cmd/bindplane/main.go serve --force-console-color --env development" "cd ui && npm start" "cd ui && npm run generate:watch"
 
 .PHONY: test
@@ -94,6 +94,10 @@ generate:
 swagger:
 	swag init --parseDependency --parseInternal -g model/rest.go -o docs/swagger/
 	@$(MAKE) add-license
+
+.PHONY: init-server
+init-server:
+	go run cmd/bindplane/main.go init server
 
 .PHONY: for-all
 for-all:
@@ -286,4 +290,3 @@ misspell:
 .PHONY: misspell-fix
 misspell-fix:
 	misspell -w $(ALLDOC)
-

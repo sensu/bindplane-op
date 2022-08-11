@@ -106,6 +106,10 @@ You can also check out our [documentation](https://docs.bindplane.observiq.com/)
 
 BindPlane OP follows the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/main/code-of-conduct.md). Please report violations of the Code of Conduct to any or all maintainers.
 
+## Development
+
+See [development.md](/docs/development.md)
+
 ## Contributing
 
 See [CONTRIBUTING.md](/docs/CONTRIBUTING.md).
