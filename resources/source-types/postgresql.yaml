@@ -148,6 +148,39 @@ spec:
           value: true
       advancedConfig: true
 
+    - name: metric_filtering
+      label: Metric Filtering
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: disable_metrics
+      label: Metrics
+      description: Toggle the metrics you wish to collect on and off.
+      type: enums
+      options:
+        trackUnchecked: true
+      validValues:
+        - postgresql.backends
+        - postgresql.blocks_read
+        - postgresql.commits
+        - postgresql.db_size
+        - postgresql.operations
+        - postgresql.rollbacks
+        - postgresql.rows
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+        - name: metric_filtering
+          operator: equals
+          value: true
+      advancedConfig: true
+
     # Logging
     #
     - name: enable_logs
@@ -211,6 +244,14 @@ spec:
             key_file: "{{ .key_file }}"
           {{ else }}
             insecure: true
+          {{ end }}
+
+          {{ if .metric_filtering }}
+          metrics:
+            {{ range $m := .disable_metrics }}
+            {{ $m }}:
+              enabled: false
+            {{ end }}
           {{ end }}
       {{ end }}
 
