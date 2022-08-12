@@ -96,7 +96,7 @@ swagger:
 	@$(MAKE) add-license
 
 .PHONY: init-server
-init-server:
+init-server: prep
 	go run cmd/bindplane/main.go init server
 
 .PHONY: for-all
