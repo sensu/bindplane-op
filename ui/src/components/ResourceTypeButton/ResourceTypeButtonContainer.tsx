@@ -22,6 +22,7 @@ export const ResourceTypeButtonContainer: React.FC<Props> = ({
     <>
       <TextField
         placeholder={placeholder ?? "Search for a technology..."}
+        autoFocus
         size="small"
         onChange={handleChange}
         type="search"

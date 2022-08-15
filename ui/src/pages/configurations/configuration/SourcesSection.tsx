@@ -83,6 +83,10 @@ const SourcesSectionComponent: React.FC<{
       }
 
       setEditingSourceIx(-1);
+      enqueueSnackbar("Successfully saved source!", {
+        variant: "success",
+        autoHideDuration: 3000,
+      });
       refetch();
     } catch (err) {
       enqueueSnackbar("Failed to save source.", {

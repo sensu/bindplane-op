@@ -175,7 +175,7 @@ const DetailsSectionComponent: React.FC<{
                   size="small"
                   onClick={() => setEditingDescription(true)}
                 >
-                  <EditIcon />
+                  <EditIcon width={16} />
                 </IconButton>
               )
             }

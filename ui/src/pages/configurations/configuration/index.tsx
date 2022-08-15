@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { Alert, IconButton, Snackbar, Typography } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CardContainer } from "../../../components/CardContainer";
@@ -76,14 +76,11 @@ const ConfigPageContent: React.FC = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const [showApplyDialog, setShowApply] = useState(false);
-  const [applySuccess, setApplySuccess] = useState(false);
-  const [saveDescriptionSuccess, setSaveDescriptionSuccess] = useState(false);
-  const [saveConfigSuccess, setSaveConfigSuccess] = useState(false);
+  function toast(msg: string, variant: "error" | "success") {
+    enqueueSnackbar(msg, { variant: variant, autoHideDuration: 3000 });
+  }
 
-  const [applyError, setApplyError] = useState(false);
-  const [saveDescriptionError, setSaveDescriptionError] = useState(false);
-  const [saveConfigError, setSaveConfigError] = useState(false);
+  const [showApplyDialog, setShowApply] = useState(false);
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -98,7 +95,7 @@ const ConfigPageContent: React.FC = () => {
   }
 
   function onApplySuccess() {
-    setApplySuccess(true);
+    toast("Saved configuration!", "success");
     closeApplyDialog();
   }
 
@@ -120,8 +117,12 @@ const ConfigPageContent: React.FC = () => {
         <DetailsSection
           configuration={data.configuration}
           refetch={refetch}
-          onSaveDescriptionError={() => setSaveDescriptionError(true)}
-          onSaveDescriptionSuccess={() => setSaveConfigSuccess(true)}
+          onSaveDescriptionError={() =>
+            toast("Failed to save description.", "error")
+          }
+          onSaveDescriptionSuccess={() =>
+            toast("Saved description.", "success")
+          }
         />
       </section>
 
@@ -130,8 +131,8 @@ const ConfigPageContent: React.FC = () => {
           <ConfigurationSection
             configuration={data.configuration}
             refetch={refetch}
-            onSaveSuccess={() => setSaveConfigSuccess(true)}
-            onSaveError={() => setSaveConfigError(true)}
+            onSaveSuccess={() => toast("Saved configuration!", "success")}
+            onSaveError={() => toast("Failed to save configuration.", "error")}
           />
         </section>
       )}
@@ -183,75 +184,12 @@ const ConfigPageContent: React.FC = () => {
           maxWidth="lg"
           fullWidth
           open={showApplyDialog}
-          onError={() => setApplyError(true)}
+          onError={() => toast("Failed to apply configuration.", "error")}
           onSuccess={onApplySuccess}
           onClose={closeApplyDialog}
           onCancel={closeApplyDialog}
         />
       )}
-
-      <Snackbar
-        open={applySuccess}
-        onClose={() => setApplySuccess(false)}
-        autoHideDuration={6000}
-      >
-        <Alert onClose={() => setApplySuccess(false)} severity="success">
-          Successfully applied configuration!
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={saveDescriptionSuccess}
-        onClose={() => setSaveDescriptionSuccess(false)}
-        autoHideDuration={6000}
-      >
-        <Alert
-          onClose={() => setSaveDescriptionSuccess(false)}
-          severity="success"
-        >
-          Successfully saved description!
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={saveConfigSuccess}
-        autoHideDuration={6000}
-        onClose={() => setSaveConfigSuccess(false)}
-      >
-        <Alert onClose={() => setSaveConfigSuccess(false)} severity="success">
-          Successfully saved configuration!
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={applyError}
-        autoHideDuration={6000}
-        onClose={() => setApplyError(false)}
-      >
-        <Alert onClose={() => setApplyError(false)} severity="error">
-          Failed to apply configuration.
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={saveDescriptionError}
-        autoHideDuration={6000}
-        onClose={() => setSaveDescriptionError(false)}
-      >
-        <Alert onClose={() => setSaveDescriptionError(false)} severity="error">
-          Failed to save description.
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={saveConfigError}
-        autoHideDuration={6000}
-        onClose={() => setSaveConfigError(false)}
-      >
-        <Alert onClose={() => setSaveConfigError(false)} severity="error">
-          Failed to save configuration!
-        </Alert>
-      </Snackbar>
     </>
   );
 };
