@@ -13,15 +13,20 @@ ifeq ($(GOARCH), amd64)
 GOARCH_FULL=amd64_v1
 endif
 
+.PHONY: help
+help:
+	@echo "TARGET\tDESCRIPTION" | expand -t 24
+	@grep '^.PHONY: .* #' Makefile | sed 's/\.PHONY: \(.*\) # \(.*\)/\1\t\2/' | sort | expand -t 24
+
 .PHONY: gomoddownload
 gomoddownload:
 	go mod download
 
-.PHONY: install-git-hooks
+.PHONY: install-git-hooks # installs git pre-commit hooks
 install-git-hooks:
 	cp scripts/git_hooks/* .git/hooks/
 
-.PHONY: install-tools
+.PHONY: install-tools # installs build tools
 install-tools: install-git-hooks
 	cd $(TOOLS_MOD_DIR) && go install github.com/securego/gosec/v2/cmd/gosec
 	cd $(TOOLS_MOD_DIR) && go install github.com/google/addlicense
@@ -33,23 +38,22 @@ install-tools: install-git-hooks
 	cd $(TOOLS_MOD_DIR) && go install github.com/client9/misspell/cmd/misspell
 	cd $(TOOLS_MOD_DIR) && go install github.com/ory/go-acc
 
-.PHONY: install-ui
+.PHONY: install-ui # [ui] npm install
 install-ui:
 	cd ui && npm install
 
-.PHONY: install
+.PHONY: install # install-tools && install-ui
 install: install-tools install-ui
 
-.PHONY: ci
+.PHONY: ci # [ui] npm ci
 ci:
 	cd ui && npm ci
 
-# dev runs go serve, ui proxy server, and ui graphql generator
-.PHONY: dev
+.PHONY: dev # runs go serve, ui proxy server, and ui graphql generator [primary development target]
 dev: install-ui prep
 	./ui/node_modules/.bin/concurrently -c blue,magenta,cyan -n sv,ui,gq "go run ./cmd/bindplane/main.go serve --force-console-color --env development" "cd ui && npm start" "cd ui && npm run generate:watch"
 
-.PHONY: test
+.PHONY: test # runs go test for server tests
 test: prep
 	go test ./... -race -cover -timeout 60s
 
@@ -65,37 +69,37 @@ show-coverage: test-with-cover
 bench:
 	go test -benchmem -run=^$$ -bench ^* ./...
 
-.PHONY: tidy
+.PHONY: tidy # runs go mod tidy
 tidy:
 	$(MAKE) for-all CMD="rm -fr go.sum"
 	$(MAKE) for-all CMD="go mod tidy"
 
-.PHONY: lint
+.PHONY: lint # runs revive linter and npm run lint
 lint:
 	revive -formatter friendly -exclude "internal/graphql/schema.*" -set_exit_status ./...
 	cd ui && npm run lint && cd ..
 
-.PHONY: vet
+.PHONY: vet # runs go vet
 vet:
 	GOOS=darwin go vet ./...
 	GOOS=linux go vet ./...
 	GOOS=windows go vet ./...
 
-.PHONY: secure
+.PHONY: secure # runs gosec to identify security issues
 secure: prep
 	gosec -exclude-generated -exclude-dir internal/tools ./...
 
-.PHONY: generate
+.PHONY: generate # runs go generate to generate graphql resolver and runs add-license
 generate:
 	go generate ./...
 	@$(MAKE) add-license
 
-.PHONY: swagger
+.PHONY: swagger # generates the REST API documentation using swagger
 swagger:
 	swag init --parseDependency --parseInternal -g model/rest.go -o docs/swagger/
 	@$(MAKE) add-license
 
-.PHONY: init-server
+.PHONY: init-server # runs bindplane init server to setup the server
 init-server: prep
 	go run cmd/bindplane/main.go init server
 
@@ -109,7 +113,7 @@ for-all:
 .PHONY: ci-check
 ci-check: vet test lint check-license scan-licenses
 
-.PHONY: check-license
+.PHONY: check-license # checks for missing license header in source files
 check-license:
 	@ADDLICENSEOUT=`$(ADDLICENSE) -check $(ALL_SRC) 2>&1`; \
 		if [ "$$ADDLICENSEOUT" ]; then \
@@ -121,7 +125,7 @@ check-license:
 			echo "Check License finished successfully"; \
 		fi
 
-.PHONY: add-license
+.PHONY: add-license # adds license header to source files
 add-license:
 	@ADDLICENSEOUT=`$(ADDLICENSE) -y "" -c "observIQ, Inc." $(ALL_SRC) 2>&1`; \
 		if [ "$$ADDLICENSEOUT" ]; then \
@@ -132,7 +136,7 @@ add-license:
 			echo "Add License finished successfully"; \
 		fi
 
-.PHONY: scan-licenses
+.PHONY: scan-licenses # checks dependencies for permitted licenses
 scan-licenses:
 	lichen --config=./license.yaml $$(find build/bindplane* | xargs)
 
@@ -232,23 +236,23 @@ ui/build:
 	mkdir ui/build
 	touch ui/build/index.html
 
-.PHONY: ui-test
+.PHONY: ui-test # [ui] runs ui tests in watch mode
 ui-test:
 	cd ui && CI=true npm run test --watchAll
 
 # ui-build builds the static site to be embeded into the Go binary.
 # make install should be called before, if you are not up to date.
-.PHONY: ui-build
+.PHONY: ui-build # [ui] builds the static site to be embeded into the Go binary
 ui-build:
 	cd ui && npm run build
 
 # goreleaser will call ui-build to ensure the static site
 # is up to date. goreleaser will not call `make install`.
-.PHONY: build
+.PHONY: build # builds bindplane and bindplanectl using goreleaser
 build:
 	goreleaser build --rm-dist --skip-validate --single-target --snapshot
 
-.PHONY: clean
+.PHONY: clean # removes the dist folder
 clean:
 	rm -rf $(OUTDIR)
 
@@ -283,10 +287,10 @@ kitchen-clean:
 
 ALLDOC=$(shell find . \( -name "*.md" -o -name "*.yaml" \) | grep -v ui/node_modules)
 
-.PHONY: misspell
+.PHONY: misspell # checks for spelling errors in .md and .yaml files
 misspell:
 	misspell -error $(ALLDOC)
 
-.PHONY: misspell-fix
+.PHONY: misspell-fix # fixes spelling errors in .md and .yaml files
 misspell-fix:
 	misspell -w $(ALLDOC)

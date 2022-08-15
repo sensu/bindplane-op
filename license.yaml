@@ -10,9 +10,3 @@ allow:
   - "Zlib"
   - "ISC"
   - "MPL-2.0"
-
-exceptions:
-  unresolvableLicense:
-    # Mapstructure is MIT licensed https://github.com/mitchellh/mapstructure
-    # and we distribute our own modified version
-    - path: "./internal/mapstructure"
