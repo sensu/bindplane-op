@@ -185,12 +185,12 @@ Array [
     Label
   </label>,
   <p
-    className="MuiFormHelperText-root css-1d1r5q-MuiFormHelperText-root"
+    className="MuiFormHelperText-root mb-1 css-1d1r5q-MuiFormHelperText-root"
   >
     description
   </p>,
   <div
-    className="css-1n3y7up-MuiStack-root"
+    className="css-4xxiys-MuiStack-root"
   >
     <label
       className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"

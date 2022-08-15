@@ -26,8 +26,6 @@ spec:
       default: true
 
     - name: load_metric_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -50,8 +48,6 @@ spec:
       default: true
 
     - name: filesystem_metric_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -74,8 +70,6 @@ spec:
       default: true
 
     - name: memory_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -97,8 +91,6 @@ spec:
       default: true
 
     - name: network_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -133,8 +125,6 @@ spec:
       default: true
 
     - name: paging_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -160,8 +150,6 @@ spec:
       default: false
 
     - name: cpu_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -183,8 +171,6 @@ spec:
       default: false
 
     - name: disk_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -219,8 +205,6 @@ spec:
       default: false
 
     - name: processes_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect on and off.
       type: enums
       options:
         trackUnchecked: true
@@ -241,8 +225,6 @@ spec:
       default: true
 
     - name: process_metrics_filtering
-      label: Metric Filtering
-      description: Toggle the metrics you wish to collect for each process on and off.
       type: enums
       options:
         trackUnchecked: true

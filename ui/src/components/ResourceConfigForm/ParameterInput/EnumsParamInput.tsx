@@ -6,6 +6,9 @@ import {
   Switch,
 } from "@mui/material";
 import { ParamInputProps } from "./ParameterInput";
+import { classes } from "../../../utils/styles";
+import mixins from "../../../styles/mixins.module.scss";
+import { isEmpty } from "lodash";
 
 import styles from "./parameter-input.module.scss";
 
@@ -38,10 +41,15 @@ export const EnumsParamInput: React.FC<ParamInputProps<string[]>> = ({
       <InputLabel className={indent ? styles.indent : undefined}>
         {definition.label}
       </InputLabel>
-      <FormHelperText className={indent ? styles.indent : undefined}>
+      <FormHelperText
+        className={classes([
+          indent ? styles.indent : undefined,
+          isEmpty(definition.description) ? undefined : mixins["mb-1"],
+        ])}
+      >
         {definition.description}
       </FormHelperText>
-      <Stack marginLeft={2} marginTop={1}>
+      <Stack marginLeft={2}>
         {definition.validValues!.map((vv) => (
           <FormControlLabel
             key={`${definition.name}-label-${vv}`}
