@@ -15,10 +15,12 @@
 package profile
 
 import (
+	"bytes"
 	"fmt"
 	"io/fs"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
@@ -150,6 +152,16 @@ func TestSetCommand(t *testing.T) {
 					TLSConfig: common.TLSConfig{CertificateAuthority: []string{"/opt/bindplane/tls/bindplane.key", "/opt/bindplane/tls/bindplane2.key"}},
 				},
 			})},
+		{
+			name:  "sync-agent-versions-interval",
+			flag:  "--sync-agent-versions-interval",
+			value: "24h",
+			want: *model.NewProfileWithMetadata(model.Metadata{Name: "sync-agent-versions-interval"}, model.ProfileSpec{
+				Server: common.Server{
+					SyncAgentVersionsInterval: 24 * time.Hour,
+				},
+			}),
+		},
 	}
 
 	for _, test := range setParamsTests {
@@ -218,10 +230,11 @@ func TestSetCommand(t *testing.T) {
 				},
 			},
 			Server: common.Server{
-				StorageFilePath: "/path/to/file",
-				SecretKey:       "5ce40143-61d7-43cb-bd81-051453f05dfe",
-				RemoteURL:       "http://localhost:3001",
-				Offline:         true,
+				StorageFilePath:           "/path/to/file",
+				SecretKey:                 "5ce40143-61d7-43cb-bd81-051453f05dfe",
+				RemoteURL:                 "http://localhost:3001",
+				Offline:                   true,
+				SyncAgentVersionsInterval: 24 * time.Hour,
 			},
 		})
 
@@ -264,6 +277,57 @@ func TestSetCommand(t *testing.T) {
 		assert.NotNil(t, newProfile)
 	})
 
+	t.Run("set parameter validatiion", func(t *testing.T) {
+		// Test to see that the command returns an error when trying to set
+		// certain parameters with invalid values.
+		testCases := []struct {
+			flag          string
+			value         string
+			expectMessage string
+		}{
+			{
+				"--sync-agent-versions-interval",
+				"1s",
+				`Error: 1 error occurred:
+	* sync-agent-versions-interval must be at least 1h0m0s
+
+
+`,
+			},
+			{
+				"--sync-agent-versions-interval",
+				"25",
+				"Error: invalid argument \"25\" for \"--sync-agent-versions-interval\" flag: time: missing unit in duration \"25\"\n",
+			},
+			{
+				"--sessions-secret",
+				"long-string-but-not-uuid",
+				"Error: 1 error occurred:\n\t* failed to set sessions-secret, must be a UUID\n\n\n",
+			},
+		}
+
+		for _, test := range testCases {
+			h := newTestHelper()
+			initializeTestFiles(t, h)
+			defer cleanupTestFiles(h)
+
+			c := Command(h)
+			flags.Global(c)
+			flags.Serve(c)
+
+			b := bytes.NewBufferString("")
+			c.SetErr(b)
+
+			args := []string{"set", "default", test.flag, test.value}
+			c.SetArgs(args)
+
+			err := c.Execute()
+			require.Error(t, err)
+
+			require.Equal(t, test.expectMessage, b.String())
+		}
+	})
+
 	t.Run("returns error when writeConfigYaml fails", func(t *testing.T) {
 		initializeTestFiles(t, h)
 		defer cleanupTestFiles(h)
@@ -286,4 +350,5 @@ func TestSetCommand(t *testing.T) {
 		err := c.Execute()
 		assert.Error(t, err)
 	})
+
 }

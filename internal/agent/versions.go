@@ -58,6 +58,10 @@ type VersionsSettings struct {
 // The latest version cache keeps the latest version in memory to avoid hitting the store to get the latest version.
 const (
 	latestVersionCacheDuration = 15 * time.Minute
+
+	// MinSyncAgentVersionsInterval is the minimum value for the SyncAgentVersionsInterval setting, currently 1 hour. 0
+	// can also be specified to disable background periodic syncing.
+	MinSyncAgentVersionsInterval = 1 * time.Hour
 )
 
 type versions struct {
@@ -80,8 +84,8 @@ func NewVersions(ctx context.Context, client Client, store store.Store, settings
 	}
 	if settings.SyncAgentVersionsInterval > 0 && !settings.Offline {
 		interval := settings.SyncAgentVersionsInterval
-		if interval < time.Hour {
-			interval = time.Hour
+		if interval < MinSyncAgentVersionsInterval {
+			interval = MinSyncAgentVersionsInterval
 		}
 		go v.syncAgentVersions(ctx, interval)
 	}
