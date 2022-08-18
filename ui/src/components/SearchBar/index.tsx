@@ -14,6 +14,14 @@ import mixins from "../../styles/mixins.module.scss";
 
 type AutocompleteValue = Suggestion | string;
 
+const AUTOCOMPLETE_CLASSES = {
+  root: mixins["mb-1"],
+  listbox: styles.listbox,
+  popper: styles.popper,
+  option: styles.option,
+  paper: styles.paper,
+};
+
 interface SearchBarProps {
   suggestions?: Suggestion[] | null;
   suggestionQuery?: string | null;
@@ -86,13 +94,7 @@ const SearchBarComponent: React.FC<SearchBarProps> = ({
 
   return (
     <Autocomplete
-      classes={{
-        root: mixins["mb-1"],
-        listbox: styles.listbox,
-        popper: styles.popper,
-        option: styles.option,
-        paper: styles.paper,
-      }}
+      classes={AUTOCOMPLETE_CLASSES}
       onClose={(e: React.SyntheticEvent, reason) => {
         if (reason === "selectOption") {
           return;

@@ -77,6 +77,12 @@ interface Props {
   initQuery?: string;
 }
 
+const AGENTS_TABLE_FILTER_OPTIONS: Suggestion[] = [
+  { label: "Disconnected agents", query: "status:disconnected" },
+  { label: "Outdated agents", query: "-version:latest" },
+  { label: "No managed configuration", query: "-configuration:" },
+];
+
 const AgentsTableComponent: React.FC<Props> = ({
   onAgentsSelected,
   onDeletableAgentsSelected,
@@ -99,12 +105,6 @@ const AgentsTableComponent: React.FC<Props> = ({
   const [subQuery, setSubQuery] = useState<string>(initQuery);
 
   const debouncedRefetch = useMemo(() => debounce(refetch, 100), [refetch]);
-
-  const filterOptions: Suggestion[] = [
-    { label: "Disconnected agents", query: "status:disconnected" },
-    { label: "Outdated agents", query: "-version:latest" },
-    { label: "No managed configuration", query: "-configuration:" },
-  ];
 
   useEffect(() => {
     if (data?.agents.agents != null) {
@@ -142,30 +142,42 @@ const AgentsTableComponent: React.FC<Props> = ({
     });
   }, [selector, subQuery, subscribeToMore]);
 
-  function handleAgentSelected(agentIds: GridSelectionModel) {
-    if (isFunction(onAgentsSelected)) {
-      onAgentsSelected(agentIds);
-    }
+  const handleSelect = useMemo(
+    () => (agentIds: GridSelectionModel) => {
+      if (isFunction(onAgentsSelected)) {
+        onAgentsSelected(agentIds);
+      }
 
-    if (isFunction(onDeletableAgentsSelected)) {
-      const deletable = agentIds.filter((id) =>
-        isDeletable(agents, id as string)
-      );
-      onDeletableAgentsSelected(deletable);
-    }
+      if (isFunction(onDeletableAgentsSelected)) {
+        const deletable = agentIds.filter((id) =>
+          isDeletable(agents, id as string)
+        );
+        onDeletableAgentsSelected(deletable);
+      }
 
-    if (isFunction(onUpdatableAgentsSelected)) {
-      const updatable = agentIds.filter((id) =>
-        isUpdatable(agents, id as string, data?.agents.latestVersion)
-      );
-      onUpdatableAgentsSelected(updatable);
-    }
-  }
+      if (isFunction(onUpdatableAgentsSelected)) {
+        const updatable = agentIds.filter((id) =>
+          isUpdatable(agents, id as string, data?.agents.latestVersion)
+        );
+        onUpdatableAgentsSelected(updatable);
+      }
+    },
+    [
+      agents,
+      data?.agents.latestVersion,
+      onAgentsSelected,
+      onDeletableAgentsSelected,
+      onUpdatableAgentsSelected,
+    ]
+  );
 
-  function onQueryChange(query: string) {
-    debouncedRefetch({ selector, query });
-    setSubQuery(query);
-  }
+  const onQueryChange = useMemo(
+    () => (query: string) => {
+      debouncedRefetch({ selector, query });
+      setSubQuery(query);
+    },
+    [debouncedRefetch, selector]
+  );
 
   const allowSelection =
     isFunction(onAgentsSelected) ||
@@ -175,7 +187,7 @@ const AgentsTableComponent: React.FC<Props> = ({
   return (
     <>
       <SearchBar
-        filterOptions={filterOptions}
+        filterOptions={AGENTS_TABLE_FILTER_OPTIONS}
         suggestions={data?.agents.suggestions}
         onQueryChange={onQueryChange}
         suggestionQuery={data?.agents.query}
@@ -185,7 +197,7 @@ const AgentsTableComponent: React.FC<Props> = ({
       <AgentsDataGrid
         clearSelectionModelFnRef={clearSelectionModelFnRef}
         isRowSelectable={isRowSelectable}
-        onAgentsSelected={allowSelection ? handleAgentSelected : undefined}
+        onAgentsSelected={allowSelection ? handleSelect : undefined}
         density={density}
         minHeight={minHeight}
         loading={loading}
