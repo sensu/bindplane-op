@@ -5,8 +5,12 @@ import {
   SourceType,
   Destination,
   PipelineType,
+  ProcessorType,
 } from "../../../graphql/generated";
 import { APIVersion } from "../../../types/resources";
+
+// This file contains dummy resources used for testing the ResourceConfigForm
+// component.  These are also used in resource form stories.
 
 /* -------------------------- ParameterDefinitions -------------------------- */
 
@@ -76,11 +80,17 @@ export const boolDefaultFalseDef: ParameterDefinition = {
   label: "Bool Default False Input",
   description: "Here is the description.",
   required: false,
-  options: {},
+  options: {
+    creatable: null,
+    trackUnchecked: null,
+  },
 
   type: ParameterType.Bool,
 
   default: false,
+  documentation: null,
+  validValues: null,
+  relevantIf: null,
 };
 
 export const intDef: ParameterDefinition = {
@@ -100,7 +110,10 @@ export const relevantIfDef: ParameterDefinition = {
   label: "String Input",
   description: "Here is the description.",
   required: false,
-  options: {},
+  options: {
+    creatable: null,
+    trackUnchecked: null,
+  },
 
   type: ParameterType.String,
 
@@ -113,6 +126,8 @@ export const relevantIfDef: ParameterDefinition = {
   ],
 
   default: "default-value",
+  documentation: null,
+  validValues: null,
 };
 
 /* ----------------------------- Resource Types ----------------------------- */
@@ -216,6 +231,42 @@ export const SupportsBoth: SourceType = {
 
     supportedPlatforms: ["linux", "macos", "windows"],
     telemetryTypes: [PipelineType.Logs, PipelineType.Metrics],
+  },
+};
+
+export const ProcessorTypeSeverity: ProcessorType = {
+  apiVersion: APIVersion.V1,
+  kind: "ProcessorType",
+  metadata: {
+    id: "",
+    name: "severity_processor",
+    displayName: "Severity Filter",
+    description: "This filters logs by severity",
+    icon: "/icons/destinations/otlp.svg",
+  },
+  spec: {
+    version: "0.0.0",
+    parameters: [boolDefaultFalseDef, relevantIfDef],
+    supportedPlatforms: ["linux", "macos", "windows"],
+    telemetryTypes: [PipelineType.Logs],
+  },
+};
+
+export const ProcessorTypeMetric: ProcessorType = {
+  apiVersion: APIVersion.V1,
+  kind: "ProcessorType",
+  metadata: {
+    id: "",
+    name: "metric_processor",
+    displayName: "Metric Filter",
+    description: "This processes metrics.",
+    icon: "/icons/destinations/otlp.svg",
+  },
+  spec: {
+    version: "0.0.0",
+    parameters: [boolDefaultFalseDef, relevantIfDef],
+    supportedPlatforms: ["linux", "macos", "windows"],
+    telemetryTypes: [PipelineType.Metrics],
   },
 };
 

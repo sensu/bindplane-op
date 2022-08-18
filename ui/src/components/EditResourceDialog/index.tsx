@@ -3,6 +3,7 @@ import {
   Maybe,
   Parameter,
   ParameterDefinition,
+  PipelineType,
   ResourceConfiguration,
 } from "../../graphql/generated";
 import { ResourceConfigForm } from "../ResourceConfigForm";
@@ -14,6 +15,7 @@ interface EditResourceBaseProps extends DialogProps {
   parameters: Parameter[];
   parameterDefinitions: ParameterDefinition[];
   processors?: Maybe<ResourceConfiguration[]>;
+  telemetryTypes?: PipelineType[];
   enableProcessors?: boolean;
   title: string;
   description: string;
@@ -29,6 +31,7 @@ export const EditResourceDialog: React.FC<EditResourceBaseProps> = ({
   processors,
   enableProcessors,
   title,
+  telemetryTypes,
   parameterDefinitions,
   description,
   kind,
@@ -39,6 +42,7 @@ export const EditResourceDialog: React.FC<EditResourceBaseProps> = ({
     <Dialog {...dialogProps} onClose={onCancel}>
       <DialogContent>
         <ResourceConfigForm
+          telemetryTypes={telemetryTypes}
           includeNameField={includeNameField}
           title={title}
           description={description}

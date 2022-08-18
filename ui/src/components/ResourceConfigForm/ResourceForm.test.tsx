@@ -1,8 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ResourceConfigForm } from ".";
 import {
+  GetProcessorTypeDocument,
+  GetProcessorTypesDocument,
   ParameterDefinition,
   ParameterType,
+  PipelineType,
   RelevantIfOperatorType,
 } from "../../graphql/generated";
 import {
@@ -13,8 +16,15 @@ import {
   valueToTupleArray,
 } from "./ParameterInput";
 import { satisfiesRelevantIf } from "./satisfiesRelevantIf";
-import { ResourceType1, ResourceType2 } from "./__test__/dummyResources";
+import {
+  ProcessorTypeMetric,
+  ProcessorTypeSeverity,
+  ResourceType1,
+  ResourceType2,
+} from "./__test__/dummyResources";
 import renderer from "react-test-renderer";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { SnackbarProvider } from "notistack";
 
 describe("satisfiesRelevantIf", () => {
   const formValues: { [key: string]: any } = {
@@ -464,5 +474,113 @@ describe("EnumParameter", () => {
 
     const tree = renderer.create(<ParameterInput definition={creatableEnum} />);
     expect(tree).toMatchSnapshot();
+  });
+});
+
+describe("Processors section", () => {
+  it("displays a processors section with enableProcessors", () => {
+    render(
+      <ResourceConfigForm
+        kind="source"
+        title={ResourceType2.metadata.displayName!}
+        description={ResourceType2.metadata.description!}
+        parameterDefinitions={ResourceType2.spec.parameters}
+        enableProcessors
+      />
+    );
+
+    screen.getByText("Processors");
+    screen.getByText(
+      "Processors are run on data after it's received and prior to being sent to a destination. They will be executed in the order they appear below."
+    );
+  });
+
+  const processorMocks: MockedResponse<Record<string, any>>[] = [
+    {
+      request: {
+        query: GetProcessorTypesDocument,
+      },
+      result: () => {
+        return {
+          data: {
+            processorTypes: [ProcessorTypeSeverity, ProcessorTypeMetric],
+          },
+        };
+      },
+    },
+    {
+      request: {
+        query: GetProcessorTypeDocument,
+        variables: {
+          type: "metric_processor",
+        },
+      },
+      result: () => {
+        return {
+          data: {
+            processorType: ProcessorTypeMetric,
+          },
+        };
+      },
+    },
+  ];
+
+  it("can add a processor to a source", async () => {
+    render(
+      <SnackbarProvider>
+        <MockedProvider mocks={processorMocks} addTypename={false}>
+          <ResourceConfigForm
+            kind="source"
+            title={ResourceType2.metadata.displayName!}
+            description={ResourceType2.metadata.description!}
+            parameterDefinitions={ResourceType2.spec.parameters}
+            enableProcessors
+          />
+        </MockedProvider>
+      </SnackbarProvider>
+    );
+
+    // Click Add processor button
+    screen.getByText("Add processor").click();
+
+    // Displays processor types in a list
+    await screen.findByText(ProcessorTypeMetric.metadata.displayName!);
+    await screen.findByText(ProcessorTypeSeverity.metadata.displayName!);
+
+    // Can select a processor type
+    screen.getByText(ProcessorTypeMetric.metadata.displayName!).click();
+
+    // On the configuration page
+    await screen.findByText("Add a processor");
+    screen.getByText("Add Processor").click();
+
+    // Expect to see it in the main view
+    await screen.findByText("Processors");
+    await screen.findByText(ProcessorTypeMetric.metadata.displayName!);
+  });
+
+  it("filters processors in the select view by telemetry type", async () => {
+    render(
+      <SnackbarProvider>
+        <MockedProvider mocks={processorMocks} addTypename={false}>
+          <ResourceConfigForm
+            kind="source"
+            title={ResourceType2.metadata.displayName!}
+            description={ResourceType2.metadata.description!}
+            parameterDefinitions={ResourceType2.spec.parameters}
+            enableProcessors
+            telemetryTypes={[PipelineType.Metrics]}
+          />
+        </MockedProvider>
+      </SnackbarProvider>
+    );
+
+    // Click Add processor button
+    screen.getByText("Add processor").click();
+
+    await screen.findByText(ProcessorTypeMetric.metadata.displayName!);
+    expect(
+      screen.queryByText(ProcessorTypeSeverity.metadata.displayName!)
+    ).not.toBeInTheDocument();
   });
 });

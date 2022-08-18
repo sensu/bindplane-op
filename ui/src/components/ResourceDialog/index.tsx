@@ -232,6 +232,7 @@ export const ResourceDialog: React.FC<ResourceDialogProps> = ({
         onBack={clearResource}
         onSave={(fv) => handleSaveNew(fv, selected)}
         title={selected.metadata.displayName ?? ""}
+        telemetryTypes={selected.spec.telemetryTypes}
         description={selected.metadata.description ?? ""}
         parameterDefinitions={selected.spec.parameters ?? []}
       />

@@ -37,7 +37,6 @@ const ConfigurationsDataGridComponent: React.FC<ConfigurationsDataGridProps> =
     columnFields,
     density = GridDensityTypes.Standard,
   }) => {
-    console.log({ configurations });
     const columns: GridColumns = (columnFields || []).map((field) => {
       switch (field) {
         case ConfigurationsTableField.AGENT_COUNT:

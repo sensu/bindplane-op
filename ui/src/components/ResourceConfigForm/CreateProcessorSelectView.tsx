@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 import { Box, Button, CircularProgress } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ButtonFooter, FormTitle, ProcessorType } from ".";
 import { useGetProcessorTypesQuery } from "../../graphql/generated";
 import { metadataSatisfiesSubstring } from "../../utils/metadata-satisfies-substring";
@@ -49,12 +49,13 @@ gql`
 
 interface CreateProcessorSelectViewProps {
   title: string;
+  telemetryTypes?: string[];
   onBack: () => void;
   onSelect: (pt: ProcessorType) => void;
 }
 
 export const CreateProcessorSelectView: React.FC<CreateProcessorSelectViewProps> =
-  ({ title, onBack, onSelect }) => {
+  ({ title, onBack, onSelect, telemetryTypes }) => {
     const { data, loading, error } = useGetProcessorTypesQuery();
     const [search, setSearch] = useState("");
     const { enqueueSnackbar } = useSnackbar();
@@ -74,6 +75,19 @@ export const CreateProcessorSelectView: React.FC<CreateProcessorSelectViewProps>
       </Button>
     );
 
+    // Filter the list of supported processor types down
+    // to those whose telemetry matches the telemetry of the
+    // source. i.e. don't show a log processor for a metric source
+    const supportedProcessorTypes = useMemo(
+      () =>
+        telemetryTypes
+          ? data?.processorTypes.filter((pt) =>
+              pt.spec.telemetryTypes.some((t) => telemetryTypes.includes(t))
+            ) ?? []
+          : data?.processorTypes ?? [],
+      [data?.processorTypes, telemetryTypes]
+    );
+
     return (
       <>
         <FormTitle
@@ -91,7 +105,7 @@ export const CreateProcessorSelectView: React.FC<CreateProcessorSelectViewProps>
               <CircularProgress />
             </Box>
           )}
-          {data?.processorTypes
+          {supportedProcessorTypes
             .filter((pt) => metadataSatisfiesSubstring(pt, search))
             .map((p) => (
               <ResourceTypeButton

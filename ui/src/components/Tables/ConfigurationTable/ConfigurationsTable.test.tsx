@@ -2,37 +2,37 @@ import { render, screen } from "@testing-library/react";
 import { ConfigurationsTable } from ".";
 import { MemoryRouter } from "react-router-dom";
 import {
-  Configuration,
   ConfigurationChangesDocument,
   GetConfigurationTableDocument,
   GetConfigurationTableQuery,
 } from "../../../graphql/generated";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 
-const TEST_CONFIGS: Pick<Configuration, "metadata">[] = [
-  {
-    metadata: {
-      id: "1",
-      name: "config-1",
-      description: "description for config-1",
-      labels: {
-        env: "test",
-        foo: "bar",
+const TEST_CONFIGS: GetConfigurationTableQuery["configurations"]["configurations"] =
+  [
+    {
+      metadata: {
+        name: "config-1",
+        description: "description for config-1",
+        labels: {
+          env: "test",
+          foo: "bar",
+        },
       },
+      agentCount: 10,
     },
-  },
-  {
-    metadata: {
-      id: "2",
-      name: "config-2",
-      description: "description for config-2",
-      labels: {
-        env: "test",
-        foo: "bar",
+    {
+      metadata: {
+        name: "config-2",
+        description: "description for config-2",
+        labels: {
+          env: "test",
+          foo: "bar",
+        },
       },
+      agentCount: 30,
     },
-  },
-];
+  ];
 
 const QUERY_RESULT: GetConfigurationTableQuery = {
   configurations: {

@@ -1,5 +1,5 @@
 import { Button, Stack, Typography } from "@mui/material";
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { CardContainer } from "../../../components/CardContainer";
 import { PlusCircleIcon } from "../../../components/Icons";
 import {
@@ -32,7 +32,10 @@ const SourcesSectionComponent: React.FC<{
   configuration: NonNullable<ShowPageConfig>;
   refetch: () => {};
 }> = ({ configuration, refetch }) => {
-  const sources = configuration.spec?.sources || [];
+  const sources = useMemo(
+    () => configuration.spec?.sources || [],
+    [configuration.spec?.sources]
+  );
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -122,6 +125,11 @@ const SourcesSectionComponent: React.FC<{
     }
   }
 
+  const sourceType = useMemo(
+    () => findSourceType(data?.sourceTypes ?? [], sources[editingSourceIx]),
+    [data?.sourceTypes, editingSourceIx, sources]
+  );
+
   return (
     <>
       <CardContainer>
@@ -151,21 +159,13 @@ const SourcesSectionComponent: React.FC<{
       <EditResourceDialog
         fullWidth
         maxWidth="sm"
-        title={
-          findSourceType(data?.sourceTypes ?? [], sources[editingSourceIx])
-            ?.metadata.displayName ?? ""
-        }
-        description={
-          findSourceType(data?.sourceTypes ?? [], sources[editingSourceIx])
-            ?.metadata.description ?? ""
-        }
+        title={sourceType?.metadata.displayName ?? ""}
+        description={sourceType?.metadata.description ?? ""}
         kind="source"
-        parameterDefinitions={
-          findSourceType(data?.sourceTypes ?? [], sources[editingSourceIx])
-            ?.spec.parameters ?? []
-        }
+        parameterDefinitions={sourceType?.spec.parameters ?? []}
         parameters={sources[editingSourceIx]?.parameters ?? []}
         processors={sources[editingSourceIx]?.processors}
+        telemetryTypes={sourceType?.spec.telemetryTypes}
         enableProcessors
         open={editingSourceIx !== -1}
         onClose={() => setEditingSourceIx(-1)}

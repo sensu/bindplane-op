@@ -50,6 +50,10 @@ interface ResourceFormProps {
   // Used to determine some form values.
   kind: "destination" | "source" | "processor";
 
+  // The supported telemetry types of the resource type that is
+  // being configured.  a subset of ['logs', 'metrics', 'traces']
+  telemetryTypes?: string[];
+
   parameterDefinitions: ParameterDefinition[];
 
   // If present the form will use these values as defaults
@@ -87,6 +91,7 @@ interface ComponentProps extends ResourceFormProps {
 
 const ResourceConfigurationFormComponent: React.FC<ComponentProps> = ({
   title,
+  telemetryTypes,
   description,
   parameters,
   parameterDefinitions,
@@ -195,6 +200,7 @@ const ResourceConfigurationFormComponent: React.FC<ComponentProps> = ({
     case Page.CREATE_PROCESSOR_SELECT:
       return (
         <CreateProcessorSelectView
+          telemetryTypes={telemetryTypes}
           title={title}
           onBack={handleReturnToMain}
           onSelect={handleSelectNewProcessor}
