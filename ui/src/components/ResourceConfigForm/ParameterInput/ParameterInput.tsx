@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   BoolParamInput,
   EnumParamInput,
@@ -10,6 +11,7 @@ import {
   YamlParamInput,
 } from ".";
 import { ParameterDefinition, ParameterType } from "../../../graphql/generated";
+import { useResourceFormValues } from "../ResourceFormContext";
 
 export interface ParamInputProps<T> {
   definition: ParameterDefinition;
@@ -17,25 +19,89 @@ export interface ParamInputProps<T> {
   onValueChange?: (v: T) => void;
 }
 
-export const ParameterInput: React.FC<ParamInputProps<any>> = (props) => {
-  switch (props.definition.type) {
+export const ParameterInput: React.FC<{ definition: ParameterDefinition }> = ({
+  definition,
+}) => {
+  const { formValues, setFormValues } = useResourceFormValues();
+  const onValueChange = useMemo(
+    () => (newValue: any) => {
+      setFormValues((prev) => ({ ...prev, [definition.name]: newValue }));
+    },
+    [definition.name, setFormValues]
+  );
+
+  switch (definition.type) {
     case ParameterType.String:
-      return <StringParamInput {...props} />;
+      return (
+        <StringParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Strings:
-      return <StringsParamInput {...props} />;
+      return (
+        <StringsParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Enum:
-      return <EnumParamInput {...props} />;
+      return (
+        <EnumParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Enums:
-      return <EnumsParamInput {...props} />;
+      return (
+        <EnumsParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Bool:
-      return <BoolParamInput {...props} />;
+      return (
+        <BoolParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Int:
-      return <IntParamInput {...props} />;
+      return (
+        <IntParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Map:
-      return <MapParamInput {...props} />;
+      return (
+        <MapParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Yaml:
-      return <YamlParamInput {...props} />;
+      return (
+        <YamlParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
     case ParameterType.Timezone:
-      return <TimezoneParamInput {...props} />;
+      return (
+        <TimezoneParamInput
+          definition={definition}
+          value={formValues[definition.name]}
+          onValueChange={onValueChange}
+        />
+      );
   }
 };

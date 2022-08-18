@@ -6,14 +6,14 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { isArray, isFunction, isEmpty } from "lodash";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { validateStringsField } from "../validation-functions";
 import { useValidationContext } from "../ValidationContext";
 import { ParamInputProps } from "./ParameterInput";
 
 import styles from "./parameter-input.module.scss";
 
-export const StringsParamInput: React.FC<ParamInputProps<string[]>> = ({
+const StringsParamInputComponent: React.FC<ParamInputProps<string[]>> = ({
   definition,
   value,
   onValueChange,
@@ -104,3 +104,5 @@ export const StringsParamInput: React.FC<ParamInputProps<string[]>> = ({
     </FormControl>
   );
 };
+
+export const StringsParamInput = memo(StringsParamInputComponent);

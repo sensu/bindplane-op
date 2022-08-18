@@ -1,10 +1,11 @@
 import { FormControlLabel, Switch } from "@mui/material";
 import { isFunction } from "lodash";
 import { ParamInputProps } from "./ParameterInput";
+import { memo } from "react";
 
 import styles from "./parameter-input.module.scss";
 
-export const BoolParamInput: React.FC<ParamInputProps<boolean>> = ({
+const BoolParamInputComponent: React.FC<ParamInputProps<boolean>> = ({
   definition,
   value,
   onValueChange,
@@ -27,3 +28,5 @@ export const BoolParamInput: React.FC<ParamInputProps<boolean>> = ({
     />
   );
 };
+
+export const BoolParamInput = memo(BoolParamInputComponent);

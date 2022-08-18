@@ -1,11 +1,11 @@
 import { TextField } from "@mui/material";
 import { isFunction } from "lodash";
-import { ChangeEvent } from "react";
+import { ChangeEvent, memo } from "react";
 import { ParamInputProps } from "./ParameterInput";
 
 import styles from "./parameter-input.module.scss";
 
-export const IntParamInput: React.FC<ParamInputProps<number>> = ({
+const IntParamInputComponent: React.FC<ParamInputProps<number>> = ({
   definition,
   value,
   onValueChange,
@@ -34,3 +34,5 @@ export const IntParamInput: React.FC<ParamInputProps<number>> = ({
     />
   );
 };
+
+export const IntParamInput = memo(IntParamInputComponent);

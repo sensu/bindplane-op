@@ -1,6 +1,6 @@
 import { TextField } from "@mui/material";
 import { isFunction } from "lodash";
-import { ChangeEvent } from "react";
+import { ChangeEvent, memo } from "react";
 import { validateNameField } from "../../../utils/forms/validate-name-field";
 import { useValidationContext } from "../ValidationContext";
 import { ParamInputProps } from "./ParameterInput";
@@ -11,7 +11,7 @@ interface ResourceNameInputProps
   kind: "source" | "destination" | "configuration" | "processor";
 }
 
-export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
+const ResourceNameInputComponent: React.FC<ResourceNameInputProps> = ({
   value,
   onValueChange,
   existingNames,
@@ -62,3 +62,5 @@ export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
     />
   );
 };
+
+export const ResourceNameInput = memo(ResourceNameInputComponent);

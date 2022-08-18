@@ -1,11 +1,11 @@
 import { TextField, createFilterOptions, Autocomplete } from "@mui/material";
 import { isFunction } from "lodash";
-import { ChangeEvent } from "react";
+import { ChangeEvent, memo } from "react";
 import { ParamInputProps } from "./ParameterInput";
 
 import styles from "./parameter-input.module.scss";
 
-export const EnumParamInput: React.FC<ParamInputProps<string>> = (props) => {
+const EnumParamInputComponent: React.FC<ParamInputProps<string>> = (props) => {
   return props.definition.options.creatable ? (
     <CreatableSelectInput {...props} />
   ) : (
@@ -95,3 +95,5 @@ const CreatableSelectInput: React.FC<ParamInputProps<string>> = ({
     />
   );
 };
+
+export const EnumParamInput = memo(EnumParamInputComponent);

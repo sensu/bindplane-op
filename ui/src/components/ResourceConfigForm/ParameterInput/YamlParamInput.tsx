@@ -1,12 +1,12 @@
 import { FormControl, InputLabel, FormHelperText } from "@mui/material";
 import { isEmpty, isFunction } from "lodash";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, memo } from "react";
 import { YamlEditor } from "../../YamlEditor";
 import { ParamInputProps } from "./ParameterInput";
 
 import styles from "./parameter-input.module.scss";
 
-export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
+const YamlParamInputComponent: React.FC<ParamInputProps<string>> = ({
   definition,
   value,
   onValueChange,
@@ -58,3 +58,5 @@ export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
     </FormControl>
   );
 };
+
+export const YamlParamInput = memo(YamlParamInputComponent);

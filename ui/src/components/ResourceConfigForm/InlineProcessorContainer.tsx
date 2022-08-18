@@ -6,6 +6,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useCallback, useState } from "react";
 import { FormValues } from ".";
+import { useResourceFormValues } from "./ResourceFormContext";
 
 import mixins from "../../styles/mixins.module.scss";
 
@@ -13,15 +14,14 @@ interface Props {
   processors: ResourceConfiguration[];
   onAddProcessor: () => void;
   onEditProcessor: (index: number) => void;
-  setFormValues: (value: React.SetStateAction<FormValues>) => void;
 }
 
 export const InlineProcessorContainer: React.FC<Props> = ({
-  setFormValues,
   processors: processorsProp,
   onAddProcessor,
   onEditProcessor,
 }) => {
+  const { setFormValues } = useResourceFormValues();
   // Manage the processor order state internally in this component
   const [processors, setProcessors] = useState(processorsProp);
 

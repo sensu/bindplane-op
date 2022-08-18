@@ -1,11 +1,11 @@
 import { TextField } from "@mui/material";
 import { isFunction } from "lodash";
-import { ChangeEvent } from "react";
+import { ChangeEvent, memo } from "react";
 import { ParamInputProps } from "./ParameterInput";
 
 import styles from "./parameter-input.module.scss";
 
-export const StringParamInput: React.FC<ParamInputProps<string>> = ({
+const StringParamInputComponent: React.FC<ParamInputProps<string>> = ({
   definition,
   value,
   onValueChange,
@@ -32,3 +32,5 @@ export const StringParamInput: React.FC<ParamInputProps<string>> = ({
     />
   );
 };
+
+export const StringParamInput = memo(StringParamInputComponent);

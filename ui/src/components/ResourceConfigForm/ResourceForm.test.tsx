@@ -6,6 +6,7 @@ import {
   RelevantIfOperatorType,
 } from "../../graphql/generated";
 import {
+  MapParamInput,
   ParameterInput,
   Tuple,
   tupleArrayToMap,
@@ -355,7 +356,7 @@ describe("MapParamInput", () => {
       three: "four",
       five: "six",
     };
-    render(<ParameterInput definition={mapParameter} value={value} />);
+    render(<MapParamInput definition={mapParameter} value={value} />);
     screen.getByDisplayValue("one");
     screen.getByDisplayValue("two");
     screen.getByDisplayValue("three");

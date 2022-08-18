@@ -7,12 +7,13 @@ import {
 } from "@mui/material";
 import { ParamInputProps } from "./ParameterInput";
 import { classes } from "../../../utils/styles";
-import mixins from "../../../styles/mixins.module.scss";
 import { isEmpty } from "lodash";
+import { memo } from "react";
 
+import mixins from "../../../styles/mixins.module.scss";
 import styles from "./parameter-input.module.scss";
 
-export const EnumsParamInput: React.FC<ParamInputProps<string[]>> = ({
+const EnumsParamInputComponent: React.FC<ParamInputProps<string[]>> = ({
   definition,
   value,
   onValueChange,
@@ -75,3 +76,5 @@ export const EnumsParamInput: React.FC<ParamInputProps<string[]>> = ({
     </>
   );
 };
+
+export const EnumsParamInput = memo(EnumsParamInputComponent);

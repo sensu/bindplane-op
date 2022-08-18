@@ -1,5 +1,6 @@
 import { Autocomplete, TextField } from "@mui/material";
 import { ParamInputProps } from "./ParameterInput";
+import { memo } from "react";
 
 import styles from "./parameter-input.module.scss";
 
@@ -432,7 +433,7 @@ const TIMEZONE_OPTIONS = [
   "Pacific/Wallis",
 ];
 
-export const TimezoneParamInput: React.FC<ParamInputProps<string>> = ({
+const TimezoneParamInputComponent: React.FC<ParamInputProps<string>> = ({
   definition,
   value,
   onValueChange,
@@ -460,3 +461,5 @@ export const TimezoneParamInput: React.FC<ParamInputProps<string>> = ({
     />
   );
 };
+
+export const TimezoneParamInput = memo(TimezoneParamInputComponent);

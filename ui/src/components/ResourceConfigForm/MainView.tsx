@@ -12,6 +12,7 @@ import {
   isValid,
 } from ".";
 import { InlineProcessorContainer } from "./InlineProcessorContainer";
+import { useResourceFormValues } from "./ResourceFormContext";
 
 import mixins from "../../styles/mixins.module.scss";
 
@@ -20,11 +21,6 @@ interface MainProps {
   description: string;
   kind: "source" | "destination" | "processor";
   formValues: { [key: string]: any };
-  setFormValues: React.Dispatch<
-    React.SetStateAction<{
-      [key: string]: any;
-    }>
-  >;
   includeNameField?: boolean;
   existingResourceNames?: string[];
   parameterDefinitions: ParameterDefinition[];
@@ -45,7 +41,6 @@ export const MainView: React.FC<MainProps> = ({
   kind,
   formValues,
   includeNameField,
-  setFormValues,
   existingResourceNames,
   parameterDefinitions,
   enableProcessors,
@@ -58,26 +53,7 @@ export const MainView: React.FC<MainProps> = ({
   disableSave,
 }) => {
   const { errors } = useValidationContext();
-
-  function renderParameter(p: ParameterDefinition) {
-    const onValueChange = (v: string) => {
-      setFormValues((prev) => ({ ...prev, [p.name]: v }));
-    };
-
-    if (satisfiesRelevantIf(formValues, p)) {
-      return (
-        <Grid key={p.name} item>
-          <ParameterInput
-            definition={p}
-            value={formValues[p.name]}
-            onValueChange={onValueChange}
-          />
-        </Grid>
-      );
-    }
-
-    return null;
-  }
+  const { setFormValues } = useResourceFormValues();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -144,7 +120,17 @@ export const MainView: React.FC<MainProps> = ({
               <Typography>No additional configuration needed.</Typography>
             </Grid>
           ) : (
-            parameterDefinitions.map((p) => renderParameter(p))
+            parameterDefinitions.map((p) => {
+              if (satisfiesRelevantIf(formValues, p)) {
+                return (
+                  <Grid key={p.name} item>
+                    <ParameterInput definition={p} />
+                  </Grid>
+                );
+              }
+
+              return null;
+            })
           )}
         </Grid>
 
@@ -153,7 +139,6 @@ export const MainView: React.FC<MainProps> = ({
             processors={formValues.processors ?? []}
             onAddProcessor={onAddProcessor}
             onEditProcessor={onEditProcessor}
-            setFormValues={setFormValues}
           />
         )}
 

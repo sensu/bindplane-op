@@ -17,6 +17,10 @@ import {
   ParameterType,
 } from "../../graphql/generated";
 import { BPResourceConfiguration } from "../../utils/classes";
+import {
+  FormValueContextProvider,
+  useResourceFormValues,
+} from "./ResourceFormContext";
 import { validateStringsField, validateMapField } from "./validation-functions";
 
 enum Page {
@@ -96,7 +100,7 @@ const ResourceConfigurationFormComponent: React.FC<ComponentProps> = ({
   onBack,
   initValues,
 }) => {
-  const [formValues, setFormValues] = useState<FormValues>(initValues);
+  const { formValues, setFormValues } = useResourceFormValues();
 
   // This is passed down to determine whether to enable the primary save button.
   // If no parameters are passed down, then the form is new and is "dirty".
@@ -175,7 +179,6 @@ const ResourceConfigurationFormComponent: React.FC<ComponentProps> = ({
           kind={kind}
           formValues={formValues}
           includeNameField={includeNameField}
-          setFormValues={setFormValues}
           existingResourceNames={existingResourceNames}
           parameterDefinitions={parameterDefinitions}
           enableProcessors={enableProcessors}
@@ -252,8 +255,13 @@ export const ResourceConfigForm: React.FC<ResourceFormProps> = (props) => {
   }
 
   return (
-    <ValidationContextProvider initErrors={initErrors}>
-      <ResourceConfigurationFormComponent initValues={initValues} {...props} />
-    </ValidationContextProvider>
+    <FormValueContextProvider initValues={initValues}>
+      <ValidationContextProvider initErrors={initErrors}>
+        <ResourceConfigurationFormComponent
+          initValues={initValues}
+          {...props}
+        />
+      </ValidationContextProvider>
+    </FormValueContextProvider>
   );
 };
