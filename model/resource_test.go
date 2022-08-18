@@ -115,7 +115,7 @@ func TestResourceValidate(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.resource.Validate()
+			_, err := test.resource.Validate()
 			if len(test.errorMsgs) == 0 {
 				require.NoError(t, err)
 			} else {

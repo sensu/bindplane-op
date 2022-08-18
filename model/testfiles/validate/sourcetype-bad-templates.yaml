@@ -4,7 +4,7 @@ kind: SourceType
 metadata:
   name: MacOS
   displayName: Mac OS
-  icon: /public/bindplane-logo.png
+  icon: /icons/sources/macos.svg
   description: Log parser for MacOS
 spec:
   # settings below take directly from stanza-plugins
@@ -40,11 +40,13 @@ spec:
           value: true
     - name: start_at
       label: Start At
-      description: Start reading file from 'beginning' or 'end'
+      description: Start reading logs from 'beginning' or 'end'.
       type: enum
       validValues:
         - beginning
         - end
+      default: end
+      advancedConfig: true
   metrics:
     # receivers, processors, exporters, and extensions can all be specified
     receivers: |

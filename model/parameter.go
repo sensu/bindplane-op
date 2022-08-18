@@ -19,6 +19,7 @@ import (
 	"go/token"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/observiq/bindplane-op/model/validation"
@@ -91,7 +92,7 @@ func (p ParameterDefinition) validateValue(value interface{}) error {
 	return p.validateValueType(parameterFieldValue, value)
 }
 
-func (p ParameterDefinition) validateDefinition(errs validation.Errors) {
+func (p ParameterDefinition) validateDefinition(kind Kind, errs validation.Errors) {
 	if err := p.validateName(); err != nil {
 		errs.Add(err)
 	}
@@ -110,6 +111,64 @@ func (p ParameterDefinition) validateDefinition(errs validation.Errors) {
 
 	if err := p.validateDefault(); err != nil {
 		errs.Add(err)
+	}
+
+	p.validateSpecialParameters(kind, errs)
+}
+
+// validateSpecialParameters ensures that for consistency, common parameters like start_at appear the same in all sources
+func (p ParameterDefinition) validateSpecialParameters(kind Kind, errs validation.Errors) {
+	if kind == KindSourceType {
+		switch p.Name {
+		case "start_at":
+			p.validateSpecialParameter(errs, ParameterDefinition{
+				Name:           "start_at",
+				Label:          "Start At",
+				Description:    "Start reading logs from 'beginning' or 'end'.",
+				Type:           "enum",
+				ValidValues:    []string{"beginning", "end"},
+				Default:        "end",
+				AdvancedConfig: true,
+			})
+		case "collection_interval":
+			// special case for vmware_vcenter which needs a longer collection interval
+			if p.Description != "How often (minutes) to scrape for metrics." {
+				p.validateSpecialParameter(errs, ParameterDefinition{
+					Name:           "collection_interval",
+					Label:          "Collection Interval",
+					Description:    "How often (seconds) to scrape for metrics.",
+					Type:           "int",
+					Default:        60,
+					AdvancedConfig: true,
+				})
+			}
+		}
+	}
+}
+
+func (p ParameterDefinition) validateSpecialParameter(errs validation.Errors, expect ParameterDefinition) {
+	// for consistency, %s should be the same anywhere it appears in sources
+	if p.Label != expect.Label {
+		errs.Warn(fmt.Errorf("%s parameter with label: %s should use label: %s", p.Name, p.Label, expect.Label))
+	}
+	if p.Description != expect.Description {
+		errs.Warn(fmt.Errorf("%s parameter with description: %s should use description: %s", p.Name, p.Description, expect.Description))
+	}
+	if p.Type != expect.Type {
+		errs.Warn(fmt.Errorf("%s parameter with type: %s should have type: %s", p.Name, p.Type, expect.Type))
+	}
+	pValidValues := strings.Join(p.ValidValues, ",")
+	eValidValues := strings.Join(expect.ValidValues, ",")
+	if pValidValues != eValidValues {
+		errs.Warn(fmt.Errorf("%s parameter with validValues: [%s] should have validValues: [%s]", p.Name, pValidValues, eValidValues))
+	}
+	pDefault := fmt.Sprintf("%v", p.Default)
+	eDefault := fmt.Sprintf("%v", expect.Default)
+	if expect.Default != nil && pDefault != eDefault {
+		errs.Warn(fmt.Errorf("%s parameter with default: %s should have default: %s", p.Name, pDefault, eDefault))
+	}
+	if p.AdvancedConfig != expect.AdvancedConfig {
+		errs.Warn(fmt.Errorf("%s parameter with advancedConfig: %t should have advancedConfig: %t", p.Name, p.AdvancedConfig, expect.AdvancedConfig))
 	}
 }
 

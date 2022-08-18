@@ -17,6 +17,7 @@ spec:
       description: How often (seconds) to scrape for metrics.
       type: int
       default: 60
+      advancedConfig: true
 
     # Load Metrics
     - name: enable_load

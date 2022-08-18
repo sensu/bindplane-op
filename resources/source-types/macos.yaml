@@ -18,8 +18,8 @@ spec:
       type: bool
       default: true
 
-    - name: host_collection_interval
-      label: Metric Collection Interval
+    - name: collection_interval
+      label: Collection Interval
       description: How often (seconds) to scrape for metrics.
       type: int
       default: 60
@@ -85,7 +85,7 @@ spec:
 
     - name: start_at
       label: Start At
-      description: Start reading file from 'beginning' or 'end'.
+      description: Start reading logs from 'beginning' or 'end'.
       type: enum
       validValues:
         - beginning
@@ -101,7 +101,7 @@ spec:
     receivers: |
       {{ if .enable_metrics }}
       - hostmetrics:
-          host_collection_interval: {{ .host_collection_interval }}s
+          host_collection_interval: {{ .collection_interval }}s
           scrapers:
             load:
             filesystem:

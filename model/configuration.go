@@ -103,10 +103,10 @@ type ResourceConfiguration struct {
 
 // Validate validates most of the configuration, but if a store is available, ValidateWithStore should be used to
 // validate the sources and destinations.
-func (c *Configuration) Validate() error {
-	errors := validation.NewErrors()
-	c.validate(errors)
-	return errors.Result()
+func (c *Configuration) Validate() (warnings string, errors error) {
+	errs := validation.NewErrors()
+	c.validate(errs)
+	return errs.Warnings(), errs.Result()
 }
 
 func (c *Configuration) validate(errs validation.Errors) {
@@ -117,13 +117,13 @@ func (c *Configuration) validate(errs validation.Errors) {
 // ValidateWithStore checks that the configuration is valid, returning an error if it is not. It uses the store to
 // retrieve source types and destination types so that parameter values can be validated against the parameter
 // definitions.
-func (c *Configuration) ValidateWithStore(store ResourceStore) error {
-	errors := validation.NewErrors()
+func (c *Configuration) ValidateWithStore(store ResourceStore) (warnings string, errors error) {
+	errs := validation.NewErrors()
 
-	c.validate(errors)
-	c.Spec.validateSourcesAndDestinations(errors, store)
+	c.validate(errs)
+	c.Spec.validateSourcesAndDestinations(errs, store)
 
-	return errors.Result()
+	return errs.Warnings(), errs.Result()
 }
 
 // Type returns the ConfigurationType. It is based on the presence of the Raw, Sources, and Destinations fields.

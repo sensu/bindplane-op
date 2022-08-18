@@ -140,10 +140,10 @@ func (d *AgentDownload) HashBytes() []byte {
 // validation
 
 // Validate ensures that each of the fields of an AgentVersion is valid. The name must equal "Type-Version"
-func (v *AgentVersion) Validate() error {
-	errors := validation.NewErrors()
-	v.validate(errors)
-	return errors.Result()
+func (v *AgentVersion) Validate() (warnings string, errors error) {
+	errs := validation.NewErrors()
+	v.validate(errs)
+	return errs.Warnings(), errs.Result()
 }
 
 func (v *AgentVersion) validate(errs validation.Errors) {

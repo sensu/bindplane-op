@@ -14,33 +14,80 @@
 
 package validation
 
-import "github.com/hashicorp/go-multierror"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/hashicorp/go-multierror"
+)
 
 // Errors provides an ErrorReporter to accumulate errors.
 type Errors interface {
 	// Add adds an error to the set of errors accumulated by Errors. If err is nil, this does nothing.
 	Add(err error)
+
+	// Warn adds an error to a separate set of Errors that are only warnings. These warnings should not prevent validation
+	// from passing, but should be presented to the user.
+	Warn(err error)
+
 	// Result returns an error containing all of the errors accumulated or nil if there were no errors
 	Result() error
+
+	// Warnings returns a string representing all of the warning messages accumulated or "" if there were no warnings
+	Warnings() string
 }
 
 type errorsImpl struct {
-	err error
+	errors   error
+	warnings *multierror.Error
 }
 
 var _ Errors = (*errorsImpl)(nil)
 
 // NewErrors creates new validation errors and returns the reporter as a convenience
 func NewErrors() Errors {
-	return &errorsImpl{}
+	return &errorsImpl{
+		warnings: &multierror.Error{
+			ErrorFormat: WarningFormatFunc,
+		},
+	}
 }
 
 func (v *errorsImpl) Add(err error) {
 	if err != nil {
-		v.err = multierror.Append(v.err, err)
+		v.errors = multierror.Append(v.errors, err)
+	}
+}
+
+func (v *errorsImpl) Warn(err error) {
+	if err != nil {
+		v.warnings = multierror.Append(v.warnings, err)
 	}
 }
 
 func (v *errorsImpl) Result() error {
-	return v.err
+	return v.errors
+}
+
+func (v *errorsImpl) Warnings() string {
+	if v.warnings != nil {
+		return v.warnings.Error()
+	}
+	return ""
+}
+
+// WarningFormatFunc is like the standard FormatFunc but labels issues as "warnings" instead of "errors".
+func WarningFormatFunc(es []error) string {
+	switch len(es) {
+	case 0:
+		return ""
+	case 1:
+		return fmt.Sprintf("1 warning occurred:\n\t* %s\n\n", es[0])
+	default:
+		points := make([]string, len(es))
+		for i, err := range es {
+			points[i] = fmt.Sprintf("* %s", err)
+		}
+		return fmt.Sprintf("%d warnings occurred:\n\t%s\n\n", len(es), strings.Join(points, "\n\t"))
+	}
 }

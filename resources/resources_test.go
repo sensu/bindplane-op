@@ -56,8 +56,9 @@ func TestValidateSourceTypes(t *testing.T) {
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
 			resource := fileResource[*model.SourceType](t, path)
-			err := resource.Validate()
+			warn, err := resource.Validate()
 			require.NoError(t, err)
+			require.Equal(t, "", warn)
 		})
 	}
 }
@@ -67,8 +68,9 @@ func TestValidateProcessorTypes(t *testing.T) {
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
 			resource := fileResource[*model.ProcessorType](t, path)
-			err := resource.Validate()
+			warn, err := resource.Validate()
 			require.NoError(t, err)
+			require.Equal(t, "", warn)
 		})
 	}
 }
@@ -78,8 +80,9 @@ func TestValidateDestinationTypes(t *testing.T) {
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
 			resource := fileResource[*model.DestinationType](t, path)
-			err := resource.Validate()
+			warn, err := resource.Validate()
 			require.NoError(t, err)
+			require.Equal(t, "", warn)
 		})
 	}
 }
@@ -89,8 +92,9 @@ func TestValidateAgentVersions(t *testing.T) {
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
 			resource := fileResource[*model.AgentVersion](t, path)
-			err := resource.Validate()
+			warn, err := resource.Validate()
 			require.NoError(t, err)
+			require.Equal(t, "", warn)
 		})
 	}
 }

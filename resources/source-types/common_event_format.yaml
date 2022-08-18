@@ -47,8 +47,9 @@ spec:
 
     - name: start_at
       label: Start At
-      description: Start reading file from 'beginning' or 'end'
+      description: Start reading logs from 'beginning' or 'end'.
       type: enum
+      advancedConfig: true
       validValues:
         - beginning
         - end

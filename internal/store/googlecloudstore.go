@@ -397,7 +397,7 @@ func (s *googleCloudStore) ApplyResources(resources []model.Resource) ([]model.R
 		// the resource already exists (using the existing resource ID)
 		resource.EnsureID()
 
-		err := resource.ValidateWithStore(s)
+		warn, err := resource.ValidateWithStore(s)
 		if err != nil {
 			resourceStatuses = append(resourceStatuses, *model.NewResourceStatusWithReason(resource, model.StatusInvalid, err.Error()))
 			continue
@@ -409,7 +409,7 @@ func (s *googleCloudStore) ApplyResources(resources []model.Resource) ([]model.R
 			errs = multierror.Append(errs, err)
 			continue
 		}
-		resourceStatuses = append(resourceStatuses, *model.NewResourceStatus(resource, status))
+		resourceStatuses = append(resourceStatuses, *model.NewResourceStatusWithReason(resource, status, warn))
 
 		switch status {
 		case model.StatusCreated:

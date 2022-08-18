@@ -20,7 +20,7 @@ spec:
 
     - name: start_at
       label: Start At
-      description: At startup, where to start reading logs from the file (`beginning` or `end`)
+      description: Start reading logs from 'beginning' or 'end'.
       type: enum
       validValues:
         - beginning

@@ -31,6 +31,7 @@ spec:
       description: How often (seconds) to scrape for metrics.
       type: int
       default: 60
+      advancedConfig: true
 
   metrics:
     receivers: |

@@ -194,22 +194,22 @@ func (rt *ResourceType) PrintableFieldTitles() []string {
 // validation
 
 // Validate returns an error if any part of the ResourceType is invalid
-func (rt *ResourceType) Validate() error {
+func (rt *ResourceType) Validate() (warnings string, errors error) {
 	errs := validation.NewErrors()
 
 	rt.ResourceMeta.validate(errs)
-	rt.Spec.validate(errs)
+	rt.Spec.validate(rt.Kind, errs)
 
-	return errs.Result()
+	return errs.Warnings(), errs.Result()
 }
 
 // ValidateWithStore returns an error if any part of the ResourceType is invalid
-func (rt *ResourceType) ValidateWithStore(store ResourceStore) error {
+func (rt *ResourceType) ValidateWithStore(store ResourceStore) (warnings string, errors error) {
 	return rt.Validate()
 }
 
-func (s *ResourceTypeSpec) validate(errs validation.Errors) {
-	s.validateParameterDefinitions(errs)
+func (s *ResourceTypeSpec) validate(kind Kind, errs validation.Errors) {
+	s.validateParameterDefinitions(kind, errs)
 
 	// assemble default parameter values for validation
 	params := map[string]any{}
@@ -244,9 +244,9 @@ func (s *ResourceTypeSpec) validate(errs validation.Errors) {
 	s.Traces.validateTemplates(errs, "traces", params)
 }
 
-func (s *ResourceTypeSpec) validateParameterDefinitions(errs validation.Errors) {
+func (s *ResourceTypeSpec) validateParameterDefinitions(kind Kind, errs validation.Errors) {
 	for _, parameter := range s.Parameters {
-		parameter.validateDefinition(errs)
+		parameter.validateDefinition(kind, errs)
 		s.validateParameterRelevantIf(parameter, errs)
 	}
 }

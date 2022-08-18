@@ -100,16 +100,18 @@ func TestAddAgent(t *testing.T) {
 
 type mockUnknownResource struct{}
 
-func (x mockUnknownResource) ID() string                                  { return "" }
-func (x mockUnknownResource) SetID(string)                                {}
-func (x mockUnknownResource) EnsureID()                                   {}
-func (x mockUnknownResource) GetKind() model.Kind                         { return model.KindUnknown }
-func (x mockUnknownResource) Name() string                                { return "" }
-func (x mockUnknownResource) Description() string                         { return "" }
-func (x mockUnknownResource) Validate() error                             { return nil }
-func (x mockUnknownResource) ValidateWithStore(model.ResourceStore) error { return nil }
-func (x mockUnknownResource) GetLabels() model.Labels                     { return model.MakeLabels() }
-func (x mockUnknownResource) UniqueKey() string                           { return x.ID() }
+func (x mockUnknownResource) ID() string                                { return "" }
+func (x mockUnknownResource) SetID(string)                              {}
+func (x mockUnknownResource) EnsureID()                                 {}
+func (x mockUnknownResource) GetKind() model.Kind                       { return model.KindUnknown }
+func (x mockUnknownResource) Name() string                              { return "" }
+func (x mockUnknownResource) Description() string                       { return "" }
+func (x mockUnknownResource) Validate() (warnings string, errors error) { return "", nil }
+func (x mockUnknownResource) ValidateWithStore(model.ResourceStore) (warnings string, errors error) {
+	return "", nil
+}
+func (x mockUnknownResource) GetLabels() model.Labels { return model.MakeLabels() }
+func (x mockUnknownResource) UniqueKey() string       { return x.ID() }
 
 func (x mockUnknownResource) IndexID() string                  { return "" }
 func (x mockUnknownResource) IndexFields(index search.Indexer) {}

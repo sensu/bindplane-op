@@ -15,6 +15,7 @@
 package model
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -91,7 +92,7 @@ func TestConfigurationValidate(t *testing.T) {
 			config := validateResource[*Configuration](t, test.testfile)
 
 			// test normal Validate() used by all resources
-			err := config.Validate()
+			_, err := config.Validate()
 			if test.expectValidateError == "" {
 				require.NoError(t, err)
 			} else {
@@ -100,7 +101,7 @@ func TestConfigurationValidate(t *testing.T) {
 			}
 
 			// test special ValidateWithStore which can validate sources and destinations
-			err = config.ValidateWithStore(store)
+			_, err = config.ValidateWithStore(store)
 			if test.expectValidateWithStoreError == "" {
 				require.NoError(t, err)
 			} else {
@@ -113,8 +114,9 @@ func TestConfigurationValidate(t *testing.T) {
 
 func TestSourceTypeValidate(t *testing.T) {
 	tests := []struct {
-		testfile           string
-		expectErrorMessage string
+		testfile               string
+		expectErrorMessage     string
+		expectValidateWarnings string
 	}{
 		{
 			testfile:           "sourcetype-ok.yaml",
@@ -125,29 +127,41 @@ func TestSourceTypeValidate(t *testing.T) {
 			expectErrorMessage: "1 error occurred:\n\t* Mac OS is not a valid resource name: a valid label must be an empty string or consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?')\n\n",
 		},
 		{
-			testfile:           "sourcetype-bad-labels.yaml",
-			expectErrorMessage: "1 error occurred:\n\t* bad name is not a valid label name: name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')\n\n",
+			testfile:               "sourcetype-bad-labels.yaml",
+			expectErrorMessage:     "1 error occurred:\n\t* bad name is not a valid label name: name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')\n\n",
+			expectValidateWarnings: "1 warning occurred:\n\t* start_at parameter with advancedConfig: false should have advancedConfig: true\n\n",
 		},
 		{
-			testfile:           "sourcetype-bad-parameter-definitions.yaml",
-			expectErrorMessage: "20 errors occurred:\n\t* missing type for 'no_type'\n\t* missing name for parameter\n\t* invalid name 'bad-name' for parameter\n\t* missing type for 'bad-name'\n\t* invalid type 'bad-type' for 'bad_type'\n\t* parameter of type 'enum' or 'enums' must have 'validValues' specified\n\t* validValues is undefined for parameter of type 'strings'\n\t* default value for 'bad_string_default' must be a string\n\t* default value for 'bad_bool_default' must be a bool\n\t* default value for 'bad_strings_default' must be an array of strings\n\t* default value for 'bad_int_default' must be an integer\n\t* default value for 'bad_int_default_as_float' must be an integer\n\t* default value for 'bad_enum_default' must be one of [1 2 3]\n\t* relevantIf for 'bad_relevant_if_2' must have a name\n\t* relevantIf for 'bad_relevant_if_2' refers to nonexistant parameter 'does_not_exist'\n\t* relevantIf 'string_default_1' for 'bad_relevant_if_2': relevantIf value for 'string_default_1' must be a string\n\t* relevantIf 'string_default_2' for 'bad_relevant_if_2' must have an operator\n\t* relevantIf 'string_default_3' for 'bad_relevant_if_2' must have a value\n\t* relevantIf 'bad_enum_default' for 'bad_relevant_if_2': relevantIf value for 'bad_enum_default' must be one of [1 2 3]\n\t* relevantIf 'bad_bool_default' for 'bad_relevant_if_2': relevantIf value for 'bad_bool_default' must be a bool\n\n",
+			testfile:               "sourcetype-bad-parameter-definitions.yaml",
+			expectErrorMessage:     "20 errors occurred:\n\t* missing type for 'no_type'\n\t* missing name for parameter\n\t* invalid name 'bad-name' for parameter\n\t* missing type for 'bad-name'\n\t* invalid type 'bad-type' for 'bad_type'\n\t* parameter of type 'enum' or 'enums' must have 'validValues' specified\n\t* validValues is undefined for parameter of type 'strings'\n\t* default value for 'bad_string_default' must be a string\n\t* default value for 'bad_bool_default' must be a bool\n\t* default value for 'bad_strings_default' must be an array of strings\n\t* default value for 'bad_int_default' must be an integer\n\t* default value for 'bad_int_default_as_float' must be an integer\n\t* default value for 'bad_enum_default' must be one of [1 2 3]\n\t* relevantIf for 'bad_relevant_if_2' must have a name\n\t* relevantIf for 'bad_relevant_if_2' refers to nonexistant parameter 'does_not_exist'\n\t* relevantIf 'string_default_1' for 'bad_relevant_if_2': relevantIf value for 'string_default_1' must be a string\n\t* relevantIf 'string_default_2' for 'bad_relevant_if_2' must have an operator\n\t* relevantIf 'string_default_3' for 'bad_relevant_if_2' must have a value\n\t* relevantIf 'bad_enum_default' for 'bad_relevant_if_2': relevantIf value for 'bad_enum_default' must be one of [1 2 3]\n\t* relevantIf 'bad_bool_default' for 'bad_relevant_if_2': relevantIf value for 'bad_bool_default' must be a bool\n\n",
+			expectValidateWarnings: "1 warning occurred:\n\t* SourceType MacOS is missing .metadata.icon\n\n",
 		},
 		{
 			testfile:           "sourcetype-bad-templates.yaml",
 			expectErrorMessage: "2 errors occurred:\n\t* template: logs.receivers:6: unexpected \"}\" in operand\n\t* template: logs.processors:1:5: executing \"logs.processors\" at <.not_a_variable>: map has no entry for key \"not_a_variable\"\n\n",
+		},
+		{
+			testfile:               "sourcetype-warnings.yaml",
+			expectValidateWarnings: "11 warnings occurred:\n\t* SourceType Postgresql icon cannot be read: stat [filename]: no such file or directory\n\t* start_at parameter with label: Start Reading At should use label: Start At\n\t* start_at parameter with description: Start reading logs from 'start' or 'end'. should use description: Start reading logs from 'beginning' or 'end'.\n\t* start_at parameter with validValues: [start,end] should have validValues: [beginning,end]\n\t* start_at parameter with default: start should have default: end\n\t* start_at parameter with advancedConfig: false should have advancedConfig: true\n\t* collection_interval parameter with label: Collection Interval (s) should use label: Collection Interval\n\t* collection_interval parameter with description: How often to scrape for metrics. should use description: How often (seconds) to scrape for metrics.\n\t* collection_interval parameter with type: string should have type: int\n\t* collection_interval parameter with default: sixty should have default: 60\n\t* collection_interval parameter with advancedConfig: false should have advancedConfig: true\n\n",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.testfile, func(t *testing.T) {
 			config := validateResource[*SourceType](t, test.testfile)
-			err := config.Validate()
+			warnings, err := config.Validate()
 			if test.expectErrorMessage == "" {
 				require.NoError(t, err)
 			} else {
 				require.Error(t, err)
 				require.Equal(t, test.expectErrorMessage, err.Error())
 			}
+
+			// because the path will be local, replace it in the warnings for test validation
+			statRegex := regexp.MustCompile("cannot be read: stat .*: no such file")
+			warnings = statRegex.ReplaceAllString(warnings, "cannot be read: stat [filename]: no such file")
+
+			require.Equal(t, test.expectValidateWarnings, warnings)
 		})
 	}
 
@@ -206,7 +220,7 @@ func TestSourceValidate(t *testing.T) {
 			src := validateResource[*Source](t, test.testfile)
 
 			// test normal Validate() used by all resources
-			err := src.Validate()
+			_, err := src.Validate()
 			if test.expectValidateError == "" {
 				require.NoError(t, err)
 			} else {
@@ -215,7 +229,7 @@ func TestSourceValidate(t *testing.T) {
 			}
 
 			// test special ValidateWithStore which can validate sources and destinations
-			err = src.ValidateWithStore(store)
+			_, err = src.ValidateWithStore(store)
 			if test.expectValidateWithStoreError == "" {
 				require.NoError(t, err)
 			} else {

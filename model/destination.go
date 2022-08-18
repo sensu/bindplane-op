@@ -33,13 +33,13 @@ var _ parameterizedResource = (*Destination)(nil)
 
 // ValidateWithStore checks that the destination is valid, returning an error if it is not. It uses the store to
 // retrieve the destination type so that parameter values can be validated against the parameter definitions.
-func (d *Destination) ValidateWithStore(store ResourceStore) error {
-	errors := validation.NewErrors()
+func (d *Destination) ValidateWithStore(store ResourceStore) (warnings string, errors error) {
+	errs := validation.NewErrors()
 
-	d.validate(errors)
-	d.Spec.validateTypeAndParameters(KindDestination, errors, store)
+	d.validate(errs)
+	d.Spec.validateTypeAndParameters(KindDestination, errs, store)
 
-	return errors.Result()
+	return errs.Warnings(), errs.Result()
 }
 
 // GetKind returns "Destination"

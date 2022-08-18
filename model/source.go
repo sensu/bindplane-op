@@ -33,13 +33,13 @@ var _ parameterizedResource = (*Source)(nil)
 
 // ValidateWithStore checks that the source is valid, returning an error if it is not. It uses the store to retrieve the
 // source type so that parameter values can be validated against the parameter definitions.
-func (s *Source) ValidateWithStore(store ResourceStore) error {
-	errors := validation.NewErrors()
+func (s *Source) ValidateWithStore(store ResourceStore) (warnings string, errors error) {
+	errs := validation.NewErrors()
 
-	s.validate(errors)
-	s.Spec.validateTypeAndParameters(KindSource, errors, store)
+	s.validate(errs)
+	s.Spec.validateTypeAndParameters(KindSource, errs, store)
 
-	return errors.Result()
+	return errs.Warnings(), errs.Result()
 }
 
 // GetKind returns "Source"

@@ -1,0 +1,31 @@
+
+apiVersion: bindplane.observiq.com/v1
+kind: SourceType
+metadata:
+  name: Postgresql
+  icon: /invalid/icon.svg
+spec:
+  parameters:
+    - name: start_at
+      label: Start Reading At
+      description: Start reading logs from 'start' or 'end'.
+      type: enum
+      validValues:
+        - start
+        - end
+      default: start
+      advancedConfig: false
+
+    - name: collection_interval
+      label: Collection Interval (s)
+      description: How often to scrape for metrics.
+      type: string
+      default: sixty
+      advancedConfig: false
+
+  metrics:
+    receivers: |
+      - hostmetrics:
+          collection_interval: 1m
+          scrapers:
+            load:

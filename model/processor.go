@@ -33,13 +33,13 @@ var _ parameterizedResource = (*Processor)(nil)
 
 // ValidateWithStore checks that the processor is valid, returning an error if it is not. It uses the store to retrieve the
 // processor type so that parameter values can be validated against the parameter definitions.
-func (s *Processor) ValidateWithStore(store ResourceStore) error {
-	errors := validation.NewErrors()
+func (s *Processor) ValidateWithStore(store ResourceStore) (warnings string, errors error) {
+	errs := validation.NewErrors()
 
-	s.validate(errors)
-	s.Spec.validateTypeAndParameters(KindProcessor, errors, store)
+	s.validate(errs)
+	s.Spec.validateTypeAndParameters(KindProcessor, errs, store)
 
-	return errors.Result()
+	return errs.Warnings(), errs.Result()
 }
 
 // GetKind returns "Processor"

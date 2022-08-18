@@ -448,7 +448,7 @@ func (mapstore *mapStore) ApplyResources(resources []model.Resource) ([]model.Re
 	resourceStatuses := make([]model.ResourceStatus, 0)
 
 	for _, resource := range resources {
-		err := resource.ValidateWithStore(mapstore)
+		_, err := resource.ValidateWithStore(mapstore)
 		if err != nil {
 			resourceStatuses = append(resourceStatuses, *model.NewResourceStatusWithReason(resource, model.StatusInvalid, err.Error()))
 			continue

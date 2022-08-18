@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/google/uuid"
@@ -117,10 +119,10 @@ type Resource interface {
 	Description() string
 
 	// Validate ensures that the resource is valid
-	Validate() error
+	Validate() (warnings string, errors error)
 
 	// ValidateWithStore ensures that the resource is valid and allows for extra validation given a store
-	ValidateWithStore(store ResourceStore) error
+	ValidateWithStore(store ResourceStore) (warnings string, errors error)
 }
 
 // AnyResource is a resource not yet fully parsed and is the common structure of all Resources. The Spec, which is
@@ -202,21 +204,58 @@ func (r *ResourceMeta) GetLabels() Labels {
 
 // Validate checks that the resource is valid, returning an error if it is not. This provides generic validation for all
 // resources. Specific resources should provide their own Validate method and call this to validate the ResourceMeta.
-func (r *ResourceMeta) Validate() error {
+func (r *ResourceMeta) Validate() (warnings string, errors error) {
 	errs := validation.NewErrors()
 	r.validate(errs)
-	return errs.Result()
+	return errs.Warnings(), errs.Result()
 }
 
 // ValidateWithStore allows for additional validation when a store is available.
-func (r *ResourceMeta) ValidateWithStore(store ResourceStore) error {
+func (r *ResourceMeta) ValidateWithStore(store ResourceStore) (warnings string, errors error) {
 	return r.Validate()
 }
 
 // validate can be used from other resources to validate the Meta portion of the resource
 func (r *ResourceMeta) validate(errs validation.Errors) {
 	validateKind(errs, string(r.Kind))
+	r.validateIcon(r.Kind, errs)
 	r.Metadata.validate(errs)
+}
+
+func (r *ResourceMeta) validateIcon(kind Kind, errs validation.Errors) {
+	// only currently validated for source and destination types
+	switch kind {
+	case KindSourceType:
+	case KindDestinationType:
+	default:
+		return
+	}
+
+	if r.Metadata.Icon == "" {
+		errs.Warn(fmt.Errorf("%s %s is missing .metadata.icon", kind, r.Name()))
+		return
+	}
+
+	// find the root folder of the repo. this works because we know we're being called by something in this package
+	// because this function isn't exported. we also know that this file is the model package at the root of the repo.
+	_, modelFolder, _, _ := runtime.Caller(0)
+	repoFolder := filepath.Join(filepath.Dir(modelFolder), "..")
+
+	// construct the icon path from the iconParts knowing that we store icons in the ui/public folder and the icon will be a
+	// relative folder inside this path
+	iconParts := []string{repoFolder, "ui", "public"}
+	iconParts = append(iconParts, strings.Split(r.Metadata.Icon, "/")...)
+	iconPath := path.Join(iconParts...)
+
+	// attempt to read the file to verify that it exists
+	info, err := os.Stat(iconPath)
+	if err != nil {
+		errs.Warn(fmt.Errorf("%s %s icon cannot be read: %w", kind, r.Name(), err))
+		return
+	}
+	if info.Size() == 0 {
+		errs.Warn(fmt.Errorf("%s %s icon empty at %s", kind, r.Name(), iconPath))
+	}
 }
 
 func (m *Metadata) validate(errs validation.Errors) {
