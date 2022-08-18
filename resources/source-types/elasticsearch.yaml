@@ -26,12 +26,20 @@ spec:
       type: string
       default: "localhost"
       required: true
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
 
     - name: port
       label: Port
       description: The TCP port of the Elasticsearch API.
       type: int
       default: 9200
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
 
     - name: username
       label: Username
