@@ -90,6 +90,16 @@ func (r *configurationResolver) Kind(ctx context.Context, obj *model.Configurati
 	return string(obj.GetKind()), nil
 }
 
+// AgentCount is the resolver for the agentCount field.
+func (r *configurationResolver) AgentCount(ctx context.Context, obj *model.Configuration) (*int, error) {
+	ids, err := r.bindplane.Store().AgentsIDsMatchingConfiguration(obj)
+	if err != nil {
+		return nil, err
+	}
+	count := len(ids)
+	return &count, nil
+}
+
 // Kind is the resolver for the kind field.
 func (r *destinationResolver) Kind(ctx context.Context, obj *model.Destination) (string, error) {
 	return string(obj.GetKind()), nil
@@ -358,7 +368,24 @@ func (r *subscriptionResolver) ConfigurationChanges(ctx context.Context, selecto
 	channel, _ := eventbus.SubscribeWithFilterUntilDone(ctx, r.updates, func(updates *store.Updates) (result []*model1.ConfigurationChange, accept bool) {
 		// if the observer is using a selector or query, we want to change Update to Remove if it no longer matches the
 		// selector or query
-		events := applySelectorToEvents(parsedSelector, updates.Configurations)
+
+		configUpdates := updates.Configurations
+		if r.hasAgentConfigurationChanges(updates) {
+			configUpdates = configUpdates.Clone()
+			// add all configurations here as updates since we don't know what agent counts could be affected
+			if configs, err := r.bindplane.Store().Configurations(); err == nil {
+				for _, config := range configs {
+					// don't add configuration pseudo-updates that already have updates associated with them
+					if _, ok := configUpdates[config.UniqueKey()]; !ok {
+						configUpdates.Include(config, store.EventTypeUpdate)
+					}
+				}
+			} else {
+				r.bindplane.Logger().Error("unable to get configurations to include in agent changes", zap.Error(err))
+			}
+		}
+
+		events := applySelectorToEvents(parsedSelector, configUpdates)
 		events = applyQueryToEvents(parsedQuery, r.bindplane.Store().ConfigurationIndex(), events)
 
 		return model1.ToConfigurationChanges(events), len(events) > 0

@@ -89,6 +89,7 @@ export type Components = {
 
 export type Configuration = {
   __typename?: 'Configuration';
+  agentCount?: Maybe<Scalars['Int']>;
   apiVersion: Scalars['String'];
   kind: Scalars['String'];
   metadata: Metadata;
@@ -418,7 +419,7 @@ export type GetConfigurationTableQueryVariables = Exact<{
 }>;
 
 
-export type GetConfigurationTableQuery = { __typename?: 'Query', configurations: { __typename?: 'Configurations', query?: string | null, configurations: Array<{ __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string, labels?: any | null, description?: string | null } }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
+export type GetConfigurationTableQuery = { __typename?: 'Query', configurations: { __typename?: 'Configurations', query?: string | null, configurations: Array<{ __typename?: 'Configuration', agentCount?: number | null, metadata: { __typename?: 'Metadata', name: string, labels?: any | null, description?: string | null } }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
 
 export type ConfigurationChangesSubscriptionVariables = Exact<{
   selector?: InputMaybe<Scalars['String']>;
@@ -426,7 +427,7 @@ export type ConfigurationChangesSubscriptionVariables = Exact<{
 }>;
 
 
-export type ConfigurationChangesSubscription = { __typename?: 'Subscription', configurationChanges: Array<{ __typename?: 'ConfigurationChange', eventType: EventType, configuration: { __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string, description?: string | null, labels?: any | null } } }> };
+export type ConfigurationChangesSubscription = { __typename?: 'Subscription', configurationChanges: Array<{ __typename?: 'ConfigurationChange', eventType: EventType, configuration: { __typename?: 'Configuration', agentCount?: number | null, metadata: { __typename?: 'Metadata', name: string, description?: string | null, labels?: any | null } } }> };
 
 export type AgentChangesSubscriptionVariables = Exact<{
   selector?: InputMaybe<Scalars['String']>;
@@ -822,6 +823,7 @@ export const GetConfigurationTableDocument = gql`
         labels
         description
       }
+      agentCount
     }
     query
     suggestions {
@@ -869,6 +871,7 @@ export const ConfigurationChangesDocument = gql`
         description
         labels
       }
+      agentCount
     }
     eventType
   }

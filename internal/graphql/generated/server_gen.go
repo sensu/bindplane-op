@@ -120,6 +120,7 @@ type ComplexityRoot struct {
 
 	Configuration struct {
 		APIVersion func(childComplexity int) int
+		AgentCount func(childComplexity int) int
 		Kind       func(childComplexity int) int
 		Metadata   func(childComplexity int) int
 		Spec       func(childComplexity int) int
@@ -303,6 +304,8 @@ type AgentUpgradeResolver interface {
 }
 type ConfigurationResolver interface {
 	Kind(ctx context.Context, obj *model.Configuration) (string, error)
+
+	AgentCount(ctx context.Context, obj *model.Configuration) (*int, error)
 }
 type DestinationResolver interface {
 	Kind(ctx context.Context, obj *model.Destination) (string, error)
@@ -622,6 +625,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Configuration.APIVersion(childComplexity), true
+
+	case "Configuration.agentCount":
+		if e.complexity.Configuration.AgentCount == nil {
+			break
+		}
+
+		return e.complexity.Configuration.AgentCount(childComplexity), true
 
 	case "Configuration.kind":
 		if e.complexity.Configuration.Kind == nil {
@@ -1510,6 +1520,10 @@ type Configuration {
   kind: String!
   metadata: Metadata!
   spec: ConfigurationSpec!
+
+  # number of agents using this configuration. this count is obtained using a separate resolver and may not be efficient
+  # to generate. it depends on store.Store.AgentIDsUsingConfiguration.
+  agentCount: Int
 }
 
 type ConfigurationSpec {
@@ -2801,6 +2815,8 @@ func (ec *executionContext) fieldContext_Agent_configurationResource(ctx context
 				return ec.fieldContext_Configuration_metadata(ctx, field)
 			case "spec":
 				return ec.fieldContext_Configuration_spec(ctx, field)
+			case "agentCount":
+				return ec.fieldContext_Configuration_agentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Configuration", field.Name)
 		},
@@ -3849,6 +3865,47 @@ func (ec *executionContext) fieldContext_Configuration_spec(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Configuration_agentCount(ctx context.Context, field graphql.CollectedField, obj *model.Configuration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Configuration_agentCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Configuration().AgentCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Configuration_agentCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Configuration",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ConfigurationChange_configuration(ctx context.Context, field graphql.CollectedField, obj *model1.ConfigurationChange) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ConfigurationChange_configuration(ctx, field)
 	if err != nil {
@@ -3896,6 +3953,8 @@ func (ec *executionContext) fieldContext_ConfigurationChange_configuration(ctx c
 				return ec.fieldContext_Configuration_metadata(ctx, field)
 			case "spec":
 				return ec.fieldContext_Configuration_spec(ctx, field)
+			case "agentCount":
+				return ec.fieldContext_Configuration_agentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Configuration", field.Name)
 		},
@@ -4264,6 +4323,8 @@ func (ec *executionContext) fieldContext_Configurations_configurations(ctx conte
 				return ec.fieldContext_Configuration_metadata(ctx, field)
 			case "spec":
 				return ec.fieldContext_Configuration_spec(ctx, field)
+			case "agentCount":
+				return ec.fieldContext_Configuration_agentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Configuration", field.Name)
 		},
@@ -6527,6 +6588,8 @@ func (ec *executionContext) fieldContext_Query_configuration(ctx context.Context
 				return ec.fieldContext_Configuration_metadata(ctx, field)
 			case "spec":
 				return ec.fieldContext_Configuration_spec(ctx, field)
+			case "agentCount":
+				return ec.fieldContext_Configuration_agentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Configuration", field.Name)
 		},
@@ -10868,6 +10931,23 @@ func (ec *executionContext) _Configuration(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "agentCount":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Configuration_agentCount(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12759,12 +12839,12 @@ func (ec *executionContext) marshalNAgents2ᚖgithubᚗcomᚋobserviqᚋbindplan
 	return ec._Agents(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNAny2interface(ctx context.Context, v interface{}) (any, error) {
+func (ec *executionContext) unmarshalNAny2interface(ctx context.Context, v interface{}) (interface{}, error) {
 	res, err := graphql.UnmarshalAny(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.SelectionSet, v any) graphql.Marshaler {
+func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.SelectionSet, v interface{}) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -13933,6 +14013,22 @@ func (ec *executionContext) marshalODocumentationLink2ᚕgithubᚗcomᚋobserviq
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {

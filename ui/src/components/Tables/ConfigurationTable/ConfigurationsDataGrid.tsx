@@ -16,13 +16,16 @@ export enum ConfigurationsTableField {
   NAME = "name",
   LABELS = "labels",
   DESCRIPTION = "description",
+  AGENT_COUNT = "agentCount",
 }
 
+type Configurations =
+  GetConfigurationTableQuery["configurations"]["configurations"];
 interface ConfigurationsDataGridProps {
   onConfigurationsSelected?: (configurationIds: GridSelectionModel) => void;
   density?: GridDensityTypes;
   loading: boolean;
-  configurations?: GetConfigurationTableQuery["configurations"]["configurations"];
+  configurations?: Configurations;
   columnFields?: ConfigurationsTableField[];
 }
 
@@ -34,8 +37,19 @@ const ConfigurationsDataGridComponent: React.FC<ConfigurationsDataGridProps> =
     columnFields,
     density = GridDensityTypes.Standard,
   }) => {
+    console.log({ configurations });
     const columns: GridColumns = (columnFields || []).map((field) => {
       switch (field) {
+        case ConfigurationsTableField.AGENT_COUNT:
+          return {
+            field: ConfigurationsTableField.AGENT_COUNT,
+            width: 100,
+            headerName: "Agents",
+            valueGetter: (params: GridValueGetterParams) =>
+              params.row.agentCount,
+            renderCell: renderAgentCountCell,
+          };
+
         case ConfigurationsTableField.DESCRIPTION:
           return {
             field: ConfigurationsTableField.DESCRIPTION,
@@ -114,11 +128,18 @@ function renderNameDataCell(cellParams: GridCellParams<string>): JSX.Element {
   );
 }
 
+function renderAgentCountCell(
+  cellParams: GridCellParams<any, Configurations[0]>
+) {
+  return <span style={{ margin: "auto" }}>{cellParams.value}</span>;
+}
+
 ConfigurationsDataGridComponent.defaultProps = {
   density: undefined,
   columnFields: [
     ConfigurationsTableField.NAME,
     ConfigurationsTableField.LABELS,
+    ConfigurationsTableField.AGENT_COUNT,
     ConfigurationsTableField.DESCRIPTION,
   ],
 };

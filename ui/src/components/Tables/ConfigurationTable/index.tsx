@@ -24,6 +24,7 @@ gql`
           labels
           description
         }
+        agentCount
       }
       query
       suggestions {
@@ -43,6 +44,7 @@ gql`
           description
           labels
         }
+        agentCount
       }
       eventType
     }

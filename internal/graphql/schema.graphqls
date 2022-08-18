@@ -79,6 +79,10 @@ type Configuration {
   kind: String!
   metadata: Metadata!
   spec: ConfigurationSpec!
+
+  # number of agents using this configuration. this count is obtained using a separate resolver and may not be efficient
+  # to generate. it depends on store.Store.AgentIDsUsingConfiguration.
+  agentCount: Int
 }
 
 type ConfigurationSpec {

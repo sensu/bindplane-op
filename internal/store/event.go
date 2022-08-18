@@ -101,6 +101,15 @@ func (e Events[T]) ByType(eventType EventType) []Event[T] {
 	return results
 }
 
+// Clone copies the event.
+func (e Events[T]) Clone() Events[T] {
+	result := NewEvents[T]()
+	for k, v := range e {
+		result[k] = v
+	}
+	return result
+}
+
 // ----------------------------------------------------------------------
 // merge for use with RelayWithMerge
 

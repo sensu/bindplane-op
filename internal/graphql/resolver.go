@@ -158,3 +158,16 @@ func (r *Resolver) queryOptionsAndSuggestions(selector *string, query *string, i
 	}
 	return options, suggestions, nil
 }
+
+// hasAgentConfigurationChanges determines if there is an agent update
+// in updates that would affect the list of configurations
+func (r *Resolver) hasAgentConfigurationChanges(updates *store.Updates) bool {
+	for _, change := range updates.Agents {
+		// Only events type Remove, Label, and Insert could affect
+		// the agentCount field.
+		if change.Type != store.EventTypeUpdate {
+			return true
+		}
+	}
+	return false
+}
