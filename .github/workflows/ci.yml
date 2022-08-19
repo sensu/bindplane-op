@@ -240,12 +240,6 @@ jobs:
     runs-on: "ubuntu-20.04"
     needs:
       - setup-environment
-      - check-license
-      - go-test
-      - lint
-      - secure
-      - ui-test
-      - vet
     steps:
       - name: Check out source code
         uses: actions/checkout@v3
@@ -396,8 +390,7 @@ jobs:
   test-client-package-deb:
     runs-on: "ubuntu-20.04"
     needs:
-      - scan-go-licenses
-      - codecov
+      - build
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -411,8 +404,7 @@ jobs:
   test-server-package-deb:
     runs-on: "ubuntu-20.04"
     needs:
-      - scan-go-licenses
-      - codecov
+      - build
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -438,8 +430,7 @@ jobs:
   test-container-image:
     runs-on: "ubuntu-20.04"
     needs:
-      - scan-go-licenses
-      - codecov
+      - build
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -468,6 +459,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: "ubuntu-20.04"
     needs:
+      - scan-go-licenses
+      - codecov
       - test-container-image
     steps:
       - name: Checkout Repo
