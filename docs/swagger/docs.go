@@ -2029,7 +2029,9 @@ const docTemplate = `{
                 "operator": {
                     "type": "string"
                 },
-                "value": {}
+                "value": {
+                    "type": "any"
+                }
             }
         },
         "model.ResourceConfiguration": {
