@@ -8,7 +8,7 @@ require (
 	github.com/google/addlicense v1.0.0
 	github.com/mgechev/revive v1.2.1
 	github.com/ory/go-acc v0.2.8
-	github.com/securego/gosec/v2 v2.12.0
+	github.com/securego/gosec/v2 v2.13.1
 	github.com/swaggo/swag v1.8.4
 	github.com/uw-labs/lichen v0.1.7
 	honnef.co/go/tools v0.3.3
@@ -72,11 +72,11 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220218215828-6cf2b201936e // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.11 // indirect
+	golang.org/x/tools v0.1.12 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
