@@ -92,7 +92,7 @@
     "@storybook/testing-library": "^0.0.12",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^12.1.4",
-    "@testing-library/user-event": "^14.2.6",
+    "@testing-library/user-event": "^14.4.3",
     "@types/graphql": "^14.5.0",
     "@types/jest": "^28.1.6",
     "@types/lodash": "^4.14.181",
