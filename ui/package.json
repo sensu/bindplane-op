@@ -105,7 +105,7 @@
     "check-node-version": "^4.2.1",
     "concurrently": "^7.1.0",
     "nock": "^13.2.9",
-    "sass": "^1.54.0",
+    "sass": "^1.54.5",
     "source-map-explorer": "^2.5.2",
     "storybook-addon-apollo-client": "^4.0.12",
     "typescript": "^4.7.4",
