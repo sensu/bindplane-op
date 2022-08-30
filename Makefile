@@ -49,8 +49,11 @@ install: install-tools install-ui
 ci:
 	cd ui && npm ci
 
+ui/node_modules: ui/package.json ui/package-lock.json
+	$(MAKE) ci
+
 .PHONY: dev # runs go serve, ui proxy server, and ui graphql generator [primary development target]
-dev: install-ui prep
+dev: ui/node_modules prep
 	./ui/node_modules/.bin/concurrently -c blue,magenta,cyan -n sv,ui,gq "go run ./cmd/bindplane/main.go serve --force-console-color --env development" "cd ui && npm start" "cd ui && npm run generate:watch"
 
 .PHONY: test # runs go test for server tests
