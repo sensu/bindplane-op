@@ -14,7 +14,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
 	github.com/vektah/gqlparser/v2 v2.4.8
-	go.uber.org/zap v1.22.0
+	go.uber.org/zap v1.23.0
 	k8s.io/apimachinery v0.24.4
 
 )
