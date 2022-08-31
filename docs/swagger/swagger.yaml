@@ -453,8 +453,7 @@ definitions:
         type: string
       operator:
         type: string
-      value:
-        type: any
+      value: {}
     type: object
   model.ResourceConfiguration:
     properties:

@@ -28,7 +28,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe
 	github.com/swaggo/gin-swagger v1.5.2
-	github.com/swaggo/swag v1.8.4
+	github.com/swaggo/swag v1.8.5
 	go.etcd.io/bbolt v1.3.6
 	gopkg.in/yaml.v2 v2.4.0
 )
