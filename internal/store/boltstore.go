@@ -889,7 +889,7 @@ func resourcesByName[R model.Resource](s *boltstore, kind model.Kind, names []st
 
 	for _, name := range names {
 		if result, exists, err := resource[R](s, kind, name); err != nil {
-			errs = multierror.Append(err, err)
+			errs = multierror.Append(errs, err)
 		} else {
 			if exists && opts.selector.Matches(result.GetLabels()) {
 				results = append(results, result)
