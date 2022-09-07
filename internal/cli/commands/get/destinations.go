@@ -25,7 +25,7 @@ import (
 // DestinationsCommand returns the BindPlane get destinations cobra command
 func DestinationsCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "destinations [id]",
+		Use:     "destinations [name]",
 		Aliases: []string{"destination"},
 		Short:   "Displays the destinations",
 		Long:    `A destination is a service that receives logs, metrics, and traces.`,

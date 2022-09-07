@@ -25,7 +25,7 @@ import (
 // ProcessorsCommand returns the BindPlane get processors cobra command
 func ProcessorsCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "processors [id]",
+		Use:     "processors [name]",
 		Aliases: []string{"processor"},
 		Short:   "Displays the processors",
 		Long:    `A processor transforms logs, metrics, and traces.`,

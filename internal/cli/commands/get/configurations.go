@@ -26,7 +26,7 @@ import (
 // ConfigurationsCommand returns the BindPlane get configurations cobra command
 func ConfigurationsCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "configurations",
+		Use:     "configurations [name]",
 		Aliases: []string{"configuration", "configs", "config"},
 		Short:   "Displays the configurations",
 		Long:    "A configuration provides a complete agent configuration to ship logs metrics, and traces",

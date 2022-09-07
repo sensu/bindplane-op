@@ -26,7 +26,7 @@ import (
 // SourceTypesCommand returns the BindPlane get source-types cobra command
 func SourceTypesCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "source-types [id]",
+		Use:     "source-types [name]",
 		Aliases: []string{"source-type"},
 		Short:   "Displays the source types",
 		Long:    `A source type is a type of source that collects logs, metrics, and traces.`,

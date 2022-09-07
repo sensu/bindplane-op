@@ -25,7 +25,7 @@ import (
 // ProcessorTypesCommand returns the BindPlane get processor-types cobra command
 func ProcessorTypesCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "processor-types [id]",
+		Use:     "processor-types [name]",
 		Aliases: []string{"processor-type"},
 		Short:   "Displays the processor types",
 		Long:    `A processor type is a type of service that transforms logs, metrics, and traces.`,

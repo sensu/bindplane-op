@@ -25,7 +25,7 @@ import (
 // SourcesCommand returns the BindPlane get sources cobra command
 func SourcesCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "sources [id]",
+		Use:     "sources [name]",
 		Aliases: []string{"source"},
 		Short:   "Displays the sources",
 		Long:    `A source collects logs, metrics, and traces.`,

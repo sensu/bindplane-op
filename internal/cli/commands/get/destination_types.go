@@ -25,7 +25,7 @@ import (
 // DestinationTypesCommand returns the BindPlane get destination-types cobra command
 func DestinationTypesCommand(bindplane *cli.BindPlane) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "destination-types [id]",
+		Use:     "destination-types [name]",
 		Aliases: []string{"destination-type"},
 		Short:   "Displays the destination types",
 		Long:    `A destination type is a type of service that receives logs, metrics, and traces.`,
