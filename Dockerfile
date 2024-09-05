@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM debian:11.4-slim
+FROM debian:bullseye-20240904-slim
 
 ENV USER=bindplane
 ENV UID=10001
